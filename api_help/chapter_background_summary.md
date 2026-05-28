@@ -21,7 +21,7 @@
 | 生成提示词 | 诡异学校背景图，浓雾笼罩的旧式学校建筑，阴森恐怖氛围，昏暗的灯光，分裂的影子，超自然现象，恐怖游戏场景，高清，细节丰富，阴暗色调 |
 
 ### 生成的图片
-- **本地文件**: `D:\Users\viaco\tools\Toonflow-game\Toonflow-game-story\ai_story\我的诡异表妹\image\我的诡异表妹\chapter_1_background.jpg`
+- **本地文件**: `D:\Users\viaco\tools\Toonflow-game\Toonflow-game-story\{work_in_path}\我的诡异表妹\image\我的诡异表妹\chapter_1_background.jpg`
 
 ## 上传结果
 

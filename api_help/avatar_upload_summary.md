@@ -53,8 +53,8 @@
 
 ## 相关文件
 
-- **上传结果**: `D:\Users\viaco\tools\Toonflow-game\Toonflow-game-story\ai_story\我的诡异表妹\avatars\upload_results.json`
-- **更新结果**: `D:\Users\viaco\tools\Toonflow-game\Toonflow-game-story\ai_story\我的诡异表妹\avatars\world_update_result.json`
+- **上传结果**: `D:\Users\viaco\tools\Toonflow-game\Toonflow-game-story\{work_in_path}\我的诡异表妹\avatars\upload_results.json`
+- **更新结果**: `D:\Users\viaco\tools\Toonflow-game\Toonflow-game-story\{work_in_path}\我的诡异表妹\avatars\world_update_result.json`
 
 ## 注意事项
 

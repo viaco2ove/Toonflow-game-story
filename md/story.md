@@ -1,7 +1,7 @@
 示例：
 [story.exsample.md](exsample/story.exsample.md)
 # 故事名称：我的诡异表妹
-
+{worldId: 35}
 ## 世界观
 非常重要影响整个ai 故事
 这个时候最好说明一下等级称号，比如：
