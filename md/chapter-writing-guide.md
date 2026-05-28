@@ -1,3 +1,5 @@
+# 示例
+[chapter_1.md](chapter_1..exsample.md)
 # 章节内容编写指南
 
 > 来源：`CreatePage.vue` 组件中的 `chapterWritingGuideSections` 定义
