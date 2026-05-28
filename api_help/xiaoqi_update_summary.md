@@ -46,7 +46,7 @@
 
 ### 新增文件
 - `api_help/update_xiaoqi.py`：更新脚本
-- `ai_story/我的诡异表妹/avatars/xiaoqi.jpg`：新头像文件
+- `ai_story/我的诡异表妹/avatars/xiaoqi_new.jpg`：新头像文件
 
 ### 修改文件
 - `ai_story/我的诡异表妹/avatars/xiaoqi_old.png`：旧头像备份
