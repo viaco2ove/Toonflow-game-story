@@ -68,7 +68,7 @@ def main():
     
     # 1. 上传新的头像
     print("=== 1. 上传新的头像 ===")
-    new_avatar_path = os.path.join(AVATARS_DIR, "xiaoqi_new.jpg")
+    new_avatar_path = os.path.join(AVATARS_DIR, "xiaoqi.jpg")
     if not os.path.exists(new_avatar_path):
         print(f"错误: 新头像文件不存在: {new_avatar_path}")
         return
