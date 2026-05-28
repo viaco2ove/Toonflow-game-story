@@ -477,7 +477,7 @@ Token 有效期至 `1795462009`（Unix 秒，约 2026-11-24），过期后需重
 import urllib.request, json
 
 BASE_URL = "http://122.51.232.171:60002"
-TOKEN = "xxx"
+TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImFkbWluIiwiaWF0IjoxNzc5OTEwMDA5LCJleHAiOjE3OTU0NjIwMDl9.FlDWRs9KmFo97rt9sob8emsQC5IXdVUZTlvC6wXCNL8"
 
 def api_call(path, data):
     url = f"{BASE_URL}{path}"
@@ -598,11 +598,6 @@ for t in tasks:
 6. 生成角色语音（prompt_voice）
 
 ---
-
-## 接口
-[image_api](image_api)
-[voice_api](voice_api)
-[save_api](save_api)
 
 *文档版本：v1.0（2026-05-28）*
 *对应 toonflow-game-app 源码版本：基于 src/routes/game/ 整理*
