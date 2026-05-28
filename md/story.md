@@ -1,5 +1,5 @@
 示例：
-[story.exsample.md](story.exsample.md)
+[story.exsample.md](exsample/story.exsample.md)
 # 故事名称：我的诡异表妹
 
 ## 世界观
