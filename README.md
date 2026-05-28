@@ -1,5 +1,5 @@
 这个工作空间是用于协助 Toonflow Game 的 ai故事设计的
-
+可以通过workbuddy 等工具进行协助创建编辑ai故事。
 # "Toonflow Game"
 "Toonflow Game" 在Toonflow基础上进行的二度开发
  🚀 **多角色沉浸感ai故事游戏**: 体验沉浸式ai故事游戏，感受角色互动的魅力！
