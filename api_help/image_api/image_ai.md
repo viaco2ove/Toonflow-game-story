@@ -13,6 +13,9 @@ curl 'http://122.51.232.171:60002/game/generateImage' \
   --insecure
 
 ### 分离人体和背景。 在ai 故事里显示的是人体。
+方式1：直接图片转base64 ->separateRoleAvatar
+方式2：ai生图转base64 ->separateRoleAvatar
+
 curl 'http://122.51.232.171:60002/game/separateRoleAvatar' \
   -H 'Accept: application/json, text/plain, */*' \
   -H 'Accept-Language: zh-CN,zh;q=0.9' \
