@@ -602,6 +602,7 @@ for t in tasks:
 ## 接口
 [image_api](image_api)
 [voice_api](voice_api)
+[save_api](save_api)
 
 *文档版本：v1.0（2026-05-28）*
 *对应 toonflow-game-app 源码版本：基于 src/routes/game/ 整理*

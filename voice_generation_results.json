@@ -1,0 +1,86 @@
+{
+  "summary": {
+    "total": 11,
+    "success": 11,
+    "failed": 0
+  },
+  "results": [
+    {
+      "role_id": "npc_xiaoqi",
+      "role_name": "小七",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_sulaoshi",
+      "role_name": "苏老师",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_xiaozhang",
+      "role_name": "校长",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_liekounv",
+      "role_name": "裂口女",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_wumianren",
+      "role_name": "无面人",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_changfany",
+      "role_name": "长发女",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_liming",
+      "role_name": "李明",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_wangsiyuan",
+      "role_name": "王思远",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_zhaoxiaopang",
+      "role_name": "赵小胖",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_lurenjia",
+      "role_name": "路人甲",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    },
+    {
+      "role_id": "npc_changfav",
+      "role_name": "长发女",
+      "success": true,
+      "voice_id": "",
+      "voice_path": ""
+    }
+  ]
+}

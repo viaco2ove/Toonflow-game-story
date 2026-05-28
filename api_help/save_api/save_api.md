@@ -1,3 +1,4 @@
+# 注意worldId 一定要传，不然就成了创建了！！！！
 curl 'http://122.51.232.171:60002/game/saveChapter' \
   -H 'Accept: application/json, text/plain, */*' \
   -H 'Accept-Language: zh-CN,zh;q=0.9' \
