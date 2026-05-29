@@ -42,3 +42,6 @@ curl 'http://122.51.232.171:60002/game/saveWorld' \
 ### 例如:
 上传图片进行分离后(/game/separateRoleAvatar) getWorld时 这个角色的json 就会多了avatarSourcePath。
 ai生图(/game/generateImage->/game/separateRoleAvatar) getWorld时 这个角色的json 就会多了avatarSourcePath。avatarImagePrompt，如果有擦不参考图就会多了avatarReferringPath
+
+### 另外 avatarImagePrompt
+avatarImagePrompt 可以在saveWorld是 直接添加并不依赖“/game/generateImage”
