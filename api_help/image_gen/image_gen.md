@@ -5,7 +5,7 @@ image_gen_type: mmx/multimodal/imageGen/toonFlow
 
 ## 1. **mmx CLI**（你一直在用的）
 ```bash
-mmx -p "图片描述" --model base
+mmx image "图片描述" --n 1 --aspect-ratio 16:9
 ```
 - 直接命令行调用
 - 生成的是本地文件（`image_001.jpg` 等）
