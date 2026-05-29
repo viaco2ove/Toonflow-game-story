@@ -21,7 +21,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .env.development.local
 .env.test.local
 .env.production.local
-.env.local
+.env_file/.env.local
 
 # caches
 .eslintcache
@@ -61,3 +61,4 @@ run.local.ps1
 
 /.workbuddy/
 /ai_story/
+/.env_file/
