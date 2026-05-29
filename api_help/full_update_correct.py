@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-角色数据全面更新脚本
+角色数据更新脚本
 任务：
 1. 角色设定 - 从 MD 文件读取
 2. avatarImagePrompt - 从 MD 文件提取
 3. 头像上传和人体分离 - 上传本地头像 → separateRoleAvatar → 获取 sourcePath
-4. 音色提示词和音色文件生成 - 从 MD 文件提取 → 调用 generateBindingVoice
+4. 音色提示词 - 从 MD 文件提取（不自动生成音色文件）
 
 然后调用 saveWorld 保存所有数据
 """
@@ -43,10 +43,9 @@ SERVER_ROLE_IDS = {
     "路人甲": "npc_lurenjia",
 }
 
-# 角色名称到MD文件的映射
+# 注意：排除 role.list.md（目录文件）和 用户.md（playerRole单独处理）
 ROLE_NAME_TO_FILE = {
     "小七": "小七.md",
-    "许飞": "用户.md",  # 用户/许飞 使用同一文件
     "校长": "校长.md",
     "苏老师": "诡异美女老师.md",
     "裂口女": "诡异A（裂口女）.md",
@@ -58,7 +57,10 @@ ROLE_NAME_TO_FILE = {
     "路人甲": "路人甲.md",
 }
 
-# 角色名称到头像文件的映射
+# 注意：用户.md 是 playerRole，不是 NPC，不能添加到 ROLE_NAME_TO_FILE
+# playerRole 需要单独处理，通过 world_data["playerRole"] 字段
+
+# 角色名称到头像文件的映射（排除用户头像，不需要单独处理）
 ROLE_NAME_TO_AVATAR = {
     "小七": "xiaoqi.png",
     "苏老师": "sulaoshi.png",
@@ -70,7 +72,6 @@ ROLE_NAME_TO_AVATAR = {
     "王思远": "wangsiyuan.png",
     "赵小胖": "zhaoxiaopang.png",
     "路人甲": "lurenjia.png",
-    "用户": "xufei.png",
 }
 
 
@@ -279,11 +280,10 @@ def main():
         else:
             print(f"  ⚠ 头像文件不存在: {avatar_path}")
 
-        # 3. 生成音色
+        # 3. 音色提示词（不自动生成音色文件）
         voice_prompt = role_data.get("voicePromptText", "")
-        voice_update = {}
         if voice_prompt:
-            voice_update = generate_voice(role_id, voice_prompt)
+            print(f"  → 音色提示词已记录: {voice_prompt[:50]}...")
         else:
             print(f"  ⚠ 无音色提示词")
 
@@ -298,9 +298,8 @@ def main():
             "voiceMode": "prompt_voice",
             "voicePromptText": voice_prompt,
         }
-        # 合并头像和音色数据
+        # 合并头像数据
         update.update(avatar_update)
-        update.update(voice_update)
 
         all_updates.append(update)
 
