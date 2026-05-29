@@ -40,8 +40,8 @@ curl 'http://122.51.232.171:60002/game/saveWorld' \
 角色json参数增加了avatarImagePrompt:AI生图提示词,avatarSourcePath:AI生成后分离前的原图, avatarReferringPath:AI生图参考图
 
 ### 例如:
-上传图片进行分离后(/game/separateRoleAvatar) getWorld时 这个角色的json 就会多了avatarSourcePath。
-ai生图(/game/generateImage->/game/separateRoleAvatar) getWorld时 这个角色的json 就会多了avatarSourcePath。avatarImagePrompt，如果有擦不参考图就会多了avatarReferringPath
+上传图片进行分离后(/game/separateRoleAvatar) 返回的字段中sourcePath  saveWorld时设置到这个角色的json的avatarSourcePath。
+ai生图(/game/generateImage->/game/separateRoleAvatar) s返回的字段中sourcePath  saveWorld时设置到这个角色的json的 avatarSourcePath。avatarImagePrompt，如果有参考图 设置avatarReferringPath
 
 ### 另外 avatarImagePrompt
 avatarImagePrompt 可以在saveWorld是 直接添加并不依赖“/game/generateImage”
