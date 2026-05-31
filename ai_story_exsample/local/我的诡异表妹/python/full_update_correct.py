@@ -23,7 +23,7 @@ from pathlib import Path
 
 # 配置
 BASE_URL = "http://localhost:60002"
-TOKEN = "xxx"
+TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImFkbWluIiwiaWF0IjoxNzc5NjMwNTEzLCJleHAiOjE3OTUxODI1MTN9.dJ0NA2u3-NWFXzunM-uDoOBnI_7fgI3jWrypaK5FlDY"
 
 PROJECT_ID = 1
 WORLD_ID = 35

@@ -1,7 +1,7 @@
 import urllib.request, json, time
 
 url = 'http://122.51.232.171:60002/game/saveTask'
-token = '***REMOVED***'
+token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImFkbWluIiwiaWF0IjoxNzc5OTEwMDA5LCJleHAiOjE3OTU0NjIwMDl9.FlDWRs9KmFo97rt9sob8emsQC5IXdVUZTlvC6wXCNL8'
 chapter_id = 52
 
 headers = {
