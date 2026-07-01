@@ -3,7 +3,7 @@ from pathlib import Path
 
 # 配置
 BASE_URL = "http://122.51.232.171:60002"
-TOKEN = "***REMOVED***"
+TOKEN = "xxx"
 PROJECT_ID = 1
 WORLD_ID = 35
 AVATARS_DIR = "D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/ai_story/我的诡异表妹/avatars"

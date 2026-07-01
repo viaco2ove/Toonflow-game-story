@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # 配置
 BASE_URL = "http://122.51.232.171:60002"
-AUTH_TOKEN = "***REMOVED***"
+AUTH_TOKEN = "xxx"
 PROJECT_ID = 1
 WORLD_ID = 35
 ROLES_DIR = Path("/ai_story/171/我的诡异表妹/roles")

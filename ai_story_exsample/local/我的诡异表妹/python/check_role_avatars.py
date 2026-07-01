@@ -2,7 +2,7 @@ import urllib.request, json
 
 # 配置
 BASE_URL = "http://122.51.232.171:60002"
-TOKEN = "***REMOVED***"
+TOKEN = "xxx"
 WORLD_ID = 35
 
 def api_call(path, data):

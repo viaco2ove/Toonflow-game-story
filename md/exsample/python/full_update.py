@@ -24,7 +24,7 @@ from pathlib import Path
 BASE_URL = "http://122.51.232.171:60002"
 TOKEN = "xxx"
 PROJECT_ID = 1
-WORLD_ID = 36  # 已创建的世界36
+WORLD_ID = 36  # 目标世界36
 
 BASE_DIR = Path("D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/ai_story/171/破局-从冷落走到瞩目")
 ROLES_DIR = BASE_DIR / "roles"
@@ -452,7 +452,7 @@ def main():
                 if bg_path:
                     chapter_data["backgroundPath"] = bg_path
 
-            chapter_data["sort"] = i
+            chapter_data["sort"] = i  # 从0开始，与服务器一致
             # 通过标题匹配现有章节
             existing = existing_chapters_by_title.get(chapter_data.get("title", ""))
             existing_id = existing.get("id") if existing else None

@@ -3,7 +3,7 @@ from pathlib import Path
 
 # 配置
 BASE_URL = "http://122.51.232.171:60002"
-TOKEN = "***REMOVED***"
+TOKEN = "xxx"
 PROJECT_ID = 1
 WORLD_ID = 35
 CHAPTER_ID = 52  # 第一章
