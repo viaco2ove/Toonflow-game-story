@@ -22,7 +22,7 @@ from pathlib import Path
 
 # ============ 配置（从 .env 读取）============
 BASE_URL = "http://122.51.232.171:60002"
-TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImFkbWluIiwiaWF0IjoxNzc5OTEwMDA5LCJleHAiOjE3OTU0NjIwMDl9.FlDWRs9KmFo97rt9sob8emsQC5IXdVUZTlvC6wXCNL8"
+TOKEN = "xxx"
 PROJECT_ID = 1
 WORLD_ID = 36  # 已创建的世界36
 

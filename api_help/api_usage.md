@@ -477,7 +477,7 @@ Token 有效期至 `1795462009`（Unix 秒，约 2026-11-24），过期后需重
 import urllib.request, json
 
 BASE_URL = "http://122.51.232.171:60002"
-TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImFkbWluIiwiaWF0IjoxNzc5OTEwMDA5LCJleHAiOjE3OTU0NjIwMDl9.FlDWRs9KmFo97rt9sob8emsQC5IXdVUZTlvC6wXCNL8"
+TOKEN = "xxx"
 
 def api_call(path, data):
     url = f"{BASE_URL}{path}"
