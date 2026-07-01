@@ -22,7 +22,7 @@ from pathlib import Path
 
 # ============ 配置（从 .env 读取）============
 BASE_URL = "http://122.51.232.171:60002"
-TOKEN = "xxx"
+TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6ImFkbWluIiwiaWF0IjoxNzc5OTEwMDA5LCJleHAiOjE3OTU0NjIwMDl9.FlDWRs9KmFo97rt9sob8emsQC5IXdVUZTlvC6wXCNL8"
 PROJECT_ID = 1
 WORLD_ID = 36  # 已创建的世界36
 
@@ -63,13 +63,13 @@ ROLE_NAME_TO_FILE = {
     "顾子航": "顾子航.md",
     "顾父": "顾铭远(顾父).md",
     "顾母": "林雅芝(顾母).md",
-    "顾家大姐": "顾念卿(二姐).md",
+    "顾家大姐": "顾念瑶(大姐).md",
     "顾家二姐": "顾念卿(二姐).md",
     "顾家下人": "顾家下人.md",
     "温知予": "温知予.md",
-    "温父": "温建业.md",
+    "温父": "温父.md",
     "顾泽小弟": "陈浩(顾泽手下).md",
-    "白家千金": "白诗韵.md",
+    "白家千金": "白家千金.md",
     "路人甲": "路人甲.md",
 }
 
