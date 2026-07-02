@@ -69,3 +69,29 @@ mmx image generate `
 ### 豆包桌面程序
 直接发送图片，图像生成，输入
 生成图片：七分身，把多余的文字等去掉，正面照。保持衣服和形象。去掉多余的人。
+
+
+## 图生文
+### mmx
+然后minimax token plan 不包括视频，要用 账户钱包 里独立的api-key
+大概2块8 一个视频
+
+mmx auth login --api-key sk-api-xxxx
+```
+mmx video generate `
+  --prompt "动起来" `
+  --first-frame "C:/Users/viaco/.workbuddy/clipboard-images/clipboard-2026-07-01T14-44-43-179Z-a2483b97.jpg" `
+  --download "顾家大姐_test.mp4"
+```
+```
+mmx video generate `
+  --prompt "动起来" `
+  --first-frame ""D:\Users\viaco\tools\Toonflow-game\Toonflow-game-story\ai_story\171\破局-从冷落走到瞩目\avatars\温知予.png"" `
+  --download "wen_test.mp4"
+```
+
+### 豆包桌面程序
+
+### 其他
+- 貌似免费 veo3ai
+https://www.veo3ai.io/zh/image-to-video
