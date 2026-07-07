@@ -54,3 +54,8 @@ discord.gg/hcQxUWgDVq
 1. **从 Chub.ai 下载的 PNG** → 直接拖进 sillytavern.one 的 SillyTavern Pro 或本地 SillyTavern → 正常使用
 2. **从 sillytavern.one 下载的 PNG** → 直接导入 Chub.ai 或本地 SillyTavern → 正常使用
 3. **唯一的坑**：下载时一定要用「Download」按钮直接保存，不要右键另存预览图——否则 PNG 的 tEXt chunk 可能在 CDN 优化中被丢掉，导致卡变成纯图片
+
+# ai 故事与角色卡
+首先是各种角色可以转化为角色卡
+然后是故事本身就算角色卡+世界书。
+
