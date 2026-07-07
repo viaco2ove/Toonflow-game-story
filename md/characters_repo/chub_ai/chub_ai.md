@@ -70,7 +70,7 @@ curl 'https://gateway.chub.ai/api/core/characters' \
 
 
 ## 上传图片（Full image，角色的头像）
-curl 'https://gateway.chub.ai/api/core/characters/***REMOVED***/gu-zi-hang-b1c8d158442d' \
+curl 'https://gateway.chub.ai/api/core/characters/{username}/gu-zi-hang-b1c8d158442d' \
   -X 'PUT' \
   -H 'accept: */*' \
   -H 'accept-language: zh-CN,zh;q=0.9' \
@@ -78,7 +78,7 @@ curl 'https://gateway.chub.ai/api/core/characters/***REMOVED***/gu-zi-hang-b1c8d
   -H 'content-type: application/json' \
   -H 'origin: https://chub.ai' \
   -H 'priority: u=1, i' \
-  -H 'referer: https://chub.ai/edit_character/***REMOVED***/gu-zi-hang-b1c8d158442d' \
+  -H 'referer: https://chub.ai/edit_character/{username}/gu-zi-hang-b1c8d158442d' \
   -H 'samwise: ***REMOVED***' \
   -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"' \
   -H 'sec-ch-ua-mobile: ?0' \
@@ -100,7 +100,7 @@ curl 'https://gateway.chub.ai/api/project/7353948/metadata' \
   -H 'content-type: application/json' \
   -H 'origin: https://chub.ai' \
   -H 'priority: u=1, i' \
-  -H 'referer: https://chub.ai/edit_character/***REMOVED***/gu-zi-hang-b1c8d158442d' \
+  -H 'referer: https://chub.ai/edit_character/{username}/gu-zi-hang-b1c8d158442d' \
   -H 'samwise: ***REMOVED***' \
   -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"' \
   -H 'sec-ch-ua-mobile: ?0' \
@@ -214,14 +214,14 @@ curl 'https://gateway.chub.ai/api/project/xxxx/gu-zi-hang-d55b6786b875' \
 ## 某个作者的角色列表
 https://chub.ai/users/{username}
 
-curl 'https://ro.chub.ai/search?first=50&namespace=characters&nsfw=true&nsfl=true&chub=true&count=false&topics=&exclude_mine=true&include_forks=true&sort=created_at&search=&username=***REMOVED***&my_favorites=false&min_tokens=0&page=1&bypass=true' \
+curl 'https://ro.chub.ai/search?first=50&namespace=characters&nsfw=true&nsfl=true&chub=true&count=false&topics=&exclude_mine=true&include_forks=true&sort=created_at&search=&username={username}&my_favorites=false&min_tokens=0&page=1&bypass=true' \
   -H 'accept: */*' \
   -H 'accept-language: zh-CN,zh;q=0.9' \
   -H 'ch-api-key: $samwise' \
   -H 'content-type: application/json' \
   -H 'origin: https://chub.ai' \
   -H 'priority: u=1, i' \
-  -H 'referer: https://chub.ai/users/***REMOVED***' \
+  -H 'referer: https://chub.ai/users/{username}' \
   -H 'samwise: $samwise' \
   -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"' \
   -H 'sec-ch-ua-mobile: ?0' \
