@@ -1,0 +1,151 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link "← 返回卡库" [ref=e3] [cursor=pointer]:
+      - /url: javascript:history.back()
+    - link "🎴 SillyTavern Pro 角色卡库" [ref=e4] [cursor=pointer]:
+      - /url: /
+    - link "登录" [ref=e6] [cursor=pointer]:
+      - /url: /auth/login
+  - generic [ref=e10]:
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e14]: 🚀 让这个角色更聪明？
+        - generic [ref=e15]: 注册即可免费和TA聊天！支持 Gemini / Claude / GPT 等300+个AI模型，无需部署
+      - link "💬 免费和TA开始聊天" [ref=e16] [cursor=pointer]:
+        - /url: https://sillytavern.one/register?from=card_detail
+    - generic [ref=e17]:
+      - heading "顾子航" [level=2] [ref=e18]
+      - generic [ref=e19]:
+        - generic [ref=e20]: NSFW
+        - generic [ref=e21]: 原创
+      - generic [ref=e22]: "顾家养子，十六年前被顾家护士狸猫换太子顶替了顾泽的位置。表面温润如玉、知书达理，实则心机深沉、睚眦必报。在学校里拉帮结派组建'少爷团'，不断设计陷害顾泽。被揭穿时会装可怜博取同情，是顾泽逆袭路上最大的绊脚石。 顾家养子，十六年前被顾家护士狸猫换太子顶替了顾泽的位置。表面温润如玉、知书达理，实则心机深沉、睚眦必报。为了保住自己在顾家的地位，不断设计陷害顾泽，是顾泽逆袭路上最大的绊脚石。在学校里拉帮结派，组建\"少爷团\"疯狂打压顾泽。 性别: 男 年龄: 18 性格: 表面温润有礼、阳光开朗、惹人怜爱，实则阴险狡诈、心机深沉、极度自私。对顾家父母极尽讨好，对顾泽表面客气实则暗中使绊子。被揭穿时会装可怜博取同情，演技堪称影帝级别。 外貌: 长相清秀温和，皮肤白皙，眼睛明亮有神，笑起来给人如沐春风的感觉。穿着得体时尚，浑身上下都是名牌，一看就是被富养长大的少爷。 音色特点: 声音温润清朗，语气柔和亲切，说话语速适中，善于用恳求和撒娇的语气。装可怜时声音带着哽咽和颤抖，让人忍不住想要保护。 技能: 演技派(lv5)，拉帮结派(lv4)，见风使舵(lv4)，栽赃陷害(lv3) 物品: 限量版手机，名牌手表 装备: 无 等级: 1 血量: 80 蓝量: 30 金钱: 10000 其他: 实际是人贩子头目的儿子（前期其他人不知道），强迫顾母当作领养回去的养子养大，十六年前被故意与顾泽互换。"
+      - generic [ref=e23]:
+        - generic [ref=e24]: 女性向
+        - generic [ref=e25]: 人类
+        - generic [ref=e26]: 现代都市
+        - generic [ref=e27]: 剧情向
+        - generic [ref=e28]: 校园青春
+      - heading "顾子航 - sillytavern角色卡 酒馆角色卡 AI角色扮演" [level=1] [ref=e29]
+      - generic [ref=e30]: 作者：***REMOVED*** | 添加于 2026-07-07
+      - generic [ref=e31]:
+        - link "❤️ 登录后点赞" [ref=e32] [cursor=pointer]:
+          - /url: /auth/login
+        - generic [ref=e33]: "0"
+        - button "🔗 分享" [ref=e34] [cursor=pointer]
+      - generic [ref=e35]:
+        - generic [ref=e36]: 50赞=300积分
+        - generic [ref=e37]: 100赞=800积分
+        - generic [ref=e38]: 300赞=3000积分
+      - link "🔐 登录后导入" [ref=e40] [cursor=pointer]:
+        - /url: /auth/login
+    - generic [ref=e41]:
+      - heading "💬 评论" [level=3] [ref=e42]
+      - paragraph [ref=e43]:
+        - link "登录" [ref=e44] [cursor=pointer]:
+          - /url: /auth/login
+        - text: 后可以评论
+  - generic [ref=e45]:
+    - heading "🎭 相关角色推荐" [level=2] [ref=e46]
+    - generic [ref=e47]:
+      - link "你的前恶霸想成为你的男朋友 |黑羽彼方 你的前恶霸想成为你的男朋友 |黑羽彼方" [ref=e48] [cursor=pointer]:
+        - /url: /card/your-former-bully-wants-to-be-your-boyfriend-kanat-mnq1fq1n
+        - img "你的前恶霸想成为你的男朋友 |黑羽彼方" [ref=e49]
+        - paragraph [ref=e51]: 你的前恶霸想成为你的男朋友 |黑羽彼方
+      - link "青山丽奈 |期望的重量 青山丽奈 |期望的重量" [ref=e52] [cursor=pointer]:
+        - /url: /card/reina-aoyama-the-weight-of-expectations
+        - img "青山丽奈 |期望的重量" [ref=e53]
+        - paragraph [ref=e55]: 青山丽奈 |期望的重量
+      - link "顾子航 顾子航" [ref=e56] [cursor=pointer]:
+        - /url: /card/顾子航-0cd69c
+        - img "顾子航" [ref=e57]
+        - paragraph [ref=e59]: 顾子航
+      - link "顾子航 顾子航" [ref=e60] [cursor=pointer]:
+        - /url: /card/顾子航-6ca2c4
+        - img "顾子航" [ref=e61]
+        - paragraph [ref=e63]: 顾子航
+      - link "臭脚帝国 臭脚帝国 🔥 热门" [ref=e64] [cursor=pointer]:
+        - /url: /card/local-臭脚帝国-0740b4
+        - img "臭脚帝国" [ref=e65]
+        - generic [ref=e66]:
+          - paragraph [ref=e67]: 臭脚帝国
+          - paragraph [ref=e68]: 🔥 热门
+      - link "大淫帝国（天龙人版） 大淫帝国（天龙人版） 🔥 热门" [ref=e69] [cursor=pointer]:
+        - /url: /card/local-大淫帝国-天龙人版-86eeb2
+        - img "大淫帝国（天龙人版）" [ref=e70]
+        - generic [ref=e71]:
+          - paragraph [ref=e72]: 大淫帝国（天龙人版）
+          - paragraph [ref=e73]: 🔥 热门
+  - generic [ref=e74]:
+    - heading "📚 ***REMOVED*** 的其他角色卡" [level=2] [ref=e75]
+    - generic [ref=e76]:
+      - link "顾子航 顾子航" [ref=e77] [cursor=pointer]:
+        - /url: /card/顾子航-0cd69c
+        - img "顾子航" [ref=e78]
+        - paragraph [ref=e80]: 顾子航
+      - link "顾子航 顾子航" [ref=e81] [cursor=pointer]:
+        - /url: /card/顾子航-6ca2c4
+        - img "顾子航" [ref=e82]
+        - paragraph [ref=e84]: 顾子航
+  - generic [ref=e85]:
+    - heading "🔥 本周热门 角色卡推荐" [level=2] [ref=e86]
+    - generic [ref=e87]:
+      - link "全球冰封：我打造了末日安全屋 全球冰封：我打造了末日安全屋 🔥 爆款" [ref=e88] [cursor=pointer]:
+        - /url: /card/全球冰封-我打造了末日安全屋-6a6a46
+        - img "全球冰封：我打造了末日安全屋" [ref=e89]
+        - generic [ref=e90]:
+          - paragraph [ref=e91]: 全球冰封：我打造了末日安全屋
+          - paragraph [ref=e92]: 🔥 爆款
+      - link "相亲模拟器 相亲模拟器 🔥 爆款" [ref=e93] [cursor=pointer]:
+        - /url: /card/相亲模拟器-ca6135
+        - img "相亲模拟器" [ref=e94]
+        - generic [ref=e95]:
+          - paragraph [ref=e96]: 相亲模拟器
+          - paragraph [ref=e97]: 🔥 爆款
+      - link "【华娱之软饭王】 【华娱之软饭王】 🔥 爆款" [ref=e98] [cursor=pointer]:
+        - /url: /card/华娱之软饭王-fd0b4f
+        - img "【华娱之软饭王】" [ref=e99]
+        - generic [ref=e100]:
+          - paragraph [ref=e101]: 【华娱之软饭王】
+          - paragraph [ref=e102]: 🔥 爆款
+      - link "无职转生 RPG + 世界书——中文版—— 无职转生 RPG + 世界书——中文版—— 🔥 爆款" [ref=e103] [cursor=pointer]:
+        - /url: /card/无职转生-rpg-世界书-中文版
+        - img "无职转生 RPG + 世界书——中文版——" [ref=e104]
+        - generic [ref=e105]:
+          - paragraph [ref=e106]: 无职转生 RPG + 世界书——中文版——
+          - paragraph [ref=e107]: 🔥 爆款
+      - link "【末世房车】 【末世房车】 🔥 爆款" [ref=e108] [cursor=pointer]:
+        - /url: /card/末世房车-9d0981
+        - img "【末世房车】" [ref=e109]
+        - generic [ref=e110]:
+          - paragraph [ref=e111]: 【末世房车】
+          - paragraph [ref=e112]: 🔥 爆款
+      - link "古武：穿越舔狗大师兄的复仇之旅，失去的我终将拿回来 古武：穿越舔狗大师兄的复仇之旅，失去的我终将拿回来 🔥 爆款" [ref=e113] [cursor=pointer]:
+        - /url: /card/古武-穿越舔狗大师兄的复仇之旅-失去的我终将拿回来-a913db
+        - img "古武：穿越舔狗大师兄的复仇之旅，失去的我终将拿回来" [ref=e114]
+        - generic [ref=e115]:
+          - paragraph [ref=e116]: 古武：穿越舔狗大师兄的复仇之旅，失去的我终将拿回来
+          - paragraph [ref=e117]: 🔥 爆款
+  - generic [ref=e118]:
+    - heading "关于这张酒馆角色卡的常见问题" [level=2] [ref=e119]
+    - group [ref=e120]:
+      - generic "如何使用 顾子航 这张角色卡？" [ref=e121] [cursor=pointer]
+    - group [ref=e122]:
+      - generic "支持哪些 AI 模型？" [ref=e123] [cursor=pointer]
+    - group [ref=e124]:
+      - generic "这张卡完全免费吗？" [ref=e125] [cursor=pointer]
+  - generic [ref=e126]:
+    - paragraph [ref=e127]:
+      - strong [ref=e128]: 📌 免责声明
+    - paragraph [ref=e129]:
+      - text: 本角色卡为用户上传的
+      - strong [ref=e130]: 虚构文学创作素材
+      - text: ，所有角色均为虚构成年角色。本平台仅提供存储和分享服务，不对内容真实性、合法性负责。
+    - paragraph [ref=e131]:
+      - text: 下载或使用本卡片即表示您已阅读并同意本平台
+      - link "《用户协议》" [ref=e132] [cursor=pointer]:
+        - /url: https://sillytavern.one/terms
+      - text: ，承诺不用于违法用途，并对您的使用行为承担全部法律责任。
+    - paragraph [ref=e133]:
+      - text: 📧 发现违规、侵权内容请举报：
+      - link "stpro@stavern.one" [ref=e134] [cursor=pointer]:
+        - /url: mailto:stpro@stavern.one

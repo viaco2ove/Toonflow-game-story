@@ -1,0 +1,789 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - link "🎴 SillyTavern Pro 角色卡库" [ref=e3] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e4]:
+      - link "📢 公告" [ref=e5] [cursor=pointer]:
+        - /url: /announcements
+      - link "登录" [ref=e6] [cursor=pointer]:
+        - /url: /auth/login
+  - generic [ref=e7]:
+    - link "🏠 主站官网" [ref=e8] [cursor=pointer]:
+      - /url: https://sillytavern.one/welcome
+    - link "✨ 免费注册" [ref=e9] [cursor=pointer]:
+      - /url: https://sillytavern.one/register
+    - link "📋 预设分享" [ref=e10] [cursor=pointer]:
+      - /url: https://presets.sillytavern.one/
+  - generic [ref=e11]:
+    - generic [ref=e12]:
+      - link "📋 转载分享" [ref=e13] [cursor=pointer]:
+        - /url: /?type=repost&sort=random
+      - link "⭐ 原创作品" [ref=e14] [cursor=pointer]:
+        - /url: /?type=original&sort=random
+      - link "📦 全部" [ref=e15] [cursor=pointer]:
+        - /url: /?sort=random
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - textbox "搜索角色卡..." [ref=e18]
+        - combobox [ref=e19]:
+          - option "🎲 随机推荐" [selected]
+          - option "🕐 最新上传"
+          - option "🔥 下载热度"
+          - option "👁 浏览最多"
+          - option "📅 最早上传"
+        - button "🔍 搜索" [ref=e20] [cursor=pointer]
+        - generic [ref=e21] [cursor=pointer]:
+          - checkbox "🔞 显示NSFW" [ref=e22]
+          - generic [ref=e23]: 🔞 显示NSFW
+      - generic [ref=e24]:
+        - link "全部" [ref=e25] [cursor=pointer]:
+          - /url: /?sort=random&type=all
+        - link "女性向 (17736)" [ref=e26] [cursor=pointer]:
+          - /url: /?tag=%E5%A5%B3%E6%80%A7%E5%90%91&sort=random&type=all
+        - link "男性向 (13801)" [ref=e27] [cursor=pointer]:
+          - /url: /?tag=%E7%94%B7%E6%80%A7%E5%90%91&sort=random&type=all
+        - link "强势 (10412)" [ref=e28] [cursor=pointer]:
+          - /url: /?tag=%E5%BC%BA%E5%8A%BF&sort=random&type=all
+        - link "原创 (10167)" [ref=e29] [cursor=pointer]:
+          - /url: /?tag=%E5%8E%9F%E5%88%9B&sort=random&type=all
+        - link "恋爱日常 (10032)" [ref=e30] [cursor=pointer]:
+          - /url: /?tag=%E6%81%8B%E7%88%B1%E6%97%A5%E5%B8%B8&sort=random&type=all
+        - link "人类 (8493)" [ref=e31] [cursor=pointer]:
+          - /url: /?tag=%E4%BA%BA%E7%B1%BB&sort=random&type=all
+        - link "角色扮演 (8109)" [ref=e32] [cursor=pointer]:
+          - /url: /?tag=%E8%A7%92%E8%89%B2%E6%89%AE%E6%BC%94&sort=random&type=all
+        - link "剧情向 (6281)" [ref=e33] [cursor=pointer]:
+          - /url: /?tag=%E5%89%A7%E6%83%85%E5%90%91&sort=random&type=all
+        - link "萌系 (5861)" [ref=e34] [cursor=pointer]:
+          - /url: /?tag=%E8%90%8C%E7%B3%BB&sort=random&type=all
+        - link "黑暗 (5146)" [ref=e35] [cursor=pointer]:
+          - /url: /?tag=%E9%BB%91%E6%9A%97&sort=random&type=all
+        - link "柔顺 (4765)" [ref=e36] [cursor=pointer]:
+          - /url: /?tag=%E6%9F%94%E9%A1%BA&sort=random&type=all
+        - link "玄幻奇幻 (4411)" [ref=e37] [cursor=pointer]:
+          - /url: /?tag=%E7%8E%84%E5%B9%BB%E5%A5%87%E5%B9%BB&sort=random&type=all
+        - link "游戏衍生 (4147)" [ref=e38] [cursor=pointer]:
+          - /url: /?tag=%E6%B8%B8%E6%88%8F%E8%A1%8D%E7%94%9F&sort=random&type=all
+        - link "二次元 (3980)" [ref=e39] [cursor=pointer]:
+          - /url: /?tag=%E4%BA%8C%E6%AC%A1%E5%85%83&sort=random&type=all
+        - link "全性向 (3770)" [ref=e40] [cursor=pointer]:
+          - /url: /?tag=%E5%85%A8%E6%80%A7%E5%90%91&sort=random&type=all
+        - link "冒险战斗 (3119)" [ref=e41] [cursor=pointer]:
+          - /url: /?tag=%E5%86%92%E9%99%A9%E6%88%98%E6%96%97&sort=random&type=all
+        - link "魔物娘 (2658)" [ref=e42] [cursor=pointer]:
+          - /url: /?tag=%E9%AD%94%E7%89%A9%E5%A8%98&sort=random&type=all
+        - link "兽人 (2270)" [ref=e43] [cursor=pointer]:
+          - /url: /?tag=%E5%85%BD%E4%BA%BA&sort=random&type=all
+        - link "群像 (1719)" [ref=e44] [cursor=pointer]:
+          - /url: /?tag=%E7%BE%A4%E5%83%8F&sort=random&type=all
+        - link "成熟 (1623)" [ref=e45] [cursor=pointer]:
+          - /url: /?tag=%E6%88%90%E7%86%9F&sort=random&type=all
+        - link "御姐 (1453)" [ref=e46] [cursor=pointer]:
+          - /url: /?tag=%E5%BE%A1%E5%A7%90&sort=random&type=all
+        - link "机娘机器人 (1330)" [ref=e47] [cursor=pointer]:
+          - /url: /?tag=%E6%9C%BA%E5%A8%98%E6%9C%BA%E5%99%A8%E4%BA%BA&sort=random&type=all
+        - link "动漫衍生 (1257)" [ref=e48] [cursor=pointer]:
+          - /url: /?tag=%E5%8A%A8%E6%BC%AB%E8%A1%8D%E7%94%9F&sort=random&type=all
+        - link "跑团兵棋 (1184)" [ref=e49] [cursor=pointer]:
+          - /url: /?tag=%E8%B7%91%E5%9B%A2%E5%85%B5%E6%A3%8B&sort=random&type=all
+        - link "治愈 (1111)" [ref=e50] [cursor=pointer]:
+          - /url: /?tag=%E6%B2%BB%E6%84%88&sort=random&type=all
+        - link "校园青春 (1075)" [ref=e51] [cursor=pointer]:
+          - /url: /?tag=%E6%A0%A1%E5%9B%AD%E9%9D%92%E6%98%A5&sort=random&type=all
+        - link "恐怖惊悚 (1064)" [ref=e52] [cursor=pointer]:
+          - /url: /?tag=%E6%81%90%E6%80%96%E6%83%8A%E6%82%9A&sort=random&type=all
+        - link "沙雕搞笑 (1045)" [ref=e53] [cursor=pointer]:
+          - /url: /?tag=%E6%B2%99%E9%9B%95%E6%90%9E%E7%AC%91&sort=random&type=all
+        - link "魔族 (1006)" [ref=e54] [cursor=pointer]:
+          - /url: /?tag=%E9%AD%94%E6%97%8F&sort=random&type=all
+        - link "异世界 (944)" [ref=e55] [cursor=pointer]:
+          - /url: /?tag=%E5%BC%82%E4%B8%96%E7%95%8C&sort=random&type=all
+        - link "科幻 (898)" [ref=e56] [cursor=pointer]:
+          - /url: /?tag=%E7%A7%91%E5%B9%BB&sort=random&type=all
+        - link "影视衍生 (860)" [ref=e57] [cursor=pointer]:
+          - /url: /?tag=%E5%BD%B1%E8%A7%86%E8%A1%8D%E7%94%9F&sort=random&type=all
+        - link "双性 (788)" [ref=e58] [cursor=pointer]:
+          - /url: /?tag=%E5%8F%8C%E6%80%A7&sort=random&type=all
+        - link "反派 (704)" [ref=e59] [cursor=pointer]:
+          - /url: /?tag=%E5%8F%8D%E6%B4%BE&sort=random&type=all
+        - link "精灵 (687)" [ref=e60] [cursor=pointer]:
+          - /url: /?tag=%E7%B2%BE%E7%81%B5&sort=random&type=all
+        - link "现代都市 (583)" [ref=e61] [cursor=pointer]:
+          - /url: /?tag=%E7%8E%B0%E4%BB%A3%E9%83%BD%E5%B8%82&sort=random&type=all
+        - link "治愈温馨 (436)" [ref=e62] [cursor=pointer]:
+          - /url: /?tag=%E6%B2%BB%E6%84%88%E6%B8%A9%E9%A6%A8&sort=random&type=all
+        - link "古风古代 (367)" [ref=e63] [cursor=pointer]:
+          - /url: /?tag=%E5%8F%A4%E9%A3%8E%E5%8F%A4%E4%BB%A3&sort=random&type=all
+        - link "悬疑推理 (352)" [ref=e64] [cursor=pointer]:
+          - /url: /?tag=%E6%82%AC%E7%96%91%E6%8E%A8%E7%90%86&sort=random&type=all
+        - link "致郁 (352)" [ref=e65] [cursor=pointer]:
+          - /url: /?tag=%E8%87%B4%E9%83%81&sort=random&type=all
+        - link "历史 (332)" [ref=e66] [cursor=pointer]:
+          - /url: /?tag=%E5%8E%86%E5%8F%B2&sort=random&type=all
+        - link "武侠仙侠 (308)" [ref=e67] [cursor=pointer]:
+          - /url: /?tag=%E6%AD%A6%E4%BE%A0%E4%BB%99%E4%BE%A0&sort=random&type=all
+        - link "神族 (290)" [ref=e68] [cursor=pointer]:
+          - /url: /?tag=%E7%A5%9E%E6%97%8F&sort=random&type=all
+        - link "末世废土 (263)" [ref=e69] [cursor=pointer]:
+          - /url: /?tag=%E6%9C%AB%E4%B8%96%E5%BA%9F%E5%9C%9F&sort=random&type=all
+        - link "耽美BL (244)" [ref=e70] [cursor=pointer]:
+          - /url: /?tag=%E8%80%BD%E7%BE%8EBL&sort=random&type=all
+        - link "战争 (151)" [ref=e71] [cursor=pointer]:
+          - /url: /?tag=%E6%88%98%E4%BA%89&sort=random&type=all
+        - link "百合GL (141)" [ref=e72] [cursor=pointer]:
+          - /url: /?tag=%E7%99%BE%E5%90%88GL&sort=random&type=all
+        - link "原神 (138)" [ref=e73] [cursor=pointer]:
+          - /url: /?tag=%E5%8E%9F%E7%A5%9E&sort=random&type=all
+        - link "少年 (106)" [ref=e74] [cursor=pointer]:
+          - /url: /?tag=%E5%B0%91%E5%B9%B4&sort=random&type=all
+        - link "女性 (106)" [ref=e75] [cursor=pointer]:
+          - /url: /?tag=%E5%A5%B3%E6%80%A7&sort=random&type=all
+        - link "龙族 (105)" [ref=e76] [cursor=pointer]:
+          - /url: /?tag=%E9%BE%99%E6%97%8F&sort=random&type=all
+        - link "沙盒模拟 (94)" [ref=e77] [cursor=pointer]:
+          - /url: /?tag=%E6%B2%99%E7%9B%92%E6%A8%A1%E6%8B%9F&sort=random&type=all
+        - link "火影忍者 (91)" [ref=e78] [cursor=pointer]:
+          - /url: /?tag=%E7%81%AB%E5%BD%B1%E5%BF%8D%E8%80%85&sort=random&type=all
+        - link "后宫 (88)" [ref=e79] [cursor=pointer]:
+          - /url: /?tag=%E5%90%8E%E5%AE%AB&sort=random&type=all
+        - link "职场办公 (85)" [ref=e80] [cursor=pointer]:
+          - /url: /?tag=%E8%81%8C%E5%9C%BA%E5%8A%9E%E5%85%AC&sort=random&type=all
+        - link "哈利波特 (81)" [ref=e81] [cursor=pointer]:
+          - /url: /?tag=%E5%93%88%E5%88%A9%E6%B3%A2%E7%89%B9&sort=random&type=all
+        - link "赛博朋克 (81)" [ref=e82] [cursor=pointer]:
+          - /url: /?tag=%E8%B5%9B%E5%8D%9A%E6%9C%8B%E5%85%8B&sort=random&type=all
+        - link "海贼王 (75)" [ref=e83] [cursor=pointer]:
+          - /url: /?tag=%E6%B5%B7%E8%B4%BC%E7%8E%8B&sort=random&type=all
+        - link "史诗 (73)" [ref=e84] [cursor=pointer]:
+          - /url: /?tag=%E5%8F%B2%E8%AF%97&sort=random&type=all
+        - link "明日方舟 (71)" [ref=e85] [cursor=pointer]:
+          - /url: /?tag=%E6%98%8E%E6%97%A5%E6%96%B9%E8%88%9F&sort=random&type=all
+        - link "文学衍生 (71)" [ref=e86] [cursor=pointer]:
+          - /url: /?tag=%E6%96%87%E5%AD%A6%E8%A1%8D%E7%94%9F&sort=random&type=all
+        - link "碧蓝航线 (65)" [ref=e87] [cursor=pointer]:
+          - /url: /?tag=%E7%A2%A7%E8%93%9D%E8%88%AA%E7%BA%BF&sort=random&type=all
+        - link "同人 (64)" [ref=e88] [cursor=pointer]:
+          - /url: /?tag=%E5%90%8C%E4%BA%BA&sort=random&type=all
+        - link "进击的巨人 (61)" [ref=e89] [cursor=pointer]:
+          - /url: /?tag=%E8%BF%9B%E5%87%BB%E7%9A%84%E5%B7%A8%E4%BA%BA&sort=random&type=all
+        - link "都市 (55)" [ref=e90] [cursor=pointer]:
+          - /url: /?tag=%E9%83%BD%E5%B8%82&sort=random&type=all
+        - link "咒术回战 (46)" [ref=e91] [cursor=pointer]:
+          - /url: /?tag=%E5%92%92%E6%9C%AF%E5%9B%9E%E6%88%98&sort=random&type=all
+        - link "系统 (46)" [ref=e92] [cursor=pointer]:
+          - /url: /?tag=%E7%B3%BB%E7%BB%9F&sort=random&type=all
+        - link "崩坏星穹铁道 (43)" [ref=e93] [cursor=pointer]:
+          - /url: /?tag=%E5%B4%A9%E5%9D%8F%E6%98%9F%E7%A9%B9%E9%93%81%E9%81%93&sort=random&type=all
+        - link "我的英雄学院 (39)" [ref=e94] [cursor=pointer]:
+          - /url: /?tag=%E6%88%91%E7%9A%84%E8%8B%B1%E9%9B%84%E5%AD%A6%E9%99%A2&sort=random&type=all
+        - link "鬼灭之刃 (37)" [ref=e95] [cursor=pointer]:
+          - /url: /?tag=%E9%AC%BC%E7%81%AD%E4%B9%8B%E5%88%83&sort=random&type=all
+        - link "爽文 (37)" [ref=e96] [cursor=pointer]:
+          - /url: /?tag=%E7%88%BD%E6%96%87&sort=random&type=all
+        - link "穿越 (36)" [ref=e97] [cursor=pointer]:
+          - /url: /?tag=%E7%A9%BF%E8%B6%8A&sort=random&type=all
+        - link "崩坏3 (33)" [ref=e98] [cursor=pointer]:
+          - /url: /?tag=%E5%B4%A9%E5%9D%8F3&sort=random&type=all
+        - link "神话 (32)" [ref=e99] [cursor=pointer]:
+          - /url: /?tag=%E7%A5%9E%E8%AF%9D&sort=random&type=all
+        - link "斗破苍穹 (32)" [ref=e100] [cursor=pointer]:
+          - /url: /?tag=%E6%96%97%E7%A0%B4%E8%8B%8D%E7%A9%B9&sort=random&type=all
+        - link "民俗 (30)" [ref=e101] [cursor=pointer]:
+          - /url: /?tag=%E6%B0%91%E4%BF%97&sort=random&type=all
+    - generic [ref=e103]: 第 1/206 页
+    - generic [ref=e104]:
+      - generic [ref=e105]:
+        - heading "🔥 本周热门" [level=3] [ref=e106]
+        - link "查看更多 →" [ref=e107] [cursor=pointer]:
+          - /url: /?sort=downloads
+      - generic [ref=e108]:
+        - link "全球冰封：我打造了末日安全屋 全球冰封：我打造了末日安全屋" [ref=e109] [cursor=pointer]:
+          - /url: /card/全球冰封-我打造了末日安全屋-6a6a46
+          - img "全球冰封：我打造了末日安全屋" [ref=e110]
+          - generic [ref=e111]: 全球冰封：我打造了末日安全屋
+        - link "【华娱之软饭王】 【华娱之软饭王】" [ref=e112] [cursor=pointer]:
+          - /url: /card/华娱之软饭王-fd0b4f
+          - img "【华娱之软饭王】" [ref=e113]
+          - generic [ref=e114]: 【华娱之软饭王】
+        - link "相亲模拟器 相亲模拟器" [ref=e115] [cursor=pointer]:
+          - /url: /card/相亲模拟器-ca6135
+          - img "相亲模拟器" [ref=e116]
+          - generic [ref=e117]: 相亲模拟器
+        - link "无职转生 RPG + 世界书——中文版—— 无职转生 RPG + 世界书——中文版——" [ref=e118] [cursor=pointer]:
+          - /url: /card/无职转生-rpg-世界书-中文版
+          - img "无职转生 RPG + 世界书——中文版——" [ref=e119]
+          - generic [ref=e120]: 无职转生 RPG + 世界书——中文版——
+        - link "古武：穿越舔狗大师兄的复仇之旅，失去的我终将拿回来 古武：穿越舔狗大师兄的复仇之旅，失去的我终将拿回来" [ref=e121] [cursor=pointer]:
+          - /url: /card/古武-穿越舔狗大师兄的复仇之旅-失去的我终将拿回来-a913db
+          - img "古武：穿越舔狗大师兄的复仇之旅，失去的我终将拿回来" [ref=e122]
+          - generic [ref=e123]: 古武：穿越舔狗大师兄的复仇之旅，失去的我终将拿回来
+        - link "【末世房车】 【末世房车】" [ref=e124] [cursor=pointer]:
+          - /url: /card/末世房车-9d0981
+          - img "【末世房车】" [ref=e125]
+          - generic [ref=e126]: 【末世房车】
+        - link "郑怡云 郑怡云" [ref=e127] [cursor=pointer]:
+          - /url: /card/郑怡云-a81b54
+          - img "郑怡云" [ref=e128]
+          - generic [ref=e129]: 郑怡云
+        - link "角色卡生成器 V2 角色卡生成器 V2" [ref=e130] [cursor=pointer]:
+          - /url: /card/character-card-builder-v2
+          - img "角色卡生成器 V2" [ref=e131]
+          - generic [ref=e132]: 角色卡生成器 V2
+        - link "【人在综武称无敌，女侠挨个全倒贴】 【人在综武称无敌，女侠挨个全倒贴】" [ref=e133] [cursor=pointer]:
+          - /url: /card/人在综武称无敌-女侠挨个全倒贴-0d284d
+          - img "【人在综武称无敌，女侠挨个全倒贴】" [ref=e134]
+          - generic [ref=e135]: 【人在综武称无敌，女侠挨个全倒贴】
+        - link "柳如烟的白月光 柳如烟的白月光" [ref=e136] [cursor=pointer]:
+          - /url: /card/柳如烟的白月光-488e67
+          - img "柳如烟的白月光" [ref=e137]
+          - generic [ref=e138]: 柳如烟的白月光
+        - link "Re:从零开始的RPG Re:从零开始的RPG" [ref=e139] [cursor=pointer]:
+          - /url: /card/re-zero-rpg
+          - img "Re:从零开始的RPG" [ref=e140]
+          - generic [ref=e141]: Re:从零开始的RPG
+        - link "现代生活角色扮演游戏：重新游戏化 现代生活角色扮演游戏：重新游戏化" [ref=e142] [cursor=pointer]:
+          - /url: /card/modern-life-rpg-re-gamified-mnpvfwbg
+          - img "现代生活角色扮演游戏：重新游戏化" [ref=e143]
+          - generic [ref=e144]: 现代生活角色扮演游戏：重新游戏化
+    - generic [ref=e145]:
+      - generic [ref=e146]:
+        - heading "✨ 新上架" [level=3] [ref=e147]
+        - link "查看更多 →" [ref=e148] [cursor=pointer]:
+          - /url: /?sort=newest
+      - generic [ref=e149]:
+        - link "福 福" [ref=e150] [cursor=pointer]:
+          - /url: /card/fuku
+          - img "福" [ref=e151]
+          - generic [ref=e152]: 福
+        - link "异变出口EX 异变出口EX" [ref=e153] [cursor=pointer]:
+          - /url: /card/异变出口ex-124d4a
+          - img "异变出口EX" [ref=e154]
+          - generic [ref=e155]: 异变出口EX
+        - link "无关心游泳池 无关心游泳池" [ref=e156] [cursor=pointer]:
+          - /url: /card/无关心游泳池-395a7f
+          - img "无关心游泳池" [ref=e157]
+          - generic [ref=e158]: 无关心游泳池
+        - link "随意睡奸 随意睡奸" [ref=e159] [cursor=pointer]:
+          - /url: /card/随意睡奸-c854b2
+          - img "随意睡奸" [ref=e160]
+          - generic [ref=e161]: 随意睡奸
+        - link "送货上门·女孩订阅+500円买春 送货上门·女孩订阅+500円买春" [ref=e162] [cursor=pointer]:
+          - /url: /card/送货上门-女孩订阅-500円买春-4543f7
+          - img "送货上门·女孩订阅+500円买春" [ref=e163]
+          - generic [ref=e164]: 送货上门·女孩订阅+500円买春
+        - link "人情还钱系统 人情还钱系统" [ref=e165] [cursor=pointer]:
+          - /url: /card/人情还钱系统-c9339c
+          - img "人情还钱系统" [ref=e166]
+          - generic [ref=e167]: 人情还钱系统
+        - link "绝对注文书 绝对注文书" [ref=e168] [cursor=pointer]:
+          - /url: /card/绝对注文书-5d010c
+          - img "绝对注文书" [ref=e169]
+          - generic [ref=e170]: 绝对注文书
+        - link "复制美体 复制美体" [ref=e171] [cursor=pointer]:
+          - /url: /card/复制美体-33bf7f
+          - img "复制美体" [ref=e172]
+          - generic [ref=e173]: 复制美体
+        - link "艾莉，你假装的妻子 艾莉，你假装的妻子" [ref=e174] [cursor=pointer]:
+          - /url: /card/ellie-your-pretend-wife
+          - img "艾莉，你假装的妻子" [ref=e175]
+          - generic [ref=e176]: 艾莉，你假装的妻子
+        - link "Trish |她有一个秘密需要告诉你 Trish |她有一个秘密需要告诉你" [ref=e177] [cursor=pointer]:
+          - /url: /card/trish-she-has-a-secret-she-needs-to-tell-you
+          - img "Trish |她有一个秘密需要告诉你" [ref=e178]
+          - generic [ref=e179]: Trish |她有一个秘密需要告诉你
+        - link "[不是她的母亲] 麦迪和克莱尔 [不是她的母亲] 麦迪和克莱尔" [ref=e180] [cursor=pointer]:
+          - /url: /card/not-her-mother-maddie-claire
+          - img "[不是她的母亲] 麦迪和克莱尔" [ref=e181]
+          - generic [ref=e182]: "[不是她的母亲] 麦迪和克莱尔"
+    - heading "📦 全部角色卡" [level=3] [ref=e183]
+    - generic [ref=e184]:
+      - link "转载 福门惠美 福门惠美 TessaFaron 女性向 角色扮演 人类" [ref=e185] [cursor=pointer]:
+        - /url: /card/tessafaron-emi-fukukado-92b93316-1e1e190ca620
+        - generic [ref=e186]:
+          - generic:
+            - generic: 转载
+          - img "福门惠美" [ref=e187]
+          - generic [ref=e188]:
+            - generic [ref=e189]: 福门惠美
+            - generic [ref=e190]: TessaFaron
+            - generic [ref=e191]:
+              - generic [ref=e192]: 女性向
+              - generic [ref=e193]: 角色扮演
+              - generic [ref=e194]: 人类
+      - link "转载 购物车 购物车 villainfan69 原创" [ref=e195] [cursor=pointer]:
+        - /url: /card/villainfan69-shopping-cart-469f670401e6
+        - generic [ref=e196]:
+          - generic:
+            - generic: 转载
+          - img "购物车" [ref=e197]
+          - generic [ref=e198]:
+            - generic [ref=e199]: 购物车
+            - generic [ref=e200]: villainfan69
+            - generic [ref=e202]: 原创
+      - link "转载 化念孤星 化念孤星 Unknown 现代都市 冒险战斗" [ref=e203] [cursor=pointer]:
+        - /url: /card/local-化念孤星-cf7e46
+        - generic [ref=e204]:
+          - generic:
+            - generic: 转载
+          - img "化念孤星" [ref=e205]
+          - generic [ref=e206]:
+            - generic [ref=e207]: 化念孤星
+            - generic [ref=e208]: Unknown
+            - generic [ref=e209]:
+              - generic [ref=e210]: 现代都市
+              - generic [ref=e211]: 冒险战斗
+      - link "转载 Sun）机器人也能喝这个吗……？ Sun）机器人也能喝这个吗……？ Valarience 机娘机器人" [ref=e212] [cursor=pointer]:
+        - /url: /card/pyg-sun-can-robots-even-drink-that-ea72754e
+        - generic [ref=e213]:
+          - generic:
+            - generic: 转载
+          - img "Sun）机器人也能喝这个吗……？" [ref=e214]
+          - generic [ref=e215]:
+            - generic [ref=e216]: Sun）机器人也能喝这个吗……？
+            - generic [ref=e217]: Valarience
+            - generic [ref=e219]: 机娘机器人
+      - link "转载 九条艾莉亚 九条艾莉亚 KORRĀ 女性向 二次元 萌系" [ref=e220] [cursor=pointer]:
+        - /url: /card/pyg-alya-kujou-7fd4c3d9
+        - generic [ref=e221]:
+          - generic:
+            - generic: 转载
+          - img "九条艾莉亚" [ref=e222]
+          - generic [ref=e223]:
+            - generic [ref=e224]: 九条艾莉亚
+            - generic [ref=e225]: KORRĀ
+            - generic [ref=e226]:
+              - generic [ref=e227]: 女性向
+              - generic [ref=e228]: 二次元
+              - generic [ref=e229]: 萌系
+      - link "转载 Jax — Your Unhinged Loyal Dog Jax — Your Unhinged Loyal Dog Fudlifufka" [ref=e230] [cursor=pointer]:
+        - /url: /card/jax-your-unhinged-loyal-dog
+        - generic [ref=e231]:
+          - generic:
+            - generic: 转载
+          - img "Jax — Your Unhinged Loyal Dog" [ref=e232]
+          - generic [ref=e233]:
+            - generic [ref=e234]: Jax — Your Unhinged Loyal Dog
+            - generic [ref=e235]: Fudlifufka
+      - link "转载 海王星 海王星 supremedraco 女性向 人类 二次元" [ref=e236] [cursor=pointer]:
+        - /url: /card/neptune-mnq25ghv
+        - generic [ref=e237]:
+          - generic:
+            - generic: 转载
+          - img "海王星" [ref=e238]
+          - generic [ref=e239]:
+            - generic [ref=e240]: 海王星
+            - generic [ref=e241]: supremedraco
+            - generic [ref=e242]:
+              - generic [ref=e243]: 女性向
+              - generic [ref=e244]: 人类
+              - generic [ref=e245]: 二次元
+      - link "转载 焦点 焦点 ntt3 女性向 游戏衍生" [ref=e246] [cursor=pointer]:
+        - /url: /card/ntt3-focalors-dd1d0e09-aae939d91314
+        - generic [ref=e247]:
+          - generic:
+            - generic: 转载
+          - img "焦点" [ref=e248]
+          - generic [ref=e249]:
+            - generic [ref=e250]: 焦点
+            - generic [ref=e251]: ntt3
+            - generic [ref=e252]:
+              - generic [ref=e253]: 女性向
+              - generic [ref=e254]: 游戏衍生
+      - link "转载 Rita - Your Toxic \"Bet\" Girlfriend Rita - Your Toxic \"Bet\" Girlfriend SteakedGamer" [ref=e255] [cursor=pointer]:
+        - /url: /card/rita-your-toxic-bet-girlfriend
+        - generic [ref=e256]:
+          - generic:
+            - generic: 转载
+          - img "Rita - Your Toxic \"Bet\" Girlfriend" [ref=e257]
+          - generic [ref=e258]:
+            - generic [ref=e259]: Rita - Your Toxic "Bet" Girlfriend
+            - generic [ref=e260]: SteakedGamer
+      - link "转载 太宰治 哥哥（AU学校） 太宰治 哥哥（AU学校） pebbles 剧情向" [ref=e261] [cursor=pointer]:
+        - /url: /card/pyg-dazai-older-brother-school-au-49c9f642
+        - generic [ref=e262]:
+          - generic:
+            - generic: 转载
+          - img "太宰治 哥哥（AU学校）" [ref=e263]
+          - generic [ref=e264]:
+            - generic [ref=e265]: 太宰治 哥哥（AU学校）
+            - generic [ref=e266]: pebbles
+            - generic [ref=e268]: 剧情向
+      - link "转载 ♱ Calypso Victorson ~ Goth/Body Horror 2/5 🍷⁠⁠🦇 ♱ Calypso Victorson ~ Goth/Body Horror 2/5 🍷⁠⁠🦇 ari_the_shark_xDDD" [ref=e269] [cursor=pointer]:
+        - /url: /card/calypso-victorson-goth-body-horror-2-5
+        - generic [ref=e270]:
+          - generic:
+            - generic: 转载
+          - img "♱ Calypso Victorson ~ Goth/Body Horror 2/5 🍷⁠⁠🦇" [ref=e271]
+          - generic [ref=e272]:
+            - generic [ref=e273]: ♱ Calypso Victorson ~ Goth/Body Horror 2/5 🍷⁠⁠🦇
+            - generic [ref=e274]: ari_the_shark_xDDD
+      - link "转载 高进化 高进化 Leech_Of_Society 反派 男性向 角色扮演" [ref=e275] [cursor=pointer]:
+        - /url: /card/high-evolutionary
+        - generic [ref=e276]:
+          - generic:
+            - generic: 转载
+          - img "高进化" [ref=e277]
+          - generic [ref=e278]:
+            - generic [ref=e279]: 高进化
+            - generic [ref=e280]: Leech_Of_Society
+            - generic [ref=e281]:
+              - generic [ref=e282]: 反派
+              - generic [ref=e283]: 男性向
+              - generic [ref=e284]: 角色扮演
+      - link "转载 The Anomaly The Anomaly Grimaris" [ref=e285] [cursor=pointer]:
+        - /url: /card/the-anomaly
+        - generic [ref=e286]:
+          - generic:
+            - generic: 转载
+          - img "The Anomaly" [ref=e287]
+          - generic [ref=e288]:
+            - generic [ref=e289]: The Anomaly
+            - generic [ref=e290]: Grimaris
+      - link "转载 杰克·龙贝恩公爵 杰克·龙贝恩公爵 jurin 男性向 人类 原创" [ref=e291] [cursor=pointer]:
+        - /url: /card/jurin-duke-jack-dragonbane-020b0153cf17
+        - generic [ref=e292]:
+          - generic:
+            - generic: 转载
+          - img "杰克·龙贝恩公爵" [ref=e293]
+          - generic [ref=e294]:
+            - generic [ref=e295]: 杰克·龙贝恩公爵
+            - generic [ref=e296]: jurin
+            - generic [ref=e297]:
+              - generic [ref=e298]: 男性向
+              - generic [ref=e299]: 人类
+              - generic [ref=e300]: 原创
+      - link "转载 Pearl | With All My Love | Brawl Stars (Human) Pearl | With All My Love | Brawl Stars (Human) ToF4KE" [ref=e301] [cursor=pointer]:
+        - /url: /card/pearl-with-all-my-love-brawl-stars-human
+        - generic [ref=e302]:
+          - generic:
+            - generic: 转载
+          - img "Pearl | With All My Love | Brawl Stars (Human)" [ref=e303]
+          - generic [ref=e304]:
+            - generic [ref=e305]: Pearl | With All My Love | Brawl Stars (Human)
+            - generic [ref=e306]: ToF4KE
+      - link "转载 饼干 饼干 hyeonse 沙雕搞笑" [ref=e307] [cursor=pointer]:
+        - /url: /card/hyeonse-c592a7ac-b3d2-4a8b-815c-b6e893b61091-362087ed9527
+        - generic [ref=e308]:
+          - generic:
+            - generic: 转载
+          - img "饼干" [ref=e309]
+          - generic [ref=e310]:
+            - generic [ref=e311]: 饼干
+            - generic [ref=e312]: hyeonse
+            - generic [ref=e314]: 沙雕搞笑
+      - link "转载 ❄️Eira Frost 🧙‍♀️— The Prideful Snow Mage ❄️Eira Frost 🧙‍♀️— The Prideful Snow Mage Zakidnoi" [ref=e315] [cursor=pointer]:
+        - /url: /card/eira-frost-the-prideful-snow-mage
+        - generic [ref=e316]:
+          - generic:
+            - generic: 转载
+          - img "❄️Eira Frost 🧙‍♀️— The Prideful Snow Mage" [ref=e317]
+          - generic [ref=e318]:
+            - generic [ref=e319]: ❄️Eira Frost 🧙‍♀️— The Prideful Snow Mage
+            - generic [ref=e320]: Zakidnoi
+      - link "转载 我的再见 我的再见 Stormy_weather" [ref=e321] [cursor=pointer]:
+        - /url: /card/stormyweather-my-goodbye-d5e10a8a-438dd1870d8a
+        - generic [ref=e322]:
+          - generic:
+            - generic: 转载
+          - img "我的再见" [ref=e323]
+          - generic [ref=e324]:
+            - generic [ref=e325]: 我的再见
+            - generic [ref=e326]: Stormy_weather
+      - link "转载 丽贝卡 丽贝卡 umbralshelter 女性向 人类" [ref=e327] [cursor=pointer]:
+        - /url: /card/rebecca-mnpxtj3g
+        - generic [ref=e328]:
+          - generic:
+            - generic: 转载
+          - img "丽贝卡" [ref=e329]
+          - generic [ref=e330]:
+            - generic [ref=e331]: 丽贝卡
+            - generic [ref=e332]: umbralshelter
+            - generic [ref=e333]:
+              - generic [ref=e334]: 女性向
+              - generic [ref=e335]: 人类
+      - link "转载 铬 铬 tacticianmagician 男性向 玄幻奇幻 游戏衍生" [ref=e336] [cursor=pointer]:
+        - /url: /card/tacticianmagician-chrom-051afd756499
+        - generic [ref=e337]:
+          - generic:
+            - generic: 转载
+          - img "铬" [ref=e338]
+          - generic [ref=e339]:
+            - generic [ref=e340]: 铬
+            - generic [ref=e341]: tacticianmagician
+            - generic [ref=e342]:
+              - generic [ref=e343]: 男性向
+              - generic [ref=e344]: 玄幻奇幻
+              - generic [ref=e345]: 游戏衍生
+      - link "转载 亲属 亲属 scriptanon 女性向" [ref=e346] [cursor=pointer]:
+        - /url: /card/kin-mnq02ygl
+        - generic [ref=e347]:
+          - generic:
+            - generic: 转载
+          - img "亲属" [ref=e348]
+          - generic [ref=e349]:
+            - generic [ref=e350]: 亲属
+            - generic [ref=e351]: scriptanon
+            - generic [ref=e353]: 女性向
+      - link "转载 Your Italian teacher mother is distractingly thick Your Italian teacher mother is distractingly thick FerdinandTheMaskedMan" [ref=e354] [cursor=pointer]:
+        - /url: /card/your-italian-teacher-mother-is-distractingly-thick
+        - generic [ref=e355]:
+          - generic:
+            - generic: 转载
+          - img "Your Italian teacher mother is distractingly thick" [ref=e356]
+          - generic [ref=e357]:
+            - generic [ref=e358]: Your Italian teacher mother is distractingly thick
+            - generic [ref=e359]: FerdinandTheMaskedMan
+      - link "转载 格雷戈尔 格雷戈尔 EchoingSilence" [ref=e360] [cursor=pointer]:
+        - /url: /card/echoingsilence-gregor-0c79acb9-55b1fff71a23
+        - generic [ref=e361]:
+          - generic:
+            - generic: 转载
+          - img "格雷戈尔" [ref=e362]
+          - generic [ref=e363]:
+            - generic [ref=e364]: 格雷戈尔
+            - generic [ref=e365]: EchoingSilence
+      - link "转载 埃德温·埃维（Edwin Evy），超人类主义研究员 埃德温·埃维（Edwin Evy），超人类主义研究员 deleteduser" [ref=e366] [cursor=pointer]:
+        - /url: /card/aic_edwin-evy-the-transhumanist-researcher_1780551180883_43
+        - generic [ref=e367]:
+          - generic:
+            - generic: 转载
+          - img "埃德温·埃维（Edwin Evy），超人类主义研究员" [ref=e368]
+          - generic [ref=e369]:
+            - generic [ref=e370]: 埃德温·埃维（Edwin Evy），超人类主义研究员
+            - generic [ref=e371]: deleteduser
+    - generic [ref=e372]:
+      - generic: «
+      - generic: ‹ 上一页
+      - link "1" [ref=e373] [cursor=pointer]:
+        - /url: /?sort=random&type=all&page=1
+      - link "2" [ref=e374] [cursor=pointer]:
+        - /url: /?sort=random&type=all&page=2
+      - link "3" [ref=e375] [cursor=pointer]:
+        - /url: /?sort=random&type=all&page=3
+      - link "4" [ref=e376] [cursor=pointer]:
+        - /url: /?sort=random&type=all&page=4
+      - link "5" [ref=e377] [cursor=pointer]:
+        - /url: /?sort=random&type=all&page=5
+      - generic [ref=e378]: …
+      - link "206" [ref=e379] [cursor=pointer]:
+        - /url: /?sort=random&type=all&page=206
+      - link "下一页 ›" [ref=e380] [cursor=pointer]:
+        - /url: /?sort=random&type=all&page=2
+      - link "»" [ref=e381] [cursor=pointer]:
+        - /url: /?sort=random&type=all&page=206
+  - generic [ref=e382]:
+    - heading "🏷️ 热门角色卡合集" [level=2] [ref=e383]
+    - generic [ref=e384]:
+      - link "Action" [ref=e385] [cursor=pointer]:
+        - /url: /collection/action-ai-character-cards
+      - link "Adventure" [ref=e386] [cursor=pointer]:
+        - /url: /collection/adventure-ai-character-cards
+      - link "Alien" [ref=e387] [cursor=pointer]:
+        - /url: /collection/alien-ai-character-cards
+      - link "Animals" [ref=e388] [cursor=pointer]:
+        - /url: /collection/animals-ai-character-cards
+      - link "Anime" [ref=e389] [cursor=pointer]:
+        - /url: /collection/anime-ai-character-cards
+      - link "Best Action" [ref=e390] [cursor=pointer]:
+        - /url: /collection/best-action-character-cards
+      - link "Best Adventure" [ref=e391] [cursor=pointer]:
+        - /url: /collection/best-adventure-cards
+      - link "Best Anime 2025" [ref=e392] [cursor=pointer]:
+        - /url: /collection/best-anime-character-cards-2025
+      - link "Best Anime 2026" [ref=e393] [cursor=pointer]:
+        - /url: /collection/best-anime-character-cards-2026
+      - link "Best Fantasy Rpg" [ref=e394] [cursor=pointer]:
+        - /url: /collection/best-fantasy-rpg-cards
+      - link "Best Furry" [ref=e395] [cursor=pointer]:
+        - /url: /collection/best-furry-character-cards
+      - link "Best Horror" [ref=e396] [cursor=pointer]:
+        - /url: /collection/best-horror-cards
+      - link "Best Romance Ai" [ref=e397] [cursor=pointer]:
+        - /url: /collection/best-romance-ai-cards
+      - link "Books" [ref=e398] [cursor=pointer]:
+        - /url: /collection/books-ai-character-cards
+      - link "Cartoon" [ref=e399] [cursor=pointer]:
+        - /url: /collection/cartoon-ai-character-cards
+      - link "Catgirl" [ref=e400] [cursor=pointer]:
+        - /url: /collection/catgirl-ai-character-cards
+      - link "Childhood Friend" [ref=e401] [cursor=pointer]:
+        - /url: /collection/childhood-friend-ai-character-cards
+      - link "Comedy" [ref=e402] [cursor=pointer]:
+        - /url: /collection/comedy-ai-character-cards
+      - link "Comedy" [ref=e403] [cursor=pointer]:
+        - /url: /collection/comedy-character-cards
+      - link "Cute" [ref=e404] [cursor=pointer]:
+        - /url: /collection/cute-ai-character-cards
+      - link "Dark Fantasy" [ref=e405] [cursor=pointer]:
+        - /url: /collection/dark-fantasy-ai-character-cards
+      - link "Deity" [ref=e406] [cursor=pointer]:
+        - /url: /collection/deity-ai-character-cards
+      - link "Demon" [ref=e407] [cursor=pointer]:
+        - /url: /collection/demon-ai-character-cards
+      - link "Demon" [ref=e408] [cursor=pointer]:
+        - /url: /collection/demon-character-cards
+      - link "Drama" [ref=e409] [cursor=pointer]:
+        - /url: /collection/drama-ai-character-cards
+      - link "Drama" [ref=e410] [cursor=pointer]:
+        - /url: /collection/drama-character-cards
+      - link "Elf" [ref=e411] [cursor=pointer]:
+        - /url: /collection/elf-ai-character-cards
+      - link "Evil" [ref=e412] [cursor=pointer]:
+        - /url: /collection/evil-ai-character-cards
+      - link "Extrovert" [ref=e413] [cursor=pointer]:
+        - /url: /collection/extrovert-ai-character-cards
+      - link "Family" [ref=e414] [cursor=pointer]:
+        - /url: /collection/family-ai-character-cards
+      - link "Fantasy" [ref=e415] [cursor=pointer]:
+        - /url: /collection/fantasy-ai-character-cards
+      - link "Fire Emblem" [ref=e416] [cursor=pointer]:
+        - /url: /collection/fire-emblem-ai-character-cards
+      - link "Funny" [ref=e417] [cursor=pointer]:
+        - /url: /collection/funny-ai-character-cards
+      - link "Game" [ref=e418] [cursor=pointer]:
+        - /url: /collection/game-ai-character-cards
+      - link "Game" [ref=e419] [cursor=pointer]:
+        - /url: /collection/game-character-cards
+      - link "Genshin Impact" [ref=e420] [cursor=pointer]:
+        - /url: /collection/genshin-impact-ai-character-cards
+      - link "Genshin Impact" [ref=e421] [cursor=pointer]:
+        - /url: /collection/genshin-impact-cards
+      - link "Goddess" [ref=e422] [cursor=pointer]:
+        - /url: /collection/goddess-ai-character-cards
+      - link "Group Roleplay" [ref=e423] [cursor=pointer]:
+        - /url: /collection/group-roleplay-cards
+      - link "History" [ref=e424] [cursor=pointer]:
+        - /url: /collection/history-ai-character-cards
+      - link "Honkai Star Rail" [ref=e425] [cursor=pointer]:
+        - /url: /collection/honkai-star-rail-ai-character-cards
+      - link "Horror" [ref=e426] [cursor=pointer]:
+        - /url: /collection/horror-ai-character-cards
+      - link "Introvert" [ref=e427] [cursor=pointer]:
+        - /url: /collection/introvert-ai-character-cards
+      - link "Kuudere" [ref=e428] [cursor=pointer]:
+        - /url: /collection/kuudere-ai-character-cards
+      - link "Love" [ref=e429] [cursor=pointer]:
+        - /url: /collection/love-ai-character-cards
+      - link "Magic" [ref=e430] [cursor=pointer]:
+        - /url: /collection/magic-ai-character-cards
+      - link "Magical" [ref=e431] [cursor=pointer]:
+        - /url: /collection/magical-ai-character-cards
+      - link "Maid" [ref=e432] [cursor=pointer]:
+        - /url: /collection/maid-ai-character-cards
+      - link "Manga" [ref=e433] [cursor=pointer]:
+        - /url: /collection/manga-ai-character-cards
+      - link "Monster Girl" [ref=e434] [cursor=pointer]:
+        - /url: /collection/monster-girl-ai-character-cards
+      - link "Monster Girl" [ref=e435] [cursor=pointer]:
+        - /url: /collection/monster-girl-character-cards
+      - link "Monsters" [ref=e436] [cursor=pointer]:
+        - /url: /collection/monsters-ai-character-cards
+      - link "Movies Tv" [ref=e437] [cursor=pointer]:
+        - /url: /collection/movies-tv-ai-character-cards
+      - link "Multiple Characters" [ref=e438] [cursor=pointer]:
+        - /url: /collection/multiple-characters-ai-character-cards
+      - link "Music" [ref=e439] [cursor=pointer]:
+        - /url: /collection/music-ai-character-cards
+      - link "Mystery" [ref=e440] [cursor=pointer]:
+        - /url: /collection/mystery-ai-character-cards
+      - link "Nerd" [ref=e441] [cursor=pointer]:
+        - /url: /collection/nerd-ai-character-cards
+      - link "Non Human" [ref=e442] [cursor=pointer]:
+        - /url: /collection/non-human-character-cards
+      - link "Pokemon" [ref=e443] [cursor=pointer]:
+        - /url: /collection/pokemon-ai-character-cards
+      - link "Robot" [ref=e444] [cursor=pointer]:
+        - /url: /collection/robot-ai-character-cards
+      - link "Roleplay" [ref=e445] [cursor=pointer]:
+        - /url: /collection/roleplay-ai-character-cards
+      - link "Romance" [ref=e446] [cursor=pointer]:
+        - /url: /collection/romance-ai-character-cards
+      - link "Royalty" [ref=e447] [cursor=pointer]:
+        - /url: /collection/royalty-ai-character-cards
+      - link "Rpg" [ref=e448] [cursor=pointer]:
+        - /url: /collection/rpg-ai-character-cards
+      - link "Safe" [ref=e449] [cursor=pointer]:
+        - /url: /collection/safe-character-cards
+      - link "Sci Fi" [ref=e450] [cursor=pointer]:
+        - /url: /collection/sci-fi-ai-character-cards
+      - link "Sci Fi" [ref=e451] [cursor=pointer]:
+        - /url: /collection/sci-fi-character-cards
+      - link "Sfw" [ref=e452] [cursor=pointer]:
+        - /url: /collection/sfw-ai-character-cards
+      - link "Shy" [ref=e453] [cursor=pointer]:
+        - /url: /collection/shy-ai-character-cards
+      - link "Simulator" [ref=e454] [cursor=pointer]:
+        - /url: /collection/simulator-ai-character-cards
+      - link "Slice Of Life" [ref=e455] [cursor=pointer]:
+        - /url: /collection/slice-of-life-ai-character-cards
+      - link "Slowburn" [ref=e456] [cursor=pointer]:
+        - /url: /collection/slowburn-ai-character-cards
+      - link "Technology" [ref=e457] [cursor=pointer]:
+        - /url: /collection/technology-ai-character-cards
+      - link "Tomboy" [ref=e458] [cursor=pointer]:
+        - /url: /collection/tomboy-ai-character-cards
+      - link "Tsundere" [ref=e459] [cursor=pointer]:
+        - /url: /collection/tsundere-ai-character-cards
+      - link "Vampire" [ref=e460] [cursor=pointer]:
+        - /url: /collection/vampire-ai-character-cards
+      - link "Video Game" [ref=e461] [cursor=pointer]:
+        - /url: /collection/video-game-ai-character-cards
+      - link "Villain" [ref=e462] [cursor=pointer]:
+        - /url: /collection/villain-ai-character-cards
+      - link "Villain" [ref=e463] [cursor=pointer]:
+        - /url: /collection/villain-character-cards
+      - link "Vtuber" [ref=e464] [cursor=pointer]:
+        - /url: /collection/vtuber-ai-character-cards
+      - link "Wholesome" [ref=e465] [cursor=pointer]:
+        - /url: /collection/wholesome-ai-character-cards
+      - link "Wholesome" [ref=e466] [cursor=pointer]:
+        - /url: /collection/wholesome-character-cards
+      - link "Yandere" [ref=e467] [cursor=pointer]:
+        - /url: /collection/yandere-ai-character-cards
+      - link "Yandere" [ref=e468] [cursor=pointer]:
+        - /url: /collection/yandere-character-cards
+  - contentinfo [ref=e469]:
+    - generic [ref=e470]:
+      - paragraph [ref=e471]:
+        - strong [ref=e472]: SillyTavern Pro 角色卡库
+        - text: · 虚构创作辅助平台
+      - paragraph [ref=e473]:
+        - text: 本平台所有角色卡均为
+        - strong [ref=e474]: 虚构文学创作
+        - text: ，仅供成年人个人创作灵感参考。
+        - text: 使用即视为同意
+        - link "《用户协议》" [ref=e475] [cursor=pointer]:
+          - /url: https://sillytavern.one/terms
+        - text: 与
+        - link "《隐私政策》" [ref=e476] [cursor=pointer]:
+          - /url: https://sillytavern.one/privacy
+      - paragraph [ref=e477]:
+        - strong [ref=e478]: 📧 举报违规 / 侵权 / 反馈：
+        - link "stpro@stavern.one" [ref=e479] [cursor=pointer]:
+          - /url: mailto:stpro@stavern.one
+      - paragraph [ref=e480]:
+        - text: © 2026 SillyTavern Pro ·
+        - link "主站" [ref=e481] [cursor=pointer]:
+          - /url: https://sillytavern.one
+        - text: ·
+        - link "📘 SillyTavern 中文教程站" [ref=e482] [cursor=pointer]:
+          - /url: https://guide.sillytavern.one
+        - text: ·
+        - link "个人中心" [ref=e483] [cursor=pointer]:
+          - /url: https://sillytavern.one/dashboard
+  - generic [ref=e485]:
+    - heading "📢 版权与原创保护声明" [level=2] [ref=e486]
+    - paragraph [ref=e487]: 本站坚定支持原创、尊重创作者权益，严禁任何未获授权的转载。
+    - paragraph [ref=e488]: 上传内容须确保拥有合法权利或授权。权利人如发现侵权，可通过 stpro@stavern.one 通知我们，我们将及时下架。
+    - paragraph [ref=e489]:
+      - text: 使用本站即表示您已阅读并同意
+      - link "用户协议" [ref=e490] [cursor=pointer]:
+        - /url: /legal/terms
+      - text: 、
+      - link "隐私政策" [ref=e491] [cursor=pointer]:
+        - /url: /legal/privacy
+      - text: 与
+      - link "版权声明" [ref=e492] [cursor=pointer]:
+        - /url: /legal/copyright
+      - text: 。
+    - button "我已知晓" [ref=e494] [cursor=pointer]

@@ -1,0 +1,50 @@
+- generic [ref=e2]:
+  - heading "⚠️ 成人内容访问确认" [level=2] [ref=e3]
+  - paragraph [ref=e4]: 您即将查看可能包含成人向(NSFW)内容的虚构角色卡。
+  - generic [ref=e5]: 即将访问:顾子航
+  - paragraph [ref=e6]: "本平台内容均为虚构文学创作,不代表任何真实人物或事件。继续访问前,请逐项确认:"
+  - generic [ref=e7]:
+    - generic [ref=e8] [cursor=pointer]:
+      - checkbox "我已年满 18 周岁,或已达到所在司法辖区规定的法定成年年龄。" [checked] [ref=e9]
+      - generic [ref=e10]:
+        - text: 我已年满
+        - strong [ref=e11]: 18 周岁
+        - text: ",或已达到所在司法辖区规定的法定成年年龄。"
+    - generic [ref=e12] [cursor=pointer]:
+      - checkbox "我所在地区的法律不禁止访问虚构成人向文学/艺术内容,且我对此次访问行为承担全部法律责任。" [checked] [ref=e13]
+      - generic [ref=e14]:
+        - text: 我所在地区的法律不禁止访问虚构成人向文学/艺术内容,且我对此次访问行为
+        - strong [ref=e15]: 承担全部法律责任
+        - text: 。
+    - generic [ref=e16] [cursor=pointer]:
+      - checkbox "我承诺不向未成年人传播本平台任何内容,不会下载、保存、截图、二次分发用于商业或非法用途。" [checked] [active] [ref=e17]
+      - generic [ref=e18]:
+        - text: 我承诺不向
+        - strong [ref=e19]: 未成年人
+        - text: 传播本平台任何内容,不会下载、保存、截图、二次分发用于商业或非法用途。
+    - generic [ref=e20] [cursor=pointer]:
+      - checkbox "我理解平台所有角色均为虚构,且年龄设定不低于 18 岁,平台严禁涉及未成年人、真实人物、违法行为的内容;如发现违规我会通过 stpro@stavern.one 反馈。" [ref=e21]
+      - generic [ref=e22]:
+        - text: 我理解平台所有角色均为
+        - strong [ref=e23]: 虚构
+        - text: ",且"
+        - strong [ref=e24]: 年龄设定不低于 18 岁
+        - text: ",平台严禁涉及未成年人、真实人物、违法行为的内容;如发现违规我会通过"
+        - link "stpro@stavern.one" [ref=e25]:
+          - /url: mailto:stpro@stavern.one
+        - text: 反馈。
+    - generic [ref=e26] [cursor=pointer]:
+      - checkbox "我已阅读并同意 用户协议 与 隐私政策。" [ref=e27]
+      - generic [ref=e28]:
+        - text: 我已阅读并同意
+        - link "用户协议" [ref=e29]:
+          - /url: https://sillytavern.one/terms
+        - text: 与
+        - link "隐私政策" [ref=e30]:
+          - /url: https://sillytavern.one/privacy
+        - text: 。
+  - generic [ref=e31]:
+    - button "确认进入(本次确认 30 天内有效)" [disabled] [ref=e32]
+    - link "返回卡库首页" [ref=e33] [cursor=pointer]:
+      - /url: /
+  - generic [ref=e34]: 勾选即视为您签署上述声明并承担相应法律责任。本站记录确认时间但不收集身份信息。

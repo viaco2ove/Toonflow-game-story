@@ -1,61 +1,82 @@
-# 角色卡仓库
-cards.sillytavern.one
-chub.ai/characters
-discord.gg/hcQxUWgDVq
+# 角色卡仓库维护文档
 
-# 角色卡格式
-两者**格式完全一致**，互相兼容。本质上用的是同一套规范：
+## 目录结构
 
----
+```
+D:\Users\viaco\tools\Toonflow-game\Toonflow-game-story\
+├── characters_repo\                          ← 角色卡源文件（PNG + JSON）
+│   └── 破局-从冷落走到瞩目\
+│       ├── INDEX.md                          ← 使用指南
+│       ├── 旁白-叙事者.png/json             ← 叙事者角色卡
+│       ├── 世界书.json                       ← SillyTavern 世界书
+│       ├── 顾泽.png/json                     ← 玩家角色
+│       ├── 顾子航.png/json                   ← 核心反派
+│       └── ...（其他 NPC）
+│
+└── md\characters_repo\                       ← 维护文档
+    ├── README.md                             ← 本文档
+    ├── upload_guide.md                       ← 上传指南
+    └── build_guide.md                        ← 构建脚本说明
+```
 
-## 核心结论
+## 角色卡仓库配置
 
-| 对比项 | Chub.ai | sillytavern.one |
-|--------|---------|-----------------|
-| **文件格式** | PNG（嵌入JSON） | PNG（嵌入JSON） |
-| **嵌入方式** | PNG tEXt chunk | PNG tEXt chunk |
-| **V2 chunk名** | `chara` | `chara` |
-| **V3 chunk名** | `ccv3` | `ccv3` |
-| **编码方式** | Base64(UTF-8 JSON) | Base64(UTF-8 JSON) |
-| **V2规范** | `spec: "chara_card_v2"` | `spec: "chara_card_v2"` |
-| **V3规范** | `spec: "chara_card_v3"` | `spec: "chara_card_v3"` |
-| **JSON纯文本** | 同时支持 | 同时支持 |
-| **互导兼容** | ✅ 可直接导入对方 | ✅ 可直接导入对方 |
+`.env` 中定义：
+```env
+characters_repo=https://cards.sillytavern.one/
+characters_repo_local=D:\Users\viaco\tools\Toonflow-game\Toonflow-game-story\characters_repo
+characters_username=***REMOVED***
+characters_password=***REMOVED***
+```
 
-**两个网站的角色卡可以互相导入，不需要任何转换。**
+## 当前支持的上传平台
 
----
+| 平台 | 地址 | 上传方式 | 状态 |
+|------|------|----------|------|
+| cards.sillytavern.one | cards.sillytavern.one | 运营方收录，无公开 API | ⚠️ 需联系运营 |
+| Chub.ai | chub.ai | 网页手动上传，无公开 API | ⚠️ 需手动 |
+| SillyTavern-Card | github.com/tolixing/SillyTavern-Card | Docker 自建，有 POST /api/upload | ✅ 推荐自建 |
 
-## 为什么一致
+## 平台详细说明
 
-因为它们都遵循同一个开放规范：
-- **V2**：`github.com/malfoyslastname/character-card-spec-v2`
-- **V3**：`github.com/kwaroran/character-card-spec-v3`
+### cards.sillytavern.one
+- **性质**：精选索引站，卡片由运营方手动收录
+- **上传**：无公开上传入口，需联系运营方收录
+- **无 API**：不支持批量上传
 
-这套规范是 SillyTavern 社区制定的开放标准，任何角色卡网站只要想兼容 SillyTavern（这是必须的），就必须按这个格式来。所以 Chub.ai、sillytavern.one、CharacterHub 等所有站点的卡，底层格式完全相同。
+### Chub.ai
+- **性质**：全球最大角色卡分享平台，百万级卡片
+- **上传**：网页手动上传，无公开 API
+- **上传路径**：登录后 → Create Character → 填写表单 → 上传 PNG
+- **格式要求**：PNG（内嵌 V2 JSON）或纯 JSON
+- **无 API**：不支持批量/程序化上传
 
----
+### SillyTavern-Card（推荐自建）
+```bash
+# Docker 一键部署
+git clone https://github.com/tolixing/SillyTavern-Card.git
+cd SillyTavern-Card
+docker compose up -d
 
-## 唯一的区别
+# 上传 API
+POST /api/upload
+Content-Type: multipart/form-data
+- file: PNG 文件
+- name: 角色名称
+- version: 版本号
+- description: 描述
+```
 
-不在格式，而在**内容来源和语言**：
+## 角色卡规范
 
-| | Chub.ai | sillytavern.one |
-|--|---------|-----------------|
-| 卡片数量 | 百万级 | 35000+ |
-| 语言 | 英文为主（~95%） | 中文为主（~30%中文+70%英文翻译） |
-| 内容来源 | 全球作者上传 | 自动抓取+人工筛选+中文翻译 |
-| 访问 | 需要梯子 | 国内直连 |
+- **格式**：SillyTavern V2 (`chara_card_v2`)
+- **嵌入**：PNG tEXt chunk, keyword=`chara`, value=base64(UTF-8 JSON)
+- **JSON 独立文件**：每个角色同时输出 PNG 和 JSON 两个版本
+- **Toonflow 数据**：保存在 `extensions.toonflow` 字段
 
----
+## 更新流程
 
-## 实际操作
-
-1. **从 Chub.ai 下载的 PNG** → 直接拖进 sillytavern.one 的 SillyTavern Pro 或本地 SillyTavern → 正常使用
-2. **从 sillytavern.one 下载的 PNG** → 直接导入 Chub.ai 或本地 SillyTavern → 正常使用
-3. **唯一的坑**：下载时一定要用「Download」按钮直接保存，不要右键另存预览图——否则 PNG 的 tEXt chunk 可能在 CDN 优化中被丢掉，导致卡变成纯图片
-
-# ai 故事与角色卡
-首先是各种角色可以转化为角色卡
-然后是故事本身就算角色卡+世界书。
-
+当 Toonflow 故事的角色 MD 文件更新后：
+1. 运行 `characters_repo/build_cards.py` 重新生成所有角色卡
+2. 重新生成叙事者角色卡（`build_narrator_card.py`）
+3. 手动上传到目标平台
