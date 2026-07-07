@@ -68,6 +68,50 @@ curl 'https://gateway.chub.ai/api/core/characters' \
 
 上传后数据存到 [顾子航.repo.chub_ai.json](../../../characters_repo/%E7%A0%B4%E5%B1%80-%E4%BB%8E%E5%86%B7%E8%90%BD%E8%B5%B0%E5%88%B0%E7%9E%A9%E7%9B%AE/%E9%A1%BE%E5%AD%90%E8%88%AA.repo.chub_ai.json)
 
+
+## 上传图片（Full image，角色的头像）
+curl 'https://gateway.chub.ai/api/core/characters/***REMOVED***/gu-zi-hang-b1c8d158442d' \
+  -X 'PUT' \
+  -H 'accept: */*' \
+  -H 'accept-language: zh-CN,zh;q=0.9' \
+  -H 'ch-api-key: ***REMOVED***' \
+  -H 'content-type: application/json' \
+  -H 'origin: https://chub.ai' \
+  -H 'priority: u=1, i' \
+  -H 'referer: https://chub.ai/edit_character/***REMOVED***/gu-zi-hang-b1c8d158442d' \
+  -H 'samwise: ***REMOVED***' \
+  -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-site' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36' \
+  --data-raw '{"avatar":"data:image/png;base64,xxx","character_id":7353948}'
+
+{"message":"success","success":true}
+
+## 上传图片(search image,用于搜索)。
+curl 'https://gateway.chub.ai/api/project/7353948/metadata' \
+  -X 'PUT' \
+  -H 'accept: */*' \
+  -H 'accept-language: zh-CN,zh;q=0.9' \
+  -H 'ch-api-key: ***REMOVED***' \
+  -H 'content-type: application/json' \
+  -H 'origin: https://chub.ai' \
+  -H 'priority: u=1, i' \
+  -H 'referer: https://chub.ai/edit_character/***REMOVED***/gu-zi-hang-b1c8d158442d' \
+  -H 'samwise: ***REMOVED***' \
+  -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-site' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36' \
+  --data-raw '{"avatar":"data:image/png;base64,xxx"}'
+{"message":"success","success":true}
+
 # https://chub.ai/my_characters
 
 curl 'https://ro.chub.ai/search?first=50&namespace=characters&nsfw=true&nsfl=true&chub=true&count=false&topics=&exclude_mine=false&include_forks=true&sort=created_at&search=&username=xxxx&only_mine=all&my_favorites=false&min_tokens=0&page=1&bypass=true' \
@@ -88,6 +132,7 @@ curl 'https://ro.chub.ai/search?first=50&namespace=characters&nsfw=true&nsfl=tru
   -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36' \
   --data-raw '{}'
 
+
 # https://chub.ai/characters/xxxx/gu-zi-hang-d55b6786b875
 
 curl 'https://ro.chub.ai/api/characters/xxxx/gu-zi-hang-d55b6786b875?full=true&nocache=0.9723692798668624' \
@@ -106,6 +151,7 @@ curl 'https://ro.chub.ai/api/characters/xxxx/gu-zi-hang-d55b6786b875?full=true&n
   -H 'sec-fetch-site: same-site' \
   -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
 
+{"message":"success","success":true}
 
 # https://chub.ai/edit_character/xxxx/gu-zi-hang-d55b6786b875
 curl 'https://ro.chub.ai/api/characters/xxxx/gu-zi-hang-d55b6786b875?full=true&nocache=0.5691935965988969' \
@@ -163,3 +209,25 @@ curl 'https://gateway.chub.ai/api/project/xxxx/gu-zi-hang-d55b6786b875' \
   -H 'sec-fetch-mode: cors' \
   -H 'sec-fetch-site: same-site' \
   -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'
+
+
+## 某个作者的角色列表
+https://chub.ai/users/{username}
+
+curl 'https://ro.chub.ai/search?first=50&namespace=characters&nsfw=true&nsfl=true&chub=true&count=false&topics=&exclude_mine=true&include_forks=true&sort=created_at&search=&username=***REMOVED***&my_favorites=false&min_tokens=0&page=1&bypass=true' \
+  -H 'accept: */*' \
+  -H 'accept-language: zh-CN,zh;q=0.9' \
+  -H 'ch-api-key: $samwise' \
+  -H 'content-type: application/json' \
+  -H 'origin: https://chub.ai' \
+  -H 'priority: u=1, i' \
+  -H 'referer: https://chub.ai/users/***REMOVED***' \
+  -H 'samwise: $samwise' \
+  -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-site' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36' \
+  --data-raw '{}'
