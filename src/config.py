@@ -132,6 +132,7 @@ class GlobalConfig:
     # 路径
     project_root: Path = None
     ai_story_local_dir: Path = None
+    ai_story_dirs: list = field(default_factory=list)  # 所有故事搜索目录
     characters_repo_dir: Path = None
 
     # 头像子目录
@@ -149,6 +150,16 @@ def load_global_config(project_root: Path = None) -> GlobalConfig:
     ai_story_path = Path(ai_story_local)
     if not ai_story_path.is_absolute():
         ai_story_path = project_root / ai_story_path
+
+    # work_in_path 可指定另一个故事目录（如 ai_story/171）
+    work_in = env.get("work_in_path", "")
+    ai_story_dirs = [ai_story_path]
+    if work_in:
+        work_path = Path(work_in)
+        if not work_path.is_absolute():
+            work_path = project_root / work_path
+        if work_path not in ai_story_dirs:
+            ai_story_dirs.append(work_path)
 
     chars_repo = env.get("characters_repo_local", str(project_root / "characters_repo"))
     chars_repo_path = Path(chars_repo)
@@ -169,6 +180,7 @@ def load_global_config(project_root: Path = None) -> GlobalConfig:
         cards_password=env.get("CARDS_PASSWORD", env.get("characters_repo_password", "")),
         project_root=project_root,
         ai_story_local_dir=ai_story_path,
+        ai_story_dirs=ai_story_dirs,
         characters_repo_dir=chars_repo_path,
         avatars_subdir=env.get("AVATARS_SUBDIR", ""),
     )
@@ -199,7 +211,16 @@ def load_story_config(story_name: str, global_cfg: GlobalConfig = None) -> Story
     if global_cfg is None:
         global_cfg = load_global_config()
 
-    story_dir = global_cfg.ai_story_local_dir / story_name
+    # 在所有故事目录中搜索（ai_story/local, ai_story/171 等）
+    story_dir = None
+    for d in global_cfg.ai_story_dirs:
+        candidate = d / story_name
+        if candidate.exists():
+            story_dir = candidate
+            break
+    if story_dir is None:
+        # 默认回退到第一个目录
+        story_dir = global_cfg.ai_story_local_dir / story_name
 
     # 读故事 .env
     story_env = _parse_env_file(story_dir / ".env")

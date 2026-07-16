@@ -64,21 +64,25 @@ def cmd_cards_sillytavern(args):
 def cmd_list_stories(args):
     """列出所有可用故事"""
     g = load_global_config()
-    if g.ai_story_local_dir.exists():
-        stories = [d.name for d in g.ai_story_local_dir.iterdir() if d.is_dir() and not d.name.startswith(".")]
-        print(f"可用故事 ({g.ai_story_local_dir}):")
-        for s in sorted(stories):
-            # 检查是否有 .env 或 story.json
-            env_file = g.ai_story_local_dir / s / ".env"
-            json_file = g.ai_story_local_dir / s / "story.json"
+    seen = set()
+    for story_root in g.ai_story_dirs:
+        if not story_root.exists():
+            continue
+        stories = [d for d in story_root.iterdir() if d.is_dir() and not d.name.startswith(".") and d.name not in seen]
+        if not stories:
+            continue
+        print(f"故事目录: {story_root}")
+        for s in sorted(stories, key=lambda x: x.name):
+            seen.add(s.name)
+            env_file = s / ".env"
+            json_file = s / "story.json"
             marker = ""
             if json_file.exists():
                 marker = " [story.json]"
             elif env_file.exists():
                 marker = " [.env]"
-            print(f"  - {s}{marker}")
-    else:
-        print(f"故事目录不存在: {g.ai_story_local_dir}")
+            print(f"  - {s.name}{marker}")
+        print()
 
 
 def main():
