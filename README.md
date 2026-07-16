@@ -45,3 +45,7 @@ https://github.com/viaco2ove/Toonflow-game-android.git
 # 当前工作空间结构
 ai_story 用于放在ai 故事资料
 md 用于放置规则和各种文档
+
+# 两个.env
+根目录的是全局配置
+故事下的是故事配置
