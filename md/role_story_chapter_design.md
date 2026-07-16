@@ -5,6 +5,8 @@
 ---
 
 ## 一、角色设计
+实例：
+[小七.md](exsample/%E5%B0%8F%E4%B8%83.md)
 
 ### 1.1 万能角色
 
@@ -267,3 +269,6 @@ interface ChapterRuntimePhase {
 - 自由章节：`md/plan/ai_game/V3/游玩业务/V1_V2/自由章节设计.md`
 - 角色参数：`md/plan/ai_game/V3/角色参数设计.md`
 - 故事模式：`md/plan/ai_game/V3/游玩业务/V1_V2/故事模式和章节结束条件设计（调试）.md`
+
+## 例子
+[破局-从冷落走到瞩目](exsample/%E7%A0%B4%E5%B1%80-%E4%BB%8E%E5%86%B7%E8%90%BD%E8%B5%B0%E5%88%B0%E7%9E%A9%E7%9B%AE)
