@@ -57,3 +57,10 @@ python -m src.cli cards chub --story 我的诡异表妹 --avatar-only
 
 # 上传到 cards.sillytavern.one
 python -m src.cli cards sillytavern --story 破局-从冷落走到瞩目
+
+## 故事的接口代码 流程
+大概流程：
+判定故事是否已经创建->没有就先创建空的故事草稿->获取id->配置故事id->
+保存故事的基本信息和角色信息-》上传头像-》创建或者更新故事章节（要先有故事id）
+特别注意：
+不要重复创建故事，要使用统一的故事id.
