@@ -222,22 +222,22 @@ def load_story_config(story_name: str, global_cfg: GlobalConfig = None) -> Story
         # 默认回退到第一个目录
         story_dir = global_cfg.ai_story_local_dir / story_name
 
-    # 读故事 .env
-    story_env = _parse_env_file(story_dir / ".env")
-
-    # 合并配置
-    story_name_resolved = story_env.get("STORY_NAME", story_name)
-    world_id = int(story_env.get("WORLD_ID", "0"))
-    project_id = int(story_env.get("PROJECT_ID", str(global_cfg.project_id if hasattr(global_cfg, 'project_id') else 1)))
-    intro = story_env.get("STORY_INTRO", "")
-    global_bg = story_env.get("STORY_GLOBAL_BG", "")
-
-    # 角色映射：优先 story.json，降级到 .env 的 ROLE_NAME_TO_FILE/AVATAR
+    # 优先读 story.json（主配置），.env 仅作为旧格式降级
     story_json_path = story_dir / "story.json"
     story_json = {}
     if story_json_path.exists():
         with open(story_json_path, "r", encoding="utf-8") as f:
             story_json = json.load(f)
+
+    # 读故事 .env（可选，仅降级用）
+    story_env = _parse_env_file(story_dir / ".env")
+
+    # 合并配置：story.json 优先，.env 降级
+    story_name_resolved = story_json.get("story_name", story_env.get("STORY_NAME", story_name))
+    world_id = int(story_json.get("world_id", story_env.get("WORLD_ID", "0")))
+    project_id = int(story_json.get("project_id", story_env.get("PROJECT_ID", "1")))
+    intro = story_json.get("intro", story_env.get("STORY_INTRO", ""))
+    global_bg = story_json.get("global_bg", story_env.get("STORY_GLOBAL_BG", ""))
 
     # player_role
     player_role = None

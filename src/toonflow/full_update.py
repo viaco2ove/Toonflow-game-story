@@ -108,26 +108,15 @@ def full_update(story_name: str = None):
 
 
 def _save_world_id(story):
-    """保存 WORLD_ID 到故事 .env"""
-    from src.config import _parse_env_file
-    env_path = story.story_dir / ".env"
-    if not env_path.exists():
+    """保存 WORLD_ID 到 story.json"""
+    story_json_path = story.story_dir / "story.json"
+    if not story_json_path.exists():
         return
 
-    with open(env_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
+    with open(story_json_path, "r", encoding="utf-8") as f:
+        story_json = json.load(f)
 
-    new_lines = []
-    found = False
-    for line in lines:
-        if line.strip().startswith("WORLD_ID="):
-            new_lines.append(f"WORLD_ID={story.world_id}\n")
-            found = True
-        else:
-            new_lines.append(line)
+    story_json["world_id"] = story.world_id
 
-    if not found:
-        new_lines.append(f"WORLD_ID={story.world_id}\n")
-
-    with open(env_path, "w", encoding="utf-8") as f:
-        f.writelines(new_lines)
+    with open(story_json_path, "w", encoding="utf-8") as f:
+        json.dump(story_json, f, ensure_ascii=False, indent=2)
