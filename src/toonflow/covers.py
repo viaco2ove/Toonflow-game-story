@@ -1,5 +1,10 @@
 """
-封面/背景图上传：世界封面、世界封面背景、章节封面
+封面/背景图上传：世界封面、世界封面背景、章节封面/背景
+
+架构说明:
+  - 章节级 backgroundPath: 由 chapters.py 上传并设置到 chapter.backgroundPath
+  - 世界级 chapterExtras:  由 covers.py 上传封面/背景缩略图到 world.settings.chapterExtras[]
+  - 世界封面/背景:         由 covers.py 上传到 world.coverPath / world.settings.coverBgPath
 """
 import json
 from pathlib import Path
@@ -30,7 +35,9 @@ def upload_world_covers(client: ToonflowClient, story: StoryConfig, world_data: 
 
     # 世界封面
     cover_files = list(story.image_dir.glob("story_cover__*.jpg")) + \
-                  list(story.image_dir.glob("*_cover.jpg"))
+                  list(story.image_dir.glob("*_cover.jpg")) + \
+                  list(story.image_dir.glob("cover.jpg")) + \
+                  list(story.image_dir.glob("cover.png"))
     if cover_files:
         path = client.upload_image(cover_files[0], "world_cover", story.project_id)
         if path:
@@ -40,7 +47,9 @@ def upload_world_covers(client: ToonflowClient, story: StoryConfig, world_data: 
 
     # 封面背景图
     cover_bg_files = list(story.image_dir.glob("story_coverBg__*.jpg")) + \
-                     list(story.image_dir.glob("*_coverBg.jpg"))
+                     list(story.image_dir.glob("*_coverBg.jpg")) + \
+                     list(story.image_dir.glob("bg.jpg")) + \
+                     list(story.image_dir.glob("bg.png"))
     if cover_bg_files:
         bg_path = client.upload_image(cover_bg_files[0], "world_cover_bg", story.project_id)
         if bg_path:

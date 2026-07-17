@@ -54,9 +54,8 @@ def update_player_role(client: ToonflowClient, story: StoryConfig, world_data: d
         avatar_result = client.separate_avatar(avatar_path, story.player_role.name, story.world_id)
 
     player_data = build_role_object(parsed, story.player_role.name, avatar_result, is_player=True)
-    # 玩家角色不需要头像分离路径
+    # 玩家角色保留 avatarPath（头像），但不需要分离的背景图路径
     player_data.pop("avatarSourcePath", None)
-    player_data.pop("avatarPath", None)
     player_data.pop("avatarBgPath", None)
 
     world_data["playerRole"] = player_data

@@ -178,23 +178,48 @@ class ToonflowClient:
             print(f"    ✗ 章节保存失败: {result}")
             return None
 
+    def delete_chapter(self, chapter_id: int, world_id: int) -> bool:
+        """删除章节"""
+        result = self.api_call("/game/deleteChapter", {"chapterId": chapter_id, "worldId": world_id})
+        if result.get("code") == 200:
+            print(f"    ✓ 章节删除: ID={chapter_id}")
+            return True
+        else:
+            print(f"    ✗ 章节删除失败: {result}")
+            return False
+
     def get_chapters(self, world_id: int) -> dict:
-        """获取世界的章节列表（按标题索引）"""
+        """获取世界的章节列表，返回 {sort序号: chapter} 和 {title: chapter} 双索引"""
         resp = self.api_call("/game/getWorld", {"worldId": world_id})
         chapters = {}
         if resp.get("code") == 200:
             data = resp.get("data", {})
             ch_list = data.get("chapters", [])
             if ch_list:
-                chapters = {ch.get("title", ""): ch for ch in ch_list}
+                for ch in ch_list:
+                    # 服务器 sort 可能是 1-based，归一化为 0-based
+                    raw_sort = ch.get("sort", -1)
+                    key = raw_sort - 1 if raw_sort >= 1 else raw_sort
+                    chapters[key] = ch
+                    chapters[raw_sort] = ch  # 同时保留原始值（兼容）
+                    # 同时保留 title 索引（降级匹配）
+                    title = ch.get("title", "")
+                    if title and title not in chapters:
+                        chapters[title] = ch
             else:
-                # 按 ID 遍历查找
+                # 按 ID 遍历查找（降级方案）
                 for cid in range(1, 200):
                     ch_resp = self.api_call("/game/getChapter", {"chapterId": cid, "worldId": world_id})
                     if ch_resp.get("code") == 200 and ch_resp.get("data"):
                         ch = ch_resp["data"]
                         if ch.get("worldId") == world_id:
-                            chapters[ch.get("title", "")] = ch
+                            raw_sort = ch.get("sort", -1)
+                            key = raw_sort - 1 if raw_sort >= 1 else raw_sort
+                            chapters[key] = ch
+                            chapters[raw_sort] = ch
+                            title = ch.get("title", "")
+                            if title and title not in chapters:
+                                chapters[title] = ch
         return chapters
 
     # ===== 图片上传 =====
