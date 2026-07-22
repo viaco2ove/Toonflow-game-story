@@ -234,7 +234,8 @@ def load_story_config(story_name: str, global_cfg: GlobalConfig = None) -> Story
 
     # 合并配置：story.json 优先，.env 降级
     story_name_resolved = story_json.get("story_name", story_env.get("STORY_NAME", story_name))
-    world_id = int(story_json.get("world_id", story_env.get("WORLD_ID", "0")))
+    _raw_world_id = story_json.get("world_id", story_env.get("WORLD_ID", "0"))
+    world_id = int(_raw_world_id) if _raw_world_id else 0
     project_id = int(story_json.get("project_id", story_env.get("PROJECT_ID", "1")))
     intro = story_json.get("intro", story_env.get("STORY_INTRO", ""))
     global_bg = story_json.get("global_bg", story_env.get("STORY_GLOBAL_BG", ""))
