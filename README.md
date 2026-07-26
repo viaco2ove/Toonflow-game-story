@@ -46,6 +46,20 @@ https://github.com/viaco2ove/Toonflow-game-android.git
 ai_story 用于放在ai 故事资料
 md 用于放置规则和各种文档
 
-# 两个.env
-根目录的是全局配置
-故事下的是故事配置
+
+# 配置文件
+## [.env](.env)
+当前ai 故事工作空间的 全局配置
+其中
+AI_STORY_LOCAL_DIR=ai_story/local
+CURRENT_STORY=谁让这个山大王修仙的
+代表的就算 当前故事是
+[谁让这个山大王修仙的](ai_story/local/%E8%B0%81%E8%AE%A9%E8%BF%99%E4%B8%AA%E5%B1%B1%E5%A4%A7%E7%8E%8B%E4%BF%AE%E4%BB%99%E7%9A%84)
+
+## story.json
+[story.json](%E8%B0%81%E8%AE%A9%E8%BF%99%E4%B8%AA%E5%B1%B1%E5%A4%A7%E7%8E%8B%E4%BF%AE%E4%BB%99%E7%9A%84/story.json)
+故事的私有数据
+
+## worldbook.json
+[worldbook.json](ai_story/local/%E8%B0%81%E8%AE%A9%E8%BF%99%E4%B8%AA%E5%B1%B1%E5%A4%A7%E7%8E%8B%E4%BF%AE%E4%BB%99%E7%9A%84/worldbook/worldbook.json)
+世界书的json 数据。
