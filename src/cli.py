@@ -7,6 +7,12 @@ Toonflow Game Story - 统一命令行工具
     python -m src.cli toonflow update --story 破局-从冷落走到瞩目
     python -m src.cli toonflow update --story 我的诡异表妹
 
+    # 世界书维护
+    python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op list
+    python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op import
+    python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op import --mode merge
+    python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op export
+
     # 角色卡构建
     python -m src.cli cards build --story 破局-从冷落走到瞩目
     python -m src.cli cards build --story 我的诡异表妹 --output chub_ai
@@ -39,6 +45,18 @@ def cmd_toonflow_update(args):
     """Toonflow 故事完整更新"""
     from src.toonflow.full_update import full_update
     full_update(args.story)
+
+
+def cmd_toonflow_worldbook(args):
+    """世界书维护：list/import/export/save/delete"""
+    from src.toonflow.storyworld.worldbook import worldbook_op
+    worldbook_op(
+        story_name=args.story,
+        op=args.op,
+        mode=args.mode,
+        entry_json=args.entry,
+        entry_id=int(args.entry_id) if args.entry_id else None,
+    )
 
 
 def cmd_cards_build(args):
@@ -100,6 +118,18 @@ def main():
     p_update = p_tf_sub.add_parser("update", help="完整更新（世界+角色+章节+封面）")
     p_update.add_argument("--story", "-s", required=True, help="故事名")
     p_update.set_defaults(func=cmd_toonflow_update)
+
+    # toonflow worldbook：世界书维护
+    p_wb = p_tf_sub.add_parser("worldbook", help="世界书维护（list/import/export/save/delete）")
+    p_wb.add_argument("--story", "-s", required=True, help="故事名")
+    p_wb.add_argument("--op", default="list",
+                      choices=["list", "import", "export", "save", "delete"],
+                      help="操作: list(列出服务端) / import(本地导入服务端) / export(服务端导出本地) / save(新建更新单条) / delete(删除单条)")
+    p_wb.add_argument("--mode", default="replace", choices=["replace", "merge"],
+                      help="import 时的模式: replace(覆盖) / merge(追加)，默认 replace")
+    p_wb.add_argument("--entry", default=None, help="save 操作时传入的条目 JSON 字符串")
+    p_wb.add_argument("--entry-id", default=None, help="delete 操作时的条目 id")
+    p_wb.set_defaults(func=cmd_toonflow_worldbook)
 
     # cards
     p_cards = subparsers.add_parser("cards", help="角色卡构建和上传")

@@ -129,6 +129,40 @@ class ToonflowClient:
             return result.get("data", {})
         raise Exception(f"创建世界失败: {result}")
 
+    # ===== 世界书 =====
+
+    def list_world_book(self, world_id: int) -> list:
+        """列出某世界的全部世界书条目，返回 entry 列表"""
+        result = self.api_call("/game/listWorldBook", {"worldId": world_id})
+        if result.get("code") == 200:
+            return result.get("data", {}).get("entries", [])
+        raise Exception(f"获取世界书失败: {result}")
+
+    def save_world_book_entry(self, world_id: int, entry: dict) -> dict:
+        """新建或更新世界书条目（entry.id 有值则更新，无值则新建）"""
+        result = self.api_call("/game/saveWorldBookEntry", {"worldId": world_id, "entry": entry})
+        if result.get("code") == 200:
+            return result.get("data", {}).get("entry", {})
+        raise Exception(f"保存世界书条目失败: {result}")
+
+    def delete_world_book_entry(self, entry_id: int) -> bool:
+        """删除世界书条目"""
+        result = self.api_call("/game/deleteWorldBookEntry", {"id": entry_id})
+        if result.get("code") == 200:
+            return True
+        raise Exception(f"删除世界书条目失败: {result}")
+
+    def import_world_book(self, world_id: int, entries: list, mode: str = "replace") -> dict:
+        """批量导入世界书条目。mode: replace(覆盖) / merge(追加)。返回 {imported, deleted, mode}"""
+        result = self.api_call("/game/importWorldBook", {
+            "worldId": world_id,
+            "entries": entries,
+            "mode": mode,
+        })
+        if result.get("code") == 200:
+            return result.get("data", {})
+        raise Exception(f"导入世界书失败: {result}")
+
     # ===== 角色 =====
 
     def separate_avatar(self, avatar_path: Path, role_name: str, world_id: int) -> dict:
