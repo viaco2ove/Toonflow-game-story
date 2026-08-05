@@ -59,6 +59,19 @@ def cmd_toonflow_worldbook(args):
     )
 
 
+def cmd_worldbook_build(args):
+    """构建世界书：MD → worldbook.json"""
+    from src.toonflow.storyworld.worldbook_builder import build_and_save
+    from src.config import load_config
+    if args.story:
+        global_cfg, story = load_config(args.story)
+    else:
+        global_cfg, story = load_config()
+    if not story:
+        raise ValueError("未指定故事名，且 .env 中无 CURRENT_STORY")
+    build_and_save(str(story.story_dir))
+
+
 def cmd_cards_build(args):
     """构建角色卡"""
     from src.cards.builder import build_all_cards
@@ -130,6 +143,11 @@ def main():
     p_wb.add_argument("--entry", default=None, help="save 操作时传入的条目 JSON 字符串")
     p_wb.add_argument("--entry-id", default=None, help="delete 操作时的条目 id")
     p_wb.set_defaults(func=cmd_toonflow_worldbook)
+
+    # toonflow worldbook-build：MD → worldbook.json
+    p_wbb = p_tf_sub.add_parser("worldbook-build", help="构建世界书 MD → worldbook.json")
+    p_wbb.add_argument("--story", "-s", default=None, help="故事名（不指定则用 CURRENT_STORY）")
+    p_wbb.set_defaults(func=cmd_worldbook_build)
 
     # cards
     p_cards = subparsers.add_parser("cards", help="角色卡构建和上传")
