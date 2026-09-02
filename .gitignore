@@ -64,3 +64,6 @@ run.local.ps1
 /ai_story/
 /characters_repo/
 /.hide/
+/.trellis/
+/.codex/
+/.agents/
