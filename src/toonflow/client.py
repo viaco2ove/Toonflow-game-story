@@ -83,13 +83,13 @@ class ToonflowClient:
         with open(env_path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)
 
-    def api_call(self, path: str, data: dict) -> dict:
+    def api_call(self, path: str, data: dict, timeout: int = 60) -> dict:
         """调用 API"""
         url = f"{self.base_url}{path}"
         resp = requests.post(
             url, json=data,
             headers={"Authorization": f"Bearer {self.token}"},
-            timeout=60
+            timeout=timeout
         )
         return resp.json()
 
@@ -179,7 +179,7 @@ class ToonflowClient:
             "worldId": world_id,
             "base64Data": b64_data,
             "roleName": role_name
-        })
+        }, timeout=300)
 
         if result.get("code") == 200:
             data = result.get("data", {})
