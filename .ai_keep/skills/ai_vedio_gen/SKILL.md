@@ -45,7 +45,7 @@ Connector，开箱即用，但调用消耗额外 credit）。
 
 ### 生成方式
 
-- VideoGen - WorkBuddy 内置多模态生成工具（调用消耗 credit）
+- VideoGen - WorkBuddy/minimax code 等工具内置多模态生成工具（调用消耗 credit）
 - mmx mmx cli 生成视频
 - doubao 豆包火山方舟 接口生成视频
 
