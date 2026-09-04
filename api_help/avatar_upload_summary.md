@@ -15,22 +15,22 @@
 
 | 角色ID | 角色名称 | 本地文件 | 服务器路径 | 访问URL |
 |--------|----------|----------|------------|---------|
-| npc_xiaoqi | 小七 | xiaoqi.png | /1/game/role/96c61688-f0e5-4cb8-99d4-a5166ae3f7aa.png | http://122.51.232.171/1/game/role/96c61688-f0e5-4cb8-99d4-a5166ae3f7aa.png |
-| npc_sulaoshi | 苏老师 | sulaoshi.png | /1/game/role/06fdf0ed-2437-4c24-8850-ac22263f4dce.png | http://122.51.232.171/1/game/role/06fdf0ed-2437-4c24-8850-ac22263f4dce.png |
-| npc_xiaozhang | 校长 | xiaozhang.png | /1/game/role/9a5377ac-cc3a-4687-8ec7-7ba0495cb7cf.png | http://122.51.232.171/1/game/role/9a5377ac-cc3a-4687-8ec7-7ba0495cb7cf.png |
-| npc_liekounv | 裂口女 | liekounv.png | /1/game/role/d754f918-6416-461a-a36d-a3b691daae2a.png | http://122.51.232.171/1/game/role/d754f918-6416-461a-a36d-a3b691daae2a.png |
-| npc_wumianren | 无面人 | wumianren.png | /1/game/role/5c478292-c363-409a-8fc5-cd2b7bcb97b2.png | http://122.51.232.171/1/game/role/5c478292-c363-409a-8fc5-cd2b7bcb97b2.png |
-| npc_changfav | 长发女 | changfanv.png | /1/game/role/87b01138-1fb0-48ad-bb79-40e36d1ba158.png | http://122.51.232.171/1/game/role/87b01138-1fb0-48ad-bb79-40e36d1ba158.png |
-| npc_liming | 李明 | liming.png | /1/game/role/bbb67943-fc82-4891-8597-deefa3ed7596.png | http://122.51.232.171/1/game/role/bbb67943-fc82-4891-8597-deefa3ed7596.png |
-| npc_wangsiyuan | 王思远 | wangsiyuan.png | /1/game/role/7bfbcd86-daf6-4a38-96dc-0ec3bd631c69.png | http://122.51.232.171/1/game/role/7bfbcd86-daf6-4a38-96dc-0ec3bd631c69.png |
-| npc_zhaoxiaopang | 赵小胖 | zhaoxiaopang.png | /1/game/role/1b1cde1d-f850-467f-8d9e-cd4a7a386b54.png | http://122.51.232.171/1/game/role/1b1cde1d-f850-467f-8d9e-cd4a7a386b54.png |
-| npc_lurenjia | 路人甲 | lurenjia.png | /1/game/role/e130756e-cc5b-4ec8-9223-ad815b54c887.png | http://122.51.232.171/1/game/role/e130756e-cc5b-4ec8-9223-ad815b54c887.png |
-| npc_changfany | 长发女 | changfanv.png | /1/game/role/6f062016-898b-47ce-b94e-bdb3ef1406e0.png | http://122.51.232.171/1/game/role/6f062016-898b-47ce-b94e-bdb3ef1406e0.png |
+| npc_xiaoqi | 小七 | xiaoqi.png | /1/game/role/96c61688-f0e5-4cb8-99d4-a5166ae3f7aa.png | {BASE_URL}/1/game/role/96c61688-f0e5-4cb8-99d4-a5166ae3f7aa.png |
+| npc_sulaoshi | 苏老师 | sulaoshi.png | /1/game/role/06fdf0ed-2437-4c24-8850-ac22263f4dce.png | {BASE_URL}/1/game/role/06fdf0ed-2437-4c24-8850-ac22263f4dce.png |
+| npc_xiaozhang | 校长 | xiaozhang.png | /1/game/role/9a5377ac-cc3a-4687-8ec7-7ba0495cb7cf.png | {BASE_URL}/1/game/role/9a5377ac-cc3a-4687-8ec7-7ba0495cb7cf.png |
+| npc_liekounv | 裂口女 | liekounv.png | /1/game/role/d754f918-6416-461a-a36d-a3b691daae2a.png | {BASE_URL}/1/game/role/d754f918-6416-461a-a36d-a3b691daae2a.png |
+| npc_wumianren | 无面人 | wumianren.png | /1/game/role/5c478292-c363-409a-8fc5-cd2b7bcb97b2.png | {BASE_URL}/1/game/role/5c478292-c363-409a-8fc5-cd2b7bcb97b2.png |
+| npc_changfav | 长发女 | changfanv.png | /1/game/role/87b01138-1fb0-48ad-bb79-40e36d1ba158.png | {BASE_URL}/1/game/role/87b01138-1fb0-48ad-bb79-40e36d1ba158.png |
+| npc_liming | 李明 | liming.png | /1/game/role/bbb67943-fc82-4891-8597-deefa3ed7596.png | {BASE_URL}/1/game/role/bbb67943-fc82-4891-8597-deefa3ed7596.png |
+| npc_wangsiyuan | 王思远 | wangsiyuan.png | /1/game/role/7bfbcd86-daf6-4a38-96dc-0ec3bd631c69.png | {BASE_URL}/1/game/role/7bfbcd86-daf6-4a38-96dc-0ec3bd631c69.png |
+| npc_zhaoxiaopang | 赵小胖 | zhaoxiaopang.png | /1/game/role/1b1cde1d-f850-467f-8d9e-cd4a7a386b54.png | {BASE_URL}/1/game/role/1b1cde1d-f850-467f-8d9e-cd4a7a386b54.png |
+| npc_lurenjia | 路人甲 | lurenjia.png | /1/game/role/e130756e-cc5b-4ec8-9223-ad815b54c887.png | {BASE_URL}/1/game/role/e130756e-cc5b-4ec8-9223-ad815b54c887.png |
+| npc_changfany | 长发女 | changfanv.png | /1/game/role/6f062016-898b-47ce-b94e-bdb3ef1406e0.png | {BASE_URL}/1/game/role/6f062016-898b-47ce-b94e-bdb3ef1406e0.png |
 
 ### 玩家角色
 - **角色ID**: player
 - **头像路径**: /1/game/role/e593f351-7f62-446a-ac34-d87d2cd539c4.png
-- **访问URL**: http://122.51.232.171/1/game/role/e593f351-7f62-446a-ac34-d87d2cd539c4.png
+- **访问URL**: {BASE_URL}/1/game/role/e593f351-7f62-446a-ac34-d87d2cd539c4.png
 
 ### 旁白角色
 - **角色ID**: narrator
