@@ -70,3 +70,4 @@ run.local.ps1
 /.dsh/
 /__pycache__/
 */__pycache__/
+__pycache__/
