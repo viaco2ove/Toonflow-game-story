@@ -53,7 +53,7 @@ Connector，开箱即用，但调用消耗额外 credit）。
 
 [ai_vedio_gen.yml](../../config/ai_vedio_gen.yml)
 
-## 工具与参数
+## 工具与参数(workbuddy-video-gen)
 
 工具名：`VideoGen`（通过 `DeferExecuteTool` 调用，由 WorkBuddy 宿主提供）
 
