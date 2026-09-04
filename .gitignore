@@ -68,3 +68,5 @@ run.local.ps1
 /.codex/
 /.agents/
 /.dsh/
+/__pycache__/
+*/__pycache__/
