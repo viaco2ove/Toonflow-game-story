@@ -11,7 +11,9 @@ tags:
 ---
 
 # AI 故事前置设定收集技能（ai_story_chat_pre）
-
+参考资料：
+[memory]
+[reference]
 ## 触发条件
 
 当用户表达以下意图时加载此技能：
