@@ -21,38 +21,48 @@ Connector，开箱即用，但调用消耗额外 credit）。
 - 固定转场特效（拥抱 / 变身 / 万物归尘等）→ 走 `3D模型与视频特效` 技能的 video-fx，
   本技能不覆盖模板特效
 
-# 角色视频生成
-用于角色的动态头像（webp文件）生成做准备
-## 角色视频生成到
-{root}/.cache/character/{story}/{rolename}/
-下面
+## 角色视频生成
 
-## 角色视频默认参数
-格式：MP4
-时长：5s
+用于角色的动态头像（webp 文件）生成做准备。**所有生成的 mp4 必须写到缓存目录，不允许落到默认目录。**
 
+### 输出目录（强制）
 
-## 生成方式
-多种视频文件生成方式
-暂时已支持
-- VideoGen - WorkBuddy 等平台内置的多模态生成工具
+`{root}/.cache/character/{story}/{rolename}/`
 
-## 配置文件
+- `{root}` =  项目根目录
+- `{story}` = 故事名，如 `黑塔：从超忆症开始成神`
+- `{rolename}` = 角色名，如 `先生`、`张晚意`
+
+⚠️ **必须把完整路径通过 `output_dir` 参数传给 VideoGen，禁止依赖默认行为。**
+
+### 角色视频默认参数
+
+| 参数 | 值 |
+|---|---|
+| 格式 | MP4 |
+| 时长 | 5s |
+| 分辨率 | 720P |
+
+### 生成方式
+
+- VideoGen - WorkBuddy 内置多模态生成工具（调用消耗 credit）
+
+### 配置文件
+
 [ai_vedio_gen.yml](../../config/ai_vedio_gen.yml)
-
 
 ## 工具与参数
 
 工具名：`VideoGen`（通过 `DeferExecuteTool` 调用，由 WorkBuddy 宿主提供）
 
-| 参数 | 必填 | 说明 |
-|---|---|---|
-| `prompt` | ✅ | 视频描述。具体写场景、动作、镜头运动、风格，越细越好 |
-| `image` | ❌ | 图生视频的输入图。本地绝对路径或 http(s) URL |
-| `last_image` | ❌ | 尾帧图，做 image→last_image 帧间插值 |
-| `seconds` | ❌ | 时长（秒），默认 5，建议 5–10 |
-| `resolution` | ❌ | `720P`（默认）/ `1080P`，不要传其他值 |
-| `output_dir` | ❌ | 输出目录，不填则落到 workspace 的 `generated-videos/` |
+| 参数 | 必填 | 说明                                                                   |
+|---|---|------------------------------------------------------------------------|
+| `prompt` | ✅ | 视频描述。具体写场景、动作、镜头运动、风格，越细越好                   |
+| `image` | ❌ | 图生视频的输入图。本地绝对路径或 http(s) URL                           |
+| `last_image` | ❌ | 尾帧图，做 image→last_image 帧间插值                                   |
+| `seconds` | ❌ | 时长（秒），默认 5，建议 5–10                                          |
+| `resolution` | ❌ | `720P`（默认）/ `1080P`，不要传其他值                                  |
+| `output_dir` | ✅ | **必须传入**，完整路径如 `{root}/.cache/character/{story}/{rolename}/` |
 
 ## ⚠️ 必须告知用户的代价
 
@@ -64,40 +74,46 @@ Connector，开箱即用，但调用消耗额外 credit）。
 ## 调用示例
 
 ### 图生视频（角色立绘微动效）
+
 ```json
 {
   "toolName": "VideoGen",
   "params": {
     "prompt": "角色立绘轻微呼吸起伏，衣摆和发丝随风缓缓飘动，镜头极缓慢前推，保持人物构图不变，电影感柔光",
-    "image": "D:/.../avatars/先生.png",
+    "image": "{root}/ai_story/android_sj/黑塔：从超忆症开始成神/avatars/先生.png",
     "seconds": 5,
     "resolution": "720P",
-    "output_dir": "{root}/.cache/character/{story}/{rolename}/"
+    "output_dir": "{root}/.cache/character/黑塔：从超忆症开始成神/先生/"
   }
 }
 ```
 
 ### 文生视频
+
 ```json
 {
   "toolName": "VideoGen",
   "params": {
     "prompt": "雨夜古城街道，灯笼摇曳，一个撑伞的身影缓缓走过青石板路，电影感，暖色调",
     "seconds": 5,
-    "resolution": "720P"
+    "resolution": "720P",
+    "output_dir": "{root}/.cache/character/黑塔：从超忆症开始成神/先生/"
   }
 }
 ```
 
 ### 首尾帧插值
+
 ```json
 {
   "toolName": "VideoGen",
   "params": {
     "prompt": "从立绘自然过渡到消散粒子效果",
-    "image": "D:/.../avatars/先生.png",
-    "last_image": "{root}/.cache/character/{story}/{rolename}/",
-    "seconds": 5
+    "image": "{root}/ai_story/android_sj/黑塔：从超忆症开始成神/avatars/先生.png",
+    "last_image": "{root}/.cache/character/黑塔：从超忆症开始成神/先生/end_frame.png",
+    "seconds": 5,
+    "resolution": "720P",
+    "output_dir": "{root}/.cache/character/黑塔：从超忆症开始成神/先生/"
   }
 }
 ```
@@ -111,15 +127,10 @@ Connector，开箱即用，但调用消耗额外 credit）。
 
 章节预告片（背景图 + 旁白 voice.wav + 字幕）优先用 ffmpeg 合成，不烧 credit。
 
-## 输出归属约定
-
-生成的故事相关视频统一放到：
-`{root}/.cache/character/{story}/{rolename}/`
-
 ## 排查
 
 | 症状 | 原因 | 解法 |
 |---|---|---|
 | credit 不足 | 额度耗尽 | 确认 WorkBuddy 账户额度 |
 | 图生视频人物崩 | 原图构图复杂/多角色 | 简化 prompt，或先抠图再生成 |
-| 输出目录无文件 | output_dir 路径含空格未引号 | 路径用双引号包裹 |
+| VideoGen 输出到 generated-videos 而非 .cache | 调用时漏了 output_dir 参数 | **必须**在每次 VideoGen 调用时显式传 `output_dir`，禁止留空 |

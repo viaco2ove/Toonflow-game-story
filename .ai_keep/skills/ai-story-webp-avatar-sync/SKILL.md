@@ -17,6 +17,22 @@ background + 原视频 + 首帧），并可选写回世界角色数据。
 - 批量把多个角色视频同步成 webp 头像
 - 更新世界角色的头像字段（avatarPath / avatarBgPath / avatarVideoPath）
 
+## 数据流（不要搞混）
+
+```
+.mp4 输入来源
+  → 从 {root}/.cache/character/{story}/{rolename}/ 读取（ai_vedio_gen 产出）
+  → 读入内存 → base64 → 发给服务器转换
+  → 服务器返回 webp 路径 → 写回世界角色数据（不走本地缓存）
+```
+
+⚠️ **webp 转换结果是直接写服务器，不落地本地 .cache 目录。**
+（.cache 只存放 mp4 输入文件）
+- `{root}` =  项目根目录
+- `{story}` = 故事名，如 `黑塔：从超忆症开始成神`
+- `{rolename}` = 角色名，如 `先生`、`张晚意`
+
+
 ## 接口流程（参考 api_help/image_api/webp/webp.api.md）
 
 1. **提交转换**
@@ -41,7 +57,7 @@ background + 原视频 + 首帧），并可选写回世界角色数据。
 
 | 参数 | 说明 |
 |---|---|
-| `--mp4` | 本地 mp4 路径（必填） |
+| `--mp4` | 本地 mp4 路径（必填），从 `.cache/character/{story}/{rolename}/` 读取 |
 | `--project-id` | 默认 1 |
 | `--world-id` | 写回目标世界 ID（配合 --role-name） |
 | `--role-name` | 写回目标角色名（配合 --world-id） |
@@ -50,30 +66,50 @@ background + 原视频 + 首帧），并可选写回世界角色数据。
 
 ### 只转换（拿到 webp 路径，不写回）
 ```bash
-python -m src.cli webp-sync --mp4 "ai_story/android_sj/黑塔：从超忆症开始成神/.cache/character/黑塔：从超忆症开始成神/先生/先生_2026-09-04T16-41-32.mp4"
+python -m src.cli webp-sync --mp4 "{root}/.cache/character/黑塔：从超忆症开始成神/先生/先生_2026-09-04T16-41-32.mp4"
 ```
 
+### 转换 + 写回世界角色
+```bash
+python -m src.cli webp-sync \
+  --mp4 "{root}/.cache/character/黑塔：从超忆症开始成神/先生/先生_2026-09-04T16-41-32.mp4" \
+  --world-id 44 \
+  --role-name "先生"
+```
 
 
 ## 完整工作流（与 ai_vedio_gen 串联）
 
 ```
 角色立绘.png
-   │  ai_vedio_gen (VideoGen 图生视频)
+   │  ai_vedio_gen (VideoGen 图生视频，mp4 落 .cache)
    ▼
-角色.mp4 (5s)
-   │  ai-story-webp-avatar-sync (本技能)
-   ▼
-webp 动画头像 + png 背景 ──》缓存到 {root}/.cache/character/{story}/{rolename}/──》
-调用技能：ai-story-story-sync
+.mp4 → 读入 base64 → 发给服务器转换 → webp 直接写回世界角色数据
 ```
+
+## 写回机制（防重复世界 — 重要）
+
+写回走 `client.save_world(world)`，**但必须先把 `worldId` 和 `id` 都设为目标世界 ID**
+（`sync_to_role` 里 `world["id"]=world_id; world["worldId"]=world_id` 再 save_world）。
+原因与坑：
+
+- `get_world()` 返回的字段里**只有 `id`、没有 `worldId`**。
+- 服务端 `saveWorld` 以 `worldId` 为准：缺 `worldId`（或 `worldId=0`）会被当成「新建世界」→
+  **重复生成一个同名故事**。这正是本技能早期版本的 bug（详见下方排查表）。
+- 修法就是和 `ai-story-story-sync` 的 `full_update.py` 内部写法保持一致：显式补 `worldId` 后再 save。
+
+⚠️ **为什么写回不能直接调 `ai-story-story-sync`（`toonflow update`）**：
+`ai-story-story-sync` 的 `update_npc_roles` 会**重新调用 `separate_avatar` 抠图**，
+把角色的 `avatarPath` 覆盖回 png（`_fg.png`），从而**把刚生成的 webp 动画头像冲掉**。
+所以 webp 写回必须用本技能的「定向 worldId-aware save_world」，只改这一个角色的 5 个头像字段，
+不动其它数据、不触发抠图。`ai-story-story-sync` 负责的是「整故事推送」，二者职责不同。
 
 ## 与 ai_vedio_gen 的关系
 
 | 技能 | 产出 | 消耗 |
 |---|---|---|
-| `ai_vedio_gen` | mp4 视频 | VideoGen credit（5s≈50-100） |
-| `ai-story-webp-avatar-sync` | webp 动画头像 | 服务端转换（无额外 credit，但耗时 1-3 分钟） |
+| `ai_vedio_gen` | mp4 视频（落 .cache） | VideoGen credit（5s≈50-100） |
+| `ai-story-webp-avatar-sync` | webp 动画头像（直接写服务器，不落本地） | 服务端转换（无额外 credit，但耗时 1-3 分钟） |
 
 ## 排查
 
@@ -84,3 +120,5 @@ webp 动画头像 + png 背景 ──》缓存到 {root}/.cache/character/{story
 | status=failed | 服务端抠图模型失败（多角色/复杂背景） | 先抠图再生成视频，或简化立绘 |
 | 写回后头像不显示 | 客户端拼 host 问题 | webp 路径是相对路径 `/1/game/role/...`，客户端自动拼 BASE_URL；确认世界已发布 |
 | 找不到角色 | role-name 拼写 | get_world 确认 settings.roles 里的 name 字段 |
+| **写回后出现两个同名故事** | `save_world` 漏了 `worldId` → 服务端当新建 | `sync_to_role` 已补 `worldId`；若仍发生，删掉残缺的那个（chapterCount=0、`listWorlds` 比对），用 `deleteWorld` 删 `worldId`，再把 webp 字段从被删世界抄回正确世界（见脚本顶层说明） |
+| 写回后 webp 变成静态 png | 误走 `toonflow update` 重跑抠图覆盖 | webp 写回必须用本技能定向 save_world，不要经 `ai-story-story-sync` |
