@@ -116,6 +116,29 @@ def cmd_list_stories(args):
         print()
 
 
+def cmd_webp_sync(args):
+    """mp4 视频头像转 webp 并同步到角色"""
+    from src.toonflow.webp_avatar_sync import convert_video_to_webp, sync_to_role
+    from src.config import load_global_config
+    from src.toonflow.client import ToonflowClient
+
+    cfg = load_global_config()
+    client = ToonflowClient(cfg)
+
+    data = convert_video_to_webp(client, args.mp4, args.project_id)
+    print("\n=== 转换结果 ===")
+    print(f"  webp (foreground): {data.get('foregroundFilePath')}")
+    print(f"  bg  (background):  {data.get('backgroundFilePath')}")
+    print(f"  video:            {data.get('videoPath')}")
+    print(f"  firstFrame:       {data.get('firstFramePath')}")
+    print(f"  durationMs:       {data.get('durationMs')}")
+
+    if args.world_id and args.role_name:
+        sync_to_role(client, args.world_id, args.role_name, data)
+    elif args.world_id or args.role_name:
+        print("  ⚠ 写回需要同时提供 --world-id 和 --role-name，已跳过")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Toonflow Game Story - 统一工具",
@@ -180,6 +203,14 @@ def main():
     p_agme.add_argument("--world-id", default=None, help="world ID（不指定则从 story.json 读取）")
     p_agme.add_argument("--project-id", default=None, help="project ID，默认 1")
     p_agme.set_defaults(func=lambda a: __import__("src.toonflow.agme_cache", fromlist=["cmd_agme_cache_pull"]).cmd_agme_cache_pull(a))
+
+    # webp-sync：mp4 视频头像转 webp 并同步到角色
+    p_webp = subparsers.add_parser("webp-sync", help="mp4 视频头像转 webp 并同步到角色")
+    p_webp.add_argument("--mp4", required=True, help="本地 mp4 视频头像路径")
+    p_webp.add_argument("--project-id", type=int, default=1)
+    p_webp.add_argument("--world-id", type=int, default=None, help="写回目标世界 ID")
+    p_webp.add_argument("--role-name", default=None, help="写回目标角色名")
+    p_webp.set_defaults(func=cmd_webp_sync)
 
     args = parser.parse_args()
     if not hasattr(args, "func"):
