@@ -28,7 +28,14 @@ read_when:
 | `world_id` | 世界书上传强依赖，必须非空 | 见「顺序依赖」 |
 
 ## 核心命令
+查看故事是否已经存在，如果存在
+先调用 toonflow_agme_cache 技能（修复故事时除外），获取最新故事信息。
 
+然后根据同步任务进行选择性操作
+- 创建故事
+- 同步故事
+- 更新故事的部分数据：toonflow_agme_cache -》更新故事的数据到最新-》增加修改-》sync
+- 修复故事：用上一次正常的 toonflow_agme_cache 数据进行修复
 ### 1. 上传故事（五合一）
 
 ```
@@ -102,6 +109,8 @@ python -m src.cli toonflow worldbook --story 黑塔：从超忆症开始成神 -
 python -m src.cli toonflow worldbook --story 黑塔：从超忆症开始成神 --op list
 ```
 
+⚠️ **import 后必须 list 复核**：`importWorldBook` 服务端逐条吞错，即使全部失败也返回 `code=200`、`imported=0`（假成功）。**判断导入是否成功唯一标准是 `--op list` 的实际条数**，不是 import 命令的退出码或返回值。
+
 ## 发布前检查清单
 
 - [ ] 全局 `.env` 存在且 `BASE_URL` / `TOKEN` 正确（否则 `ToonflowClient` 连接失败）
@@ -120,6 +129,8 @@ python -m src.cli toonflow worldbook --story 黑塔：从超忆症开始成神 -
 | `BASE_URL`/`TOKEN` 缺失或连接拒绝 | 全局 `.env` 未配或环境错 | 校对根目录 `.env` |
 | 角色/头像上传失败 | `story.json` 的 `md_file`/`avatar_file` 与实际文件名不符 | 核对 `roles/` 与 `avatars/` 实际文件 |
 | `import` 后世界书数量翻倍 | 用了 `merge` 且服务端已有旧条目 | 改用默认 `replace` 全量覆盖 |
+| `import` 返回 `imported=0`、list 也为 0 | 服务端 `t_worldBook` 表缺列（如 `agentList`）或库异常 | 服务端侧修 schema/代码；本地无法绕过（2026-09-04 开发环境实测 `SQLITE_ERROR: table t_worldBook has no column named agentList`，`saveWorldBookEntry` 可暴露真错，批量 import 只假成功） |
+| 头像分离失败 `overdue balance` | 服务端 AI 账户欠费（抠图走外部 AI 服务） | 服务端侧充值；角色本体已添加，可稍后单独重跑 `update` 补分离 |
 
 ## 注意事项
 
