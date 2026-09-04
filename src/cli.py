@@ -174,6 +174,13 @@ def main():
     p_list = subparsers.add_parser("list-stories", help="列出所有可用故事")
     p_list.set_defaults(func=cmd_list_stories)
 
+    # agme_cache pull
+    p_agme = subparsers.add_parser("agme_cache", help="从服务端拉取数据到 toonflow_agme_cache 目录")
+    p_agme.add_argument("--story", "-s", default=None, help="故事名（不指定则用 CURRENT_STORY）")
+    p_agme.add_argument("--world-id", default=None, help="world ID（不指定则从 story.json 读取）")
+    p_agme.add_argument("--project-id", default=None, help="project ID，默认 1")
+    p_agme.set_defaults(func=lambda a: __import__("src.toonflow.agme_cache", fromlist=["cmd_agme_cache_pull"]).cmd_agme_cache_pull(a))
+
     args = parser.parse_args()
     if not hasattr(args, "func"):
         parser.print_help()
