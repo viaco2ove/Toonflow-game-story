@@ -14,6 +14,6 @@ GIF_FPS_BIREFNET: 10
 FRAME_OUTPUT_SIDE_BIREFNET: 512
 # DATA_DIR: /data/toonflow or D:\Users\xxx\tools\Toonflow-game\toonflow-game-app\Toonflow-game or auto
 DATA_DIR: auto
-model_cache: {DATA_DIR}\avatar-matting\birefnet\model-cache
+model_cache: "{DATA_DIR}\\avatar-matting\\birefnet\\model-cache"
 # model: birefnet or modnet
-model: modnet
+model: birefnet
