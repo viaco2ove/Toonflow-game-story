@@ -1,0 +1,17 @@
+# 比较影响内存。建议内存不足的改为3. 不然可能会转换失败
+VIDEO_TO_ANIMATION_MULTIPLIED_SPEED_MODNet: 3
+# mp4 转动图动作帧的秒数，默认4
+MAX_GIF_DURATION_SECONDS_MODNet: 5
+# 每秒多少帧，默认10
+GIF_FPS_MODNet: 15
+FRAME_OUTPUT_SIDE_MODNet: 512
+
+VIDEO_TO_ANIMATION_MULTIPLIED_SPEED_BIREFNE: 2
+# mp4 转动图动作帧的秒数，默认4
+MAX_GIF_DURATION_SECONDS_BIREFNET: 4
+# 每秒多少帧，默认10
+GIF_FPS_BIREFNET: 10
+FRAME_OUTPUT_SIDE_BIREFNET: 512
+# DATA_DIR: /data/toonflow or D:\Users\xxx\tools\Toonflow-game\toonflow-game-app\Toonflow-game or auto
+DATA_DIR: auto
+model_cache: {DATA_DIR}\avatar-matting\birefnet\model-cache

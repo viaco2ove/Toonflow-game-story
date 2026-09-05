@@ -100,6 +100,9 @@ webp 动画头像 + 背景静态图。**不**调用 Toonflow `/game/convertAvata
 | `--modnet-model` | ❌ | MODNet 模型路径（默认自动定位） |
 | `--ffmpeg` | ❌ | ffmpeg 路径（默认从 `where ffmpeg` / 常见 Win 路径查找） |
 
+读取配置文件：
+[viedeo_to_webp.yml](../../config/viedeo_to_webp.yml)
+
 **stdout 末尾**输出 JSON（方便脚本化调用）：
 
 ```json
@@ -112,6 +115,15 @@ webp 动画头像 + 背景静态图。**不**调用 Toonflow `/game/convertAvata
   "durationMs": 5042,
   "frames": 40
 }
+```
+
+```
+输出：{root}/.cache/character/{story}/{rolename}/webp
+background.png
+firstFrame.png
+foreground.webp
+video.mp4
+webp.json
 ```
 
 ## 调用示例

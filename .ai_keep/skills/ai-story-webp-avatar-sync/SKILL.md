@@ -26,11 +26,22 @@ background + 原视频 + 首帧），并可选写回世界角色数据。
   → 服务器返回 webp 路径 → 写回世界角色数据（不走本地缓存）
 ```
 
+
+```
+输出：{root}/.cache/character/{story}/{rolename}/webp
+background.png
+firstFrame.png
+foreground.webp
+video.mp4
+webp.json
+```
+
 ⚠️ **webp 转换结果是直接写服务器，不落地本地 .cache 目录。**
 （.cache 只存放 mp4 输入文件）
 - `{root}` =  项目根目录
 - `{story}` = 故事名，如 `黑塔：从超忆症开始成神`
 - `{rolename}` = 角色名，如 `先生`、`张晚意`
+
 
 ## 本地生成方案（推荐）
 
@@ -105,6 +116,7 @@ python -m src.cli webp-sync \
    ├─ foreground.webp   ← 透明前景
    ├─ background.png    ← 静态背景
    ├─ firstFrame.png
+   ├─ webp.json
    └─ video.mp4
 ```
 
