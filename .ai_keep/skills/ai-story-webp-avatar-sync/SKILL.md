@@ -32,8 +32,21 @@ background + 原视频 + 首帧），并可选写回世界角色数据。
 - `{story}` = 故事名，如 `黑塔：从超忆症开始成神`
 - `{rolename}` = 角色名，如 `先生`、`张晚意`
 
+## 本地生成方案（推荐）
 
-## 接口流程（参考 api_help/image_api/webp/webp.api.md）
+用 `convert-avatar-video-to-webp` 技能——**不走接口**，直接在本地用 ffmpeg + MODNet 抠图，
+产物落到 `.cache/character/{story}/{rolename}/webp/`。质量比服务端 colorkey 假抠图好。
+
+```bash
+python "D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.workbuddy/skills/convert-avatar-video-to-webp/convert.py" \
+  --mp4    "D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.cache/character/黑塔：从超忆症开始成神/先生/先生_6s.mp4" \
+  --out-dir "D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.cache/character/黑塔：从超忆症开始成神/先生/webp"
+```
+
+详见 `convert-avatar-video-to-webp` 技能（`SKILL.md`）。
+
+## 接口生成方案（备用）
+接口流程（参考 api_help/image_api/webp/webp.api.md）
 
 1. **提交转换**
    `POST /game/convertAvatarVideoToGif`
@@ -79,6 +92,25 @@ python -m src.cli webp-sync \
 
 
 ## 完整工作流（与 ai_vedio_gen 串联）
+
+### 方案 A：本地生成（推荐）
+
+```
+角色立绘.png
+   │  ai_vedio_gen (VideoGen 图生视频，mp4 落 .cache)
+   ▼
+.mp4 → convert-avatar-video-to-webp (本地 ffmpeg + MODNet)
+   ▼
+.cache/character/{story}/{role}/webp/
+   ├─ foreground.webp   ← 透明前景
+   ├─ background.png    ← 静态背景
+   ├─ firstFrame.png
+   └─ video.mp4
+```
+
+产物可手动上传服务器，或后续走方案 B 的写回逻辑。
+
+### 方案 B：服务端接口（原始方案）
 
 ```
 角色立绘.png
