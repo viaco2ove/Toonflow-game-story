@@ -369,9 +369,16 @@ def main() -> int:
         print(json.dumps({"ok": False, "error": f"模型不存在: {effective_model}"}), file=sys.stderr)
         return 2
 
-    # 2. 复制 video.mp4
+    # 2. 复制 video.mp4（Windows 句柄延迟偶发锁文件，重试 3 次）
     video_out = out_dir / "video.mp4"
-    shutil.copy2(mp4, video_out)
+    for attempt in range(3):
+        try:
+            shutil.copy2(mp4, video_out)
+            break
+        except PermissionError:
+            if attempt == 2:
+                raise
+            time.sleep(1.5)
 
     # 3. 抽首帧
     first_frame_path = out_dir / "firstFrame.png"

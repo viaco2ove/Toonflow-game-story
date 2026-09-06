@@ -131,6 +131,7 @@ python -m src.cli toonflow worldbook --story 黑塔：从超忆症开始成神 -
 | `import` 后世界书数量翻倍 | 用了 `merge` 且服务端已有旧条目 | 改用默认 `replace` 全量覆盖 |
 | `import` 返回 `imported=0`、list 也为 0 | 服务端 `t_worldBook` 表缺列（如 `agentList`）或库异常 | 服务端侧修 schema/代码；本地无法绕过（2026-09-04 开发环境实测 `SQLITE_ERROR: table t_worldBook has no column named agentList`，`saveWorldBookEntry` 可暴露真错，批量 import 只假成功） |
 | 头像分离失败 `overdue balance` | 服务端 AI 账户欠费（抠图走外部 AI 服务） | 服务端侧充值；角色本体已添加，可稍后单独重跑 `update` 补分离 |
+| settings 出现 MB 级 base64 脏数据 | 服务端 saveWorld 对 role spread 透传 + 客户端历史 bug 把立绘 base64 塞进 `avatarUrl` 等 4 字段 | `client.save_world` 已内置剥离钩子（2026-09-06）自动清除；服务器 db 侧用 `toonflow-app-run-db/clean_base64.py`（幂等） |
 
 ## 注意事项
 

@@ -95,6 +95,82 @@ class ToonflowClient:
 
     # ===== 世界管理 =====
 
+    # ---- base64 污染防护（2026-09-06）------------------------------------
+    # 服务端 saveWorld 对 settings.roles / playerRole 是 spread 透传
+    # （normalizeStoryRole: {...defaults, ...raw}），客户端发来的 base64 大字段
+    # 会原样落库。历史脏数据：id=44 单条 settings 103MB（12角色×4个 *Url 字段）。
+    # 本地技能走 get_world → 改字段 → save_world 整包写回，若不剥离会把服务端
+    # 已有 base64 原样带回，污染循环。故 save_world 前统一剥离。
+    _B64_MIN_CHARS = 4096  # 超过此长度且符合 base64 字符集才视为数据块
+
+    _BASE64_CHARS = set(
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=\r\n"
+    )
+
+    @classmethod
+    def _looks_like_base64_blob(cls, value: str) -> bool:
+        """判别长 base64 数据块：够长 + 抽样字符集几乎全匹配"""
+        if len(value) < cls._B64_MIN_CHARS:
+            return False
+        sample = value[:2048]
+        non_b64 = sum(1 for c in sample if c not in cls._BASE64_CHARS)
+        return non_b64 <= len(sample) // 100  # 容忍 1% 噪声
+
+    @classmethod
+    def _strip_base64_fields(cls, obj: dict, where: str) -> int:
+        """删除 dict 中值为 base64 大块的键，返回删除数"""
+        stripped = 0
+        if not isinstance(obj, dict):
+            return 0
+        for key in list(obj.keys()):
+            v = obj.get(key)
+            if isinstance(v, str) and cls._looks_like_base64_blob(v):
+                del obj[key]
+                stripped += 1
+                print(f"  ⚠ 剥离 base64 字段 {where}.{key} ({len(v):,} chars)")
+        return stripped
+
+    @classmethod
+    def _sanitize_world_payload(cls, world_data: dict) -> dict:
+        """save_world 前剥离 settings.roles / playerRole / narratorRole 内嵌 base64"""
+        total = 0
+        settings = world_data.get("settings")
+        if isinstance(settings, str):
+            try:
+                parsed = json.loads(settings)
+            except (ValueError, TypeError):
+                parsed = None
+            if isinstance(parsed, dict):
+                roles = parsed.get("roles")
+                if isinstance(roles, list):
+                    for i, role in enumerate(roles):
+                        total += cls._strip_base64_fields(
+                            role, f"settings.roles[{i}]")
+                world_data["settings"] = json.dumps(parsed, ensure_ascii=False)
+        elif isinstance(settings, dict):
+            roles = settings.get("roles")
+            if isinstance(roles, list):
+                for i, role in enumerate(roles):
+                    total += cls._strip_base64_fields(
+                        role, f"settings.roles[{i}]")
+        for key in ("playerRole", "narratorRole"):
+            role = world_data.get(key)
+            if isinstance(role, dict):
+                total += cls._strip_base64_fields(role, key)
+            elif isinstance(role, str):
+                try:
+                    parsed = json.loads(role)
+                except (ValueError, TypeError):
+                    continue
+                if isinstance(parsed, dict):
+                    n = cls._strip_base64_fields(parsed, key)
+                    if n:
+                        world_data[key] = json.dumps(parsed, ensure_ascii=False)
+                    total += n
+        if total:
+            print(f"  ✓ 共剥离 {total} 个 base64 大字段（防污染服务端 settings）")
+        return world_data
+
     def get_world(self, world_id: int) -> dict:
         """获取世界数据"""
         result = self.api_call("/game/getWorld", {"worldId": world_id})
@@ -103,7 +179,8 @@ class ToonflowClient:
         raise Exception(f"获取世界失败: {result}")
 
     def save_world(self, world_data: dict) -> dict:
-        """保存世界数据"""
+        """保存世界数据（自动剥离 role 内嵌 base64 头像字段，防止撑爆服务端 settings）"""
+        self._sanitize_world_payload(world_data)
         result = self.api_call("/game/saveWorld", world_data)
         if result.get("code") == 200:
             print("  ✓ 世界保存成功")

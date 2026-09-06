@@ -121,7 +121,7 @@ python -m src.cli webp-sync \
 ```
 
 产物可手动上传服务器，或后续走方案 B 的写回逻辑。
-
+[api_help/image_api/图片上传.md]
 ### 方案 B：服务端接口（原始方案）
 
 ```
@@ -141,6 +141,20 @@ python -m src.cli webp-sync \
 - 服务端 `saveWorld` 以 `worldId` 为准：缺 `worldId`（或 `worldId=0`）会被当成「新建世界」→
   **重复生成一个同名故事**。这正是本技能早期版本的 bug（详见下方排查表）。
 - 修法就是和 `ai-story-story-sync` 的 `full_update.py` 内部写法保持一致：显式补 `worldId` 后再 save。
+
+## base64 污染防护（2026-09-06 加固）
+
+⚠️ **历史事故**：服务端 `saveWorld` 对 role 对象是 spread 透传（`normalizeStoryRole: {...defaults, ...raw}`），
+某次客户端把整张立绘 webp 以 base64 塞进 `avatarUrl/avatarMiddleUrl/avatarBackgroundUrl/avatarThumbUrl`
+4 个字段，导致 id=44 单条 settings 达 **103MB**（12角色×4字段≈49MB base64），db.sqlite 撑到 1.29GB。
+
+**防护**：`ToonflowClient.save_world()` 已内置 `_sanitize_world_payload()` 钩子——写回前自动扫描
+`settings.roles` / `playerRole` / `narratorRole`，凡 >4096 字符且符合 base64 字符集的字段一律剥离
+（控制台打印 `⚠ 剥离 base64 字段 ...`）。所有技能（webp-avatar-sync / story-sync / batch_webp_sync /
+full_update）的写回都经过此函数，**无法再把 base64 大块带回服务端**。
+
+注意：剥离是「删除字段」而非置 null——前端渲染用 `avatarPath`（`/1/game/role/xxx.webp` 相对路径），
+不依赖 4 个 `*Url` 字段。若服务端未来某接口确实需要 base64 回传，不要走 `save_world`。
 
 ⚠️ **为什么写回不能直接调 `ai-story-story-sync`（`toonflow update`）**：
 `ai-story-story-sync` 的 `update_npc_roles` 会**重新调用 `separate_avatar` 抠图**，
@@ -166,3 +180,4 @@ python -m src.cli webp-sync \
 | 找不到角色 | role-name 拼写 | get_world 确认 settings.roles 里的 name 字段 |
 | **写回后出现两个同名故事** | `save_world` 漏了 `worldId` → 服务端当新建 | `sync_to_role` 已补 `worldId`；若仍发生，删掉残缺的那个（chapterCount=0、`listWorlds` 比对），用 `deleteWorld` 删 `worldId`，再把 webp 字段从被删世界抄回正确世界（见脚本顶层说明） |
 | 写回后 webp 变成静态 png | 误走 `toonflow update` 重跑抠图覆盖 | webp 写回必须用本技能定向 save_world，不要经 `ai-story-story-sync` |
+| settings 又出现大 base64 | 历史脏数据经 `get_world`→`save_world` 整包写回循环 | `client.save_world` 已内置剥离钩子（2026-09-06），自动清除并打印 `⚠ 剥离` 日志；服务器 db 侧需另跑 `clean_base64.py`（见 `toonflow-app-run-db/`） |
