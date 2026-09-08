@@ -76,6 +76,27 @@ webp 动画头像 + 背景静态图。**不**调用 Toonflow `/game/convertAvata
 | `--fps` | 10 | 抽帧率（与 server 端 GIF_FPS 一致） |
 | `--max-seconds` | 4 | 取视频前 N 秒（与 server 端 MAX_GIF_DURATION_SECONDS 一致） |
 
+## 模型选择（yml `model:`）
+
+| 值 | 说明 | 适用 |
+|---|---|---|
+| `modnet` | onnxruntime 逐帧，快 | 通用 |
+| `birefnet` | rembg[birefnet-portrait] 逐帧，发丝级边缘 | **人物+复杂/静止背景（推荐）** |
+| `birefnet_rvm` | 首帧 BiRefNet + RVM 时序传播 + EMA | 仅纯色/简单背景 |
+
+**⚠️ birefnet_rvm 实测坑（2026-09-07，陈曦_6s.mp4 教室背景）**：RVM 会把画面中**静止的桌椅幻觉进 mask**（frame20 起半透明残影，半透明像素 1.5%→5.5%），且首帧 BiRefNet→第2帧 RVM 切换有跳变（抖动峰值 0.0145 vs modnet 0.0042）。扫描 `--dsr 0.25~0.75` 均无法消除，是 RVM 状态漂移固有问题。复杂背景一律用 `birefnet`。
+
+## ⚠️ U2NET_HOME（必须知道）
+
+rembg 默认去 `~/.u2net/` 找 onnx，**找不到就会联网下载 928MB**（极慢、会挂死，残留 tmp 文件）。本地已有权重在：
+
+```
+…\avatar-matting\birefnet\model-cache\birefnet-portrait.onnx   (928MB)
+```
+
+`convert.py` 与 `_birefnet_rvm_worker.py` 已自动设置 `U2NET_HOME` 指向该目录。
+手动跑 rembg 时务必：`export U2NET_HOME=<model-cache 目录>`，加载 ~10s，零下载。
+
 ## 依赖（必须）
 
 | 依赖 | 路径 | 说明 |

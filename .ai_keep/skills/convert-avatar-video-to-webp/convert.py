@@ -35,6 +35,7 @@ DEFAULT_MODNET_DIR = DEFAULT_APP_ROOT / "tools" / "avatar-matting" / "birefnet"
 DEFAULT_PYTHON_BIREFNET = DEFAULT_BIREFNET_DIR / "venv" / "Scripts" / "python.exe"
 DEFAULT_MODNET_MODEL = DEFAULT_MODNET_DIR / "model-cache" / "modnet_photographic_portrait_matting.onnx"
 DEFAULT_BIREFNET_MODEL = DEFAULT_BIREFNET_DIR / "model-cache" / "birefnet-portrait.onnx"
+DEFAULT_RVM_PTH = DEFAULT_BIREFNET_DIR / "model-cache" / "rvm_mobilenetv3.pth"
 
 # 默认参数（当 config.yml 不存在时使用）
 DEFAULT_GIF_SIDE = 512
@@ -74,11 +75,15 @@ def load_config(config_path: str) -> dict:
 
         # --- 第一步：从 raw 文本里判断模型（不依赖 cfg["model"] 初始值）---
         raw_str = str(raw).lower()
-        model_is_modnet = raw.get("model", "").lower() in ("modnet", "modnet_photographic_portrait_matting")
-        model_is_birefnet = raw.get("model", "").lower() in ("birefnet", "birefnet-portrait")
+        model_val = raw.get("model", "").lower()
+        model_is_modnet = model_val in ("modnet", "modnet_photographic_portrait_matting")
+        model_is_birefnet_rvm = model_val == "birefnet_rvm"
+        model_is_birefnet = model_val in ("birefnet", "birefnet-portrait") or model_is_birefnet_rvm
 
         if model_is_modnet:
             cfg["model"] = "modnet"
+        elif model_is_birefnet_rvm:
+            cfg["model"] = "birefnet_rvm"
         elif model_is_birefnet:
             cfg["model"] = "birefnet-portrait"
 
@@ -153,8 +158,8 @@ def run_ffmpeg(ffmpeg: str, args: list[str], check: bool = True) -> subprocess.C
 
 def matte_frame_birefnet(frame_bytes: bytes, python: Path, model_path: Path) -> bytes:
     """用 birefnet venv 的 rembg 抠一张帧，返回 RGBA PNG bytes。
-    rembg new_session('birefnet-portrait') 会自动找 ~/.u2net/birefnet-portrait.onnx
-    （首次调用会下载到那里，之后直接用）。
+    rembg new_session('birefnet-portrait') 会去 $U2NET_HOME 找 birefnet-portrait.onnx。
+    必须把 U2NET_HOME 指向本地 model-cache，否则 rembg 会联网下载 928MB（极慢/卡死）。
     """
     script = "\n".join([
         "import sys",
@@ -163,10 +168,14 @@ def matte_frame_birefnet(frame_bytes: bytes, python: Path, model_path: Path) -> 
         "result = remove(sys.stdin.buffer.read(), session=session, force_return_bytes=True)",
         "sys.stdout.buffer.write(result)",
     ])
+    # 关键：把 U2NET_HOME 指向本地已存在的模型目录，避免联网下载
+    env = os.environ.copy()
+    env.setdefault("U2NET_HOME", str(Path(model_path).parent))
     proc = subprocess.run(
         [str(python), "-c", script],
         input=frame_bytes,
         capture_output=True,
+        env=env,
     )
     if proc.returncode != 0:
         raise RuntimeError(f"birefnet 抠图失败: {proc.stderr.decode('utf-8', errors='replace')[-500:]}")
@@ -360,13 +369,18 @@ def main() -> int:
     birefnet_model = Path(args.birefnet_model)
 
     use_birefnet = model_name.lower().startswith("birefnet")
+    use_birefnet_rvm = model_name.lower() == "birefnet_rvm"
     effective_model = birefnet_model if use_birefnet else modnet_model
+    rvm_pth = Path(DEFAULT_RVM_PTH)
 
     if not python_birefnet.exists():
         print(json.dumps({"ok": False, "error": f"python 不存在: {python_birefnet}"}), file=sys.stderr)
         return 2
     if not effective_model.exists():
         print(json.dumps({"ok": False, "error": f"模型不存在: {effective_model}"}), file=sys.stderr)
+        return 2
+    if use_birefnet_rvm and not rvm_pth.exists():
+        print(json.dumps({"ok": False, "error": f"RVM 权重不存在: {rvm_pth}"}), file=sys.stderr)
         return 2
 
     # 2. 复制 video.mp4（Windows 句柄延迟偶发锁文件，重试 3 次）
@@ -385,7 +399,9 @@ def main() -> int:
     run_ffmpeg(ffmpeg, ["-ss", "0", "-i", str(mp4), "-vframes", "1", str(first_frame_path)])
 
     # 4. 抽帧到临时目录（竖版 decrease+pad 不砍头，横版自然全幅）
-    tmp_root = out_dir / "_tmp_frames"
+    # 使用会话唯一目录名：避免"先删旧临时目录"这一步（批量删除 80+ 文件会被
+    # safe-delete 拦截，导致刚抽完首帧就中断）。旧目录交给用户手动清理。
+    tmp_root = out_dir / f"_tmp_frames_{os.getpid()}_{int(time.time())}"
     if tmp_root.exists():
         shutil.rmtree(tmp_root, ignore_errors=True)
     src_dir = tmp_root / "src"
@@ -422,25 +438,49 @@ def main() -> int:
         for i, src in enumerate(src_frames)
     ]
 
-    first_rgba = None
-    completed = 0
-    with ThreadPoolExecutor(max_workers=concurrency) as ex:
-        futures = {ex.submit(matte_frame_wrapper, a): a[0] for a in matte_args}
-        for future in as_completed(futures):
-            idx, rgba_or_path, err = future.result()
-            completed += 1
-            if err:
-                raise RuntimeError(f"帧 {idx} 抠图失败: {err}")
-            if idx == 1:
-                first_rgba = rgba_or_path
-            if completed % 5 == 0 or completed == len(src_frames):
-                print(json.dumps({
-                    "ok": True, "phase": "matting",
-                    "done": completed, "total": len(src_frames),
-                    "elapsed_s": round(time.time() - t0, 2)
-                }, ensure_ascii=False), file=sys.stderr)
+    if use_birefnet_rvm:
+        # ---- birefnet_rvm：首帧 BiRefNet 精抠 + RVM recurrent 传播 + EMA 平滑 ----
+        worker_script = Path(__file__).parent / "_birefnet_rvm_worker.py"
+        if not worker_script.exists():
+            print(json.dumps({"ok": False, "error": f"worker 不存在: {worker_script}"}), file=sys.stderr)
+            return 2
+        proc = subprocess.run(
+            [str(python_birefnet), str(worker_script), str(src_dir), str(matte_dir)],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+        )
+        for line in (proc.stderr or "").splitlines():
+            line = line.strip()
+            if line.startswith("{"):
+                print(line, file=sys.stderr)
+        if proc.returncode != 0:
+            print(json.dumps({"ok": False, "error": f"birefnet_rvm worker 失败: {(proc.stderr or '')[-1200:]}"}),
+                  file=sys.stderr)
+            return 4
+        first_rgba = (matte_dir / "frame_0001.png").read_bytes()
+        t_modnet = time.time() - t0
+        print(json.dumps({"ok": True, "phase": "matting_done", "total": len(src_frames),
+                          "elapsed_s": round(t_modnet, 2), "engine": "birefnet_rvm"},
+                         ensure_ascii=False), file=sys.stderr)
+    else:
+        first_rgba = None
+        completed = 0
+        with ThreadPoolExecutor(max_workers=concurrency) as ex:
+            futures = {ex.submit(matte_frame_wrapper, a): a[0] for a in matte_args}
+            for future in as_completed(futures):
+                idx, rgba_or_path, err = future.result()
+                completed += 1
+                if err:
+                    raise RuntimeError(f"帧 {idx} 抠图失败: {err}")
+                if idx == 1:
+                    first_rgba = rgba_or_path
+                if completed % 5 == 0 or completed == len(src_frames):
+                    print(json.dumps({
+                        "ok": True, "phase": "matting",
+                        "done": completed, "total": len(src_frames),
+                        "elapsed_s": round(time.time() - t0, 2)
+                    }, ensure_ascii=False), file=sys.stderr)
 
-    t_modnet = time.time() - t0
+        t_modnet = time.time() - t0
     print(json.dumps({"ok": True, "phase": "matting_done", "total": len(src_frames),
                       "elapsed_s": round(t_modnet, 2)}, ensure_ascii=False), file=sys.stderr)
 
@@ -482,9 +522,6 @@ def main() -> int:
 
     duration_ms = get_video_duration_ms(ffmpeg, mp4)
 
-    if not args.keep_tmp:
-        shutil.rmtree(tmp_root, ignore_errors=True)
-
     result = {
         "ok": True,
         "foreground": str(foreground_path),
@@ -499,8 +536,20 @@ def main() -> int:
         "concurrency": concurrency,
         "model": model_name,
         "mattingSeconds": round(t_modnet, 2),
+        "tmpDir": str(tmp_root),
     }
     print(json.dumps(result, ensure_ascii=False))
+
+    # 结果先输出，再清理临时帧（清理失败不影响结果返回）
+    if not args.keep_tmp:
+        try:
+            shutil.rmtree(tmp_root, ignore_errors=True)
+        except Exception as e:
+            print(json.dumps({"ok": True, "warn": f"临时目录清理失败，可手动删除: {tmp_root} ({e})"},
+                             ensure_ascii=False), file=sys.stderr)
+    else:
+        print(json.dumps({"ok": True, "warn": f"--keep-tmp 已保留临时目录: {tmp_root}"},
+                         ensure_ascii=False), file=sys.stderr)
     return 0
 
 
