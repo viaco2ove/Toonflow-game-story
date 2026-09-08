@@ -8,7 +8,7 @@ image_gen_type: mmx/multimodal/imageGen/toonFlow
 mmx image "图片描述" --n 1 --aspect-ratio 16:9
 ```
 - 直接命令行调用
-- 生成的是本地文件（`image_001.jpg` 等）
+- 生成的是本地文件（`../../.cache/test/image_001.jpg` 等）
 - 适合批量生成、自动化脚本
 
 ## 2. **多模态内容生成 Skill**（系统优先推荐）
