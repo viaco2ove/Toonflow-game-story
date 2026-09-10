@@ -1,0 +1,5 @@
+ai_vedio_gen_default_fun: openai_gen
+ai_vedio_openai_url: https://api.agnes-ai.cn/v1/videos
+ai_vedio_openai_key: xxx
+ai_vedio_openai_model: agnes-image-2.5-flash
+
