@@ -4,6 +4,9 @@ description: 为 Toonflow 互动故事生成"上传所需的所有 JSON 数据"�
 ---
 
 # AI Story Data Gen（故事数据生成）
+用户： 
+/ai-story-data-gen 把 xxx 故事 做到 xxxx 路径.
+/ai-story-data-gen  把 刚刚设计的故事 做到 D:\Users\xxx\tools\Toonflow-game\Toonflow-game-story\ai_story\android_sj\通天传授
 
 ## 何时使用
 

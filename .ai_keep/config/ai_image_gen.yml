@@ -1,0 +1,5 @@
+ai_image_gen_default_fun: openai_gen
+ai_image_openai_url: https://api.agnes-ai.cn/v1/images/generations
+ai_image_openai_key: xxx
+ai_image_openai_model: agnes-image-2.5-flash
+

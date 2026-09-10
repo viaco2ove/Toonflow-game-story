@@ -14,14 +14,25 @@ tags:
 
 ## 通道总览
 
-| 通道 | 优先级 | 依赖 | 适用场景 |
-|------|--------|------|----------|
-| **ImageGen** | ⭐ 推荐 | ToolSearch 发现 → DeferExecuteTool 调用 | 文生图、角色头像、封面、背景图 |
-| **multimodal** | ⭐ 推荐 | 大模型直接支持 | 简单场景快速出图 |
-| **mmx CLI** | 🔧 备用 | mmx CLI 已安装 + mmx_enable=true | 批量生成、自动化脚本 |
-| **ToonFlow API** | 🔧 备用 | 本地 ToonFlow 服务器运行 | ToonFlow 平台专用角色图 |
-
+| 通道             | 优先级 | 依赖                                    | 适用场景                       |
+|------------------|--------|-----------------------------------------|--------------------------------|
+| **ImageGen**     | ⭐ 推荐 | ToolSearch 发现 → DeferExecuteTool 调用 | 文生图、角色头像、封面、背景图 |
+| **multimodal**   | ⭐ 推荐 | 大模型直接支持                          | 简单场景快速出图               |
+| **mmx CLI**      | 🔧 备用 | mmx CLI 已安装 + mmx_enable=true        | 批量生成、自动化脚本           |
+| **ToonFlow API** | 🔧 备用 | 本地 ToonFlow 服务器运行                | ToonFlow 平台专用角色图        |
+| **openai_gen**   | 🔧 备用 | openai api 协议                         | api                            |
 ---
+
+## 配置文件
+[ai_image_gen.yml](../../config/ai_image_gen.yml)
+例子
+```
+ai_image_gen_default_fun: openai_gen
+ai_image_openai_url: https://api.agnes-ai.cn/v1/images/generations
+ai_image_openai_key: xxx
+ai_image_openai_model: agnes-image-2.5-flash
+```
+
 ## 角色卡头像规格
 默认景别：中景
 #### 1️⃣ 景别
