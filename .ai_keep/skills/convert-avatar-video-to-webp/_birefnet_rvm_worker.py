@@ -42,7 +42,9 @@ def main():
     ap.add_argument("src_dir")
     ap.add_argument("matte_dir")
     ap.add_argument("--ema", type=float, default=0.85, help="帧间 EMA 系数（当前帧权重）")
-    ap.add_argument("--dsr", type=float, default=0.25, help="RVM downsample_ratio")
+    ap.add_argument("--dsr", type=float, default=0.75,
+                    help="RVM downsample_ratio。512px 输入必须 >=0.5（缩小后特征图需维持 256px+），"
+                         "0.25 会因细节丢失产生静态背景残影（实测半透 5.2%% -> 0.75 时 1.87%%）")
     args = ap.parse_args()
 
     src_dir = Path(args.src_dir)

@@ -80,11 +80,12 @@ webp 动画头像 + 背景静态图。**不**调用 Toonflow `/game/convertAvata
 
 | 值 | 说明 | 适用 |
 |---|---|---|
-| `modnet` | onnxruntime 逐帧，快 | 通用 |
-| `birefnet` | rembg[birefnet-portrait] 逐帧，发丝级边缘 | **人物+复杂/静止背景（推荐）** |
-| `birefnet_rvm` | 首帧 BiRefNet + RVM 时序传播 + EMA | 仅纯色/简单背景 |
+| `modnet` | onnxruntime 逐帧，快（~27s/40帧） | 通用兜底 |
+| `birefnet` | rembg[birefnet-portrait] 逐帧，发丝级边缘 | 质量最优但**极慢（~12s/帧，40帧≈8min）** |
+| `birefnet_rvm` | 首帧 BiRefNet + RVM 时序传播 + EMA | **推荐：质量接近 birefnet，36s 出 40 帧** |
 
-**⚠️ birefnet_rvm 实测坑（2026-09-07，陈曦_6s.mp4 教室背景）**：RVM 会把画面中**静止的桌椅幻觉进 mask**（frame20 起半透明残影，半透明像素 1.5%→5.5%），且首帧 BiRefNet→第2帧 RVM 切换有跳变（抖动峰值 0.0145 vs modnet 0.0042）。扫描 `--dsr 0.25~0.75` 均无法消除，是 RVM 状态漂移固有问题。复杂背景一律用 `birefnet`。
+**⚠️ birefnet_rvm 的 dsr 坑（2026-09-08 定案）**：`--dsr` 原默认 0.25 是 RVM 官方 **1080p** 推荐值；512px 输入下缩小后特征图仅 128px，细节丢失导致 **RVM 把静态背景（桌椅）幻觉进 mask**（半透明像素 1.5%→5.2%，frame20 起肉眼可见残影）。**已改默认 dsr=0.75**（512×0.75=384px 特征图）：残影消失（半透回落 1.02%），抖动 0.00099 优于 MODNet（0.00152）。ema 0.85/0.95/1.0 影响很小。**口诀：dsr × 输入边长 ≥ 256px**。
+质量排序（陈曦_6s.mp4 实测）：birefnet_rvm(dsr0.75) ≈ birefnet 逐帧 > modnet；速度：birefnet_rvm(36s) ≈ modnet(27s) >> birefnet(8min)。
 
 ## ⚠️ U2NET_HOME（必须知道）
 

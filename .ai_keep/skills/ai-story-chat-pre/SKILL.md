@@ -37,6 +37,25 @@ tags:
 - 生成图片/音频
 - 上传到 Toonflow 平台
 
+## 网页探查能力
+例如 browser-skill 等技能去访问 红果，小说等各种网站
+
+### browse-skill 简介
+#### 安装
+``` powershell
+Invoke-WebRequest https://raw.githubusercontent.com/Tencent/BrowserSkill/main/install.ps1 -OutFile install.ps1
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+bsk install-skill --yes 
+bsk doctor
+```
+
+浏览器安装 扩展 BrowserSkill 需要网络加速
+
+自检命令
+``` powershell
+bsk doctor
+```
+
 ## 参考模板
 
 收集字段严格对应工作区根目录的 `reference/故事资料模板.md`（11 个板块）。用户已有填好的模板时，直接按其内容整理；否则按下方"收集要点"逐项引导。
