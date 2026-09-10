@@ -15,3 +15,11 @@
 
 ## 配置文件
 [ai_voice_gen.yml](../../config/ai_voice_gen.yml)
+
+例子
+```
+ai_voice_gen_default_fun: openai_gen
+ai_voice_openai_url: https://api.agnes-ai.cn/v1/images/generations
+ai_voice_openai_key: xxx
+ai_voice_openai_model: agnes-image-2.5-flash
+```

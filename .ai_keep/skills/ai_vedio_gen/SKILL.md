@@ -22,6 +22,17 @@ description: >-
 | **openai_gen**   | 🔧 备用 | openai api 协议                  | api                                     |
 
 
+## 配置文件
+[ai_vedio_gen.yml](../../config/ai_vedio_gen.yml)
+
+例子
+```
+ai_vedio_gen_default_fun: openai_gen
+ai_vedio_openai_url: https://api.agnes-ai.cn/v1/images/generations
+ai_vedio_openai_key: xxx
+ai_vedio_openai_model: agnes-image-2.5-flash
+```
+
 ## 何时用
 
 - 想给角色立绘加微动效（呼吸 / 眨眼 / 衣摆飘动 / 轻微运镜）
