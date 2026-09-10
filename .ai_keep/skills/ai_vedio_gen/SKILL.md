@@ -10,8 +10,17 @@ description: >-
 
 # AI 视频生成 (ai_vedio_gen)
 
-把文字或图片变成短视频。底层走 **WorkBuddy 内置的 VideoGen 等工具**（不是外部
-Connector，开箱即用，但调用消耗额外 credit）。
+
+
+## 通道总览
+
+| 通道             | 优先级 | 依赖                             | 适用场景                                |
+|------------------|--------|----------------------------------|-----------------------------------------|
+| **VideoGen**     | ⭐ 推荐 | 当前ai 工具自己的能力            | WorkBuddy 等工具 内置的 VideoGen 等工具 |
+| **multimodal**   | ⭐ 推荐 | 大模型直接支持                   | 简单场景快速出图                        |
+| **mmx CLI**      | 🔧 备用 | mmx CLI 已安装 + mmx_enable=true | 批量生成、自动化脚本                    |
+| **openai_gen**   | 🔧 备用 | openai api 协议                  | api                                     |
+
 
 ## 何时用
 
@@ -20,6 +29,16 @@ Connector，开箱即用，但调用消耗额外 credit）。
 - 给章节背景图做动态预告
 - 固定转场特效（拥抱 / 变身 / 万物归尘等）→ 走 `3D模型与视频特效` 技能的 video-fx，
   本技能不覆盖模板特效
+
+## VideoGen
+### workbuddy
+查看 VideoGen/SKILL.workbuddy.md
+ToolSearch 发现 → DeferExecuteTool 调用
+把文字或图片变成短视频。底层走 **WorkBuddy 内置的 VideoGen 等工具**（不是外部
+Connector，开箱即用，但调用消耗额外 credit）。
+
+### minimax code
+查看 VideoGen/SKILL.minimaxcode.md
 
 ## 角色视频生成
 

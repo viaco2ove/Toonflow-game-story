@@ -16,6 +16,8 @@ description: 为 Toonflow 互动故事生成"上传所需的所有 JSON 数据"�
 - 参考榜样：`ai_story/171/谁让这个山大王修仙的`（含 worldbook 96 条）、`ai_story/android_sj/黑塔：从超忆症开始成神`（本技能实战样例）
 
 ## 上传流程读取哪些 JSON（契约）
+这个技能不上传数据。只设计故事的数据。
+上传由用户自己 调用 ai-story-story-sync 技能实现。
 
 `src/toonflow/full_update.py` 一键上传读取：
 
