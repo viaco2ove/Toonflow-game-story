@@ -40,16 +40,20 @@ def full_update(story_name: str = None):
 
     client = ToonflowClient(global_cfg)
 
-    # 1. 创建或更新世界
+        # 1. 创建或更新世界
     print("\n[1/5] 创建/更新世界...")
     world_data = None
     if story.world_id:
         try:
             world_data = client.get_world(story.world_id)
-        except Exception:
-            pass
+        except Exception as e:
+            # 服务器对"不存在"和"无权限"统一返回 403，
+            # 无法区分——安全策略：视为不存在，直接重建
+            print(f"  ⚠ 世界 {story.world_id} 不可访问 ({str(e)[:80]})，将重建")
+            story.world_id = 0
 
     if world_data:
+        # --- 更新路径 ---
         settings = world_data.get("settings", {})
         if isinstance(settings, str):
             settings = json.loads(settings)
@@ -60,16 +64,27 @@ def full_update(story_name: str = None):
         world_id = world_data.get("id", story.world_id)
         print(f"  -> 更新现有世界 (ID={world_id})")
     else:
-        # 创建新世界
-        world_data = client.create_world(
-            story.project_id, story.story_name, story.intro, story.global_bg
-        )
-        world_id = world_data.get("id")
-        print(f"  ✓ 世界创建成功 (ID={world_id})")
-        # 更新 story.world_id
-        story.world_id = world_id
-        # 保存 WORLD_ID 到故事 .env
-        _save_world_id(story)
+        # --- 创建路径 ---
+        # 注意：即使 story.world_id=0 也走这里，让 saveWorld(worldId=0) 去决定是创建还是更新
+        world_data = {
+            "projectId": story.project_id,
+            "name": story.story_name,
+            "intro": story.intro,
+            "worldId": story.world_id or 0,   # 0=创建，非0=带ID创建（服务端视具体实现）
+            "settings": json.dumps({
+                "roles": [],
+                "globalBackground": story.global_bg
+            })
+        }
+        result = client.api_call("/game/saveWorld", world_data)
+        if result.get("code") == 200:
+            world_data = result.get("data", {})
+            world_id = world_data.get("id")
+            print(f"  ✓ 世界创建成功 (ID={world_id})")
+            story.world_id = world_id
+            _save_world_id(story)
+        else:
+            raise RuntimeError(f"创建世界失败: {result}")
 
     world_data["id"] = world_id
     world_data["worldId"] = world_id

@@ -222,6 +222,13 @@ class ToonflowClient:
             return result.get("data", {}).get("entry", {})
         raise Exception(f"保存世界书条目失败: {result}")
 
+    def get_world_book_entry(self, entry_id: int) -> dict:
+        """获取单条世界书条目"""
+        result = self.api_call("/game/getWorldBookEntry", {"id": entry_id})
+        if result.get("code") == 200:
+            return result.get("data", {}).get("entry", {})
+        raise Exception(f"获取世界书条目失败: {result}")
+
     def delete_world_book_entry(self, entry_id: int) -> bool:
         """删除世界书条目"""
         result = self.api_call("/game/deleteWorldBookEntry", {"id": entry_id})
@@ -288,6 +295,13 @@ class ToonflowClient:
         else:
             print(f"    ✗ 章节保存失败: {result}")
             return None
+
+    def get_chapter_entry(self, chapter_id: int) -> dict:
+        """获取单条章节数据"""
+        result = self.api_call("/game/getChapter", {"chapterId": chapter_id})
+        if result.get("code") == 200:
+            return result.get("data", {})
+        raise Exception(f"获取章节失败: {result}")
 
     def delete_chapter(self, chapter_id: int, world_id: int) -> bool:
         """删除章节"""
@@ -367,3 +381,49 @@ class ToonflowClient:
         else:
             print(f"    ✗ 上传失败: {result.get('message')}")
             return None
+
+
+def upload_image(client: ToonflowClient, file_path: Path, project_id: int = 1) -> str:
+    """
+    上传图片（全局入口函数）
+
+    Args:
+        client: ToonflowClient 实例
+        file_path: 图片文件路径
+        project_id: 项目 ID
+
+    Returns:
+        服务器返回的 filePath，失败返回 None
+    """
+    return client.upload_image(file_path, "scene", project_id)
+
+
+def client_op(story_name: str = None, op: str = "list", mode: str = "replace",
+                     entry_json: str = None, entry_id: int = None, world_id: int = None, project_id: int = 1):
+    """客户端操作入口（供 cli 调用）"""
+    from src.config import load_config
+
+    global_cfg, story = load_config(story_name)
+    if not story:
+        raise ValueError("未指定故事名，且 .env 中无 CURRENT_STORY")
+
+    print("=" * 60)
+    print(f"客户端操作")
+    print(f"环境: {global_cfg.base_url}")
+    print(f"操作: {op}")
+    print("=" * 60)
+
+    client = ToonflowClient(global_cfg)
+
+    if op == "uploadImage":
+        if not entry_json:
+            raise ValueError("uploadImage 操作需要 --entry 传图片文件路径")
+        file_path = Path(entry_json)
+        if not file_path.exists():
+            raise FileNotFoundError(f"图片文件不存在: {file_path}")
+        result = upload_image(client, file_path, project_id)
+        if result:
+            print(f"\n  服务器路径: {result}")
+        return result
+    else:
+        raise ValueError(f"未知操作: {op}（支持: uploadImage）")

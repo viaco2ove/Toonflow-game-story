@@ -41,7 +41,7 @@ from src.toonflow.client import ToonflowClient
 from src.config import load_global_config, load_story_config
 
 
-BASE_URL_FILE = "http://10.10.2.195:60002"
+BASE_URL_FILE = "http://xxxx:xxxx"
 
 
 def _resolve_file_url(file_path: str) -> str:

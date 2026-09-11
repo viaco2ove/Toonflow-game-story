@@ -7,7 +7,7 @@
 用法:
     from src.toonflow.storyworld.worldbook import (
         list_worldbook, import_worldbook, export_worldbook,
-        save_worldbook_entry, delete_worldbook_entry,
+        save_worldbook_entry, get_worldbook_entry, delete_worldbook_entry,
     )
 
     或命令行:
@@ -117,6 +117,25 @@ def save_worldbook_entry(client: ToonflowClient, story: StoryConfig, entry: dict
     return saved
 
 
+def get_worldbook_entry(client: ToonflowClient, story: StoryConfig, entry_id: int) -> dict:
+    """获取单条世界书条目的完整数据"""
+    if not story.world_id:
+        raise ValueError("story.world_id 为空，请先创建/绑定世界")
+    entry = client.get_world_book_entry(entry_id)
+    if entry:
+        print(f"  ✓ 获取条目: {entry.get('title', '')} (id={entry.get('id')})")
+        # 打印关键字段
+        if verbose_output := entry.get("keys"):
+            print(f"    关键词: {', '.join(verbose_output[:5])}")
+        if category := entry.get("category"):
+            print(f"    分类: {category}")
+        if constant := entry.get("constant"):
+            print(f"    常驻条目")
+    else:
+        print(f"  ⚠ 未找到条目 id={entry_id}")
+    return entry
+
+
 def delete_worldbook_entry(client: ToonflowClient, story: StoryConfig, entry_id: int) -> bool:
     """删除单条世界书条目"""
     if not story.world_id:
@@ -135,7 +154,8 @@ def worldbook_op(story_name: str = None, op: str = "list", mode: str = "replace"
       list    - 列出服务端条目
       import  - 本地 json 导入服务端（mode 控制覆盖/追加）
       export  - 服务端条目导出到本地 json
-      save    - 新建/更新单条（--entry 传 JSON 字符串）
+      save_create    - 新建（--entry 传 JSON 字符串）
+      save_upddate -/更新单条（--entry 传 JSON 字符串）
       delete  - 删除单条（--entry-id 传 id）
     """
     global_cfg, story = load_config(story_name)
@@ -156,11 +176,23 @@ def worldbook_op(story_name: str = None, op: str = "list", mode: str = "replace"
         import_worldbook(client, story, mode=mode)
     elif op == "export":
         export_worldbook(client, story)
-    elif op == "save":
+    elif op == "save_create":
         if not entry_json:
             raise ValueError("save 操作需要 --entry 传 JSON 字符串")
         entry = json.loads(entry_json)
         save_worldbook_entry(client, story, entry)
+    elif op == "save_update":
+        if not entry_id:
+            raise ValueError("get 操作需要 --entry-id 传条目 id")
+        if not entry_json:
+            raise ValueError("save 操作需要 --entry 传 JSON 字符串")
+        entry = json.loads(entry_json)
+        save_worldbook_entry(client, story, entry)
+    elif op == "getWorld":
+        if not entry_id:
+            raise ValueError("get 操作需要 --entry-id 传条目 id")
+        # 返回故事的json 数据
+        get_worldbook_entry(client, story, entry_id)
     elif op == "delete":
         if not entry_id:
             raise ValueError("delete 操作需要 --entry-id 传条目 id")

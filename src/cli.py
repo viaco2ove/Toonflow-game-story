@@ -12,6 +12,21 @@ Toonflow Game Story - 统一命令行工具
     python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op import
     python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op import --mode merge
     python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op export
+    python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op getWorld --entry-id {entry_id}
+    python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op save_create --entry '{json}'
+    python -m src.cli toonflow worldbook --story 谁让这个山大王修仙的 --op save_update --entry-id {id} --entry '{json}'
+
+    # 章节维护
+    python -m src.cli toonflow chapters --story 谁让这个山大王修仙的 --op getChapter --entry-id {chapter_id}
+    python -m src.cli toonflow chapters --story 谁让这个山大王修仙的 --op save_create --entry '{json}'
+    python -m src.cli toonflow chapters --story 谁让这个山大王修仙的 --op save_update --entry-id {id} --entry '{json}'
+
+    # 文件上传
+    python -m src.cli toonflow client --op uploadImage --entry /path/to/image.png
+
+    # 工作流：章节封面/背景图上传
+    python -m src.cli workflow chapter-background-img --story 谁让这个山大王修仙的 --chapter-id 73 --cover images/ch1.png --background images/ch1_bg.png
+    python -m src.cli workflow chapter-background-img --story 谁让这个山大王修仙的 --chapter-id 73 --cover images/ch1.png
 
     # 角色卡构建
     python -m src.cli cards build --story 破局-从冷落走到瞩目
@@ -70,6 +85,29 @@ def cmd_worldbook_build(args):
     if not story:
         raise ValueError("未指定故事名，且 .env 中无 CURRENT_STORY")
     build_and_save(str(story.story_dir))
+
+
+def cmd_toonflow_chapters(args):
+    """章节维护"""
+    from src.toonflow.chapters import chapters_op
+
+    chapters_op(
+        story_name=args.story,
+        op=args.op,
+        entry_json=args.entry,
+        entry_id=args.entry_id,
+    )
+
+
+def cmd_toonflow_client(args):
+    """客户端操作（文件上传等）"""
+    from src.toonflow.client import client_op
+
+    client_op(
+        op=args.op,
+        entry_json=args.entry,
+        project_id=args.project_id,
+    )
 
 
 def cmd_cards_build(args):
@@ -139,6 +177,21 @@ def cmd_webp_sync(args):
         print("  ⚠ 写回需要同时提供 --world-id 和 --role-name，已跳过")
 
 
+def cmd_workflow_chapter_background_img(args):
+    """章节封面/背景图上传工作流"""
+    from src.toonflow.workflow.workflow_chapter_background_img import (
+        workflow_chapter_background_img,
+    )
+
+    workflow_chapter_background_img(
+        story_name=args.story,
+        chapter_id=args.chapter_id,
+        cover=args.cover,
+        background=args.background,
+        project_id=args.project_id,
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Toonflow Game Story - 统一工具",
@@ -156,11 +209,11 @@ def main():
     p_update.set_defaults(func=cmd_toonflow_update)
 
     # toonflow worldbook：世界书维护
-    p_wb = p_tf_sub.add_parser("worldbook", help="世界书维护（list/import/export/save/delete）")
+    p_wb = p_tf_sub.add_parser("worldbook", help="世界书维护（list/import/export/save/delete/getWorld）")
     p_wb.add_argument("--story", "-s", required=True, help="故事名")
     p_wb.add_argument("--op", default="list",
-                      choices=["list", "import", "export", "save", "delete"],
-                      help="操作: list(列出服务端) / import(本地导入服务端) / export(服务端导出本地) / save(新建更新单条) / delete(删除单条)")
+                      choices=["list", "import", "export", "save_create", "save_update", "getWorld", "delete"],
+                      help="操作: list/getWorld(获取单条) / import/export / save_create/save_update / delete")
     p_wb.add_argument("--mode", default="replace", choices=["replace", "merge"],
                       help="import 时的模式: replace(覆盖) / merge(追加)，默认 replace")
     p_wb.add_argument("--entry", default=None, help="save 操作时传入的条目 JSON 字符串")
@@ -171,6 +224,24 @@ def main():
     p_wbb = p_tf_sub.add_parser("worldbook-build", help="构建世界书 MD → worldbook.json")
     p_wbb.add_argument("--story", "-s", default=None, help="故事名（不指定则用 CURRENT_STORY）")
     p_wbb.set_defaults(func=cmd_worldbook_build)
+
+    # toonflow chapters：章节维护
+    p_ch = p_tf_sub.add_parser("chapters", help="章节维护（getChapter/save_create/save_update）")
+    p_ch.add_argument("--story", "-s", required=True, help="故事名")
+    p_ch.add_argument("--op", default="getChapter",
+                      choices=["getChapter", "save_create", "save_update"],
+                      help="操作: getChapter(获取单条) / save_create / save_update")
+    p_ch.add_argument("--entry", default=None, help="章节 JSON 数据（save_create/save_update 时必需）")
+    p_ch.add_argument("--entry-id", type=int, default=None, help="章节 ID（getChapter/save_update 时必需）")
+    p_ch.set_defaults(func=cmd_toonflow_chapters)
+
+    # toonflow client：客户端操作
+    p_cl = p_tf_sub.add_parser("client", help="客户端操作（uploadImage）")
+    p_cl.add_argument("--op", default="uploadImage", choices=["uploadImage"],
+                      help="操作: uploadImage(上传图片)")
+    p_cl.add_argument("--entry", default=None, help="文件路径（uploadImage 时必需）")
+    p_cl.add_argument("--project-id", type=int, default=1, help="项目 ID，默认 1")
+    p_cl.set_defaults(func=cmd_toonflow_client)
 
     # cards
     p_cards = subparsers.add_parser("cards", help="角色卡构建和上传")
@@ -211,6 +282,17 @@ def main():
     p_webp.add_argument("--world-id", type=int, default=None, help="写回目标世界 ID")
     p_webp.add_argument("--role-name", default=None, help="写回目标角色名")
     p_webp.set_defaults(func=cmd_webp_sync)
+
+    # workflow chapter-background-img：章节封面/背景图上传
+    p_wf = subparsers.add_parser("workflow", help="Toonflow 工作流")
+    p_wf_sub = p_wf.add_subparsers(dest="workflow_action")
+    p_cbi = p_wf_sub.add_parser("chapter-background-img", help="章节封面/背景图上传")
+    p_cbi.add_argument("--story", "-s", default=None, help="故事名（不指定则用 CURRENT_STORY）")
+    p_cbi.add_argument("--chapter-id", type=int, required=True, help="章节 ID")
+    p_cbi.add_argument("--cover", default=None, help="封面图路径")
+    p_cbi.add_argument("--background", default=None, help="背景图路径")
+    p_cbi.add_argument("--project-id", type=int, default=1, help="项目 ID，默认 1")
+    p_cbi.set_defaults(func=cmd_workflow_chapter_background_img)
 
     args = parser.parse_args()
     if not hasattr(args, "func"):

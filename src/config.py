@@ -90,6 +90,9 @@ class StoryConfig:
     player_role: Optional[RoleMapping] = None
     npc_roles: list = field(default_factory=list)  # list[RoleMapping]
 
+    # 是否上传头像（false=跳过头像分离和上传）
+    avatar_file_enable: bool = True
+
     # 路径
     roles_dir: Path = None
     avatars_dir: Path = None
@@ -323,6 +326,7 @@ def load_story_config(story_name: str, global_cfg: GlobalConfig = None) -> Story
         chapter_covers=chapter_covers,
         card_scenario=card_scenario,
         card_tags=card_tags,
+        avatar_file_enable=story_json.get("avatar_file_enable", True),
     )
 
 

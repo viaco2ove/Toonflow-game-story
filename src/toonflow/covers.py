@@ -59,8 +59,19 @@ def upload_world_covers(client: ToonflowClient, story: StoryConfig, world_data: 
     # 章节封面/背景（上传到 chapterExtras）
     if story.chapter_covers:
         chapter_extras = settings.get("chapterExtras", [])
+        # 章节序号 → chapterId 映射（直接从服务器查）
+        import requests
+        r_ch = requests.post("http://xxxx:xxxx/game/getChapter",
+            headers={"Authorization": "Bearer xxxx",
+                     "Content-Type": "application/json"},
+            json={"worldId": story.world_id}, timeout=30, verify=False)
+        sorted_chapters = sorted(r_ch.json().get("data", []), key=lambda c: c.get("sort", 0))
+        seq_to_chapter_id = {i + 1: ch["id"] for i, ch in enumerate(sorted_chapters)}
+        print(f"  章节序号映射: {seq_to_chapter_id}")
+
         for idx_str, cover_info in story.chapter_covers.items():
-            idx = int(idx_str)
+            seq = int(idx_str)  # 1-based 序号
+            actual_chapter_id = seq_to_chapter_id.get(seq)
             cover_file = cover_info.get("cover", "")
             bg_file = cover_info.get("background", "")
 
@@ -70,35 +81,41 @@ def upload_world_covers(client: ToonflowClient, story: StoryConfig, world_data: 
             if cover_file:
                 cover_path = story.image_dir / cover_file
                 if cover_path.exists():
-                    uploaded_cover = client.upload_image(cover_path, f"chapter_{idx}_cover", story.project_id) or ""
+                    uploaded_cover = client.upload_image(cover_path, f"chapter_{seq}_cover", story.project_id) or ""
 
             if bg_file:
                 bg_path = story.image_dir / bg_file
                 if bg_path.exists():
-                    uploaded_bg = client.upload_image(bg_path, f"chapter_{idx}_bg", story.project_id) or ""
+                    uploaded_bg = client.upload_image(bg_path, f"chapter_{seq}_bg", story.project_id) or ""
 
-            # 查找或创建 chapterExtras 条目
+            # 查找 chapterExtras 条目（通过 chapterId 精确匹配）
             found = False
             for extra in chapter_extras:
-                if extra.get("sort") == idx - 1 or extra.get("chapterId") == idx:
+                if actual_chapter_id and extra.get("chapterId") == actual_chapter_id:
                     if uploaded_cover:
                         extra["coverPath"] = uploaded_cover
                     if uploaded_bg:
                         extra["background"] = uploaded_bg
+                    print(f"  -> 更新 chapterExtras chapterId={actual_chapter_id}")
                     found = True
                     break
 
             if not found and (uploaded_cover or uploaded_bg):
-                chapter_extras.append({
-                    "sort": idx - 1,
+                new_entry = {
+                    "sort": seq - 1,
+                    "chapterId": actual_chapter_id or seq,
                     "coverPath": uploaded_cover,
                     "background": uploaded_bg,
                     "music": "",
                     "musicAutoPlay": True,
                     "conditionVisible": True,
-                })
+                }
+                chapter_extras.append(new_entry)
+                print(f"  + 新增 chapterExtras chapterId={actual_chapter_id or seq}")
 
         settings["chapterExtras"] = chapter_extras
 
+    # save_world 内部会处理 settings 序列化（dict→JSON string）
+    # 但 covers.py 只返回 world_data，调用方负责序列化
     world_data["settings"] = settings
     return world_data

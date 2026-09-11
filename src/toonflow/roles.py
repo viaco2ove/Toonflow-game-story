@@ -47,11 +47,12 @@ def update_player_role(client: ToonflowClient, story: StoryConfig, world_data: d
     print(f"  处理玩家角色: {story.player_role.name}")
     parsed = parse_role_md(md_path, role_type="player", forced_name=story.player_role.name)
 
-    # 头像分离
+    # 头像分离（avatar_file_enable=false 时跳过）
     avatar_result = {}
-    avatar_path = story.avatars_dir / story.player_role.avatar_file
-    if avatar_path.exists():
-        avatar_result = client.separate_avatar(avatar_path, story.player_role.name, story.world_id)
+    if story.avatar_file_enable:
+        avatar_path = story.avatars_dir / story.player_role.avatar_file
+        if avatar_path.exists():
+            avatar_result = client.separate_avatar(avatar_path, story.player_role.name, story.world_id)
 
     player_data = build_role_object(parsed, story.player_role.name, avatar_result, is_player=True)
     # 玩家角色保留 avatarPath（头像），但不需要分离的背景图路径
@@ -81,9 +82,9 @@ def update_npc_roles(client: ToonflowClient, story: StoryConfig, world_data: dic
         print(f"\n  处理: {role_mapping.name}")
         parsed = parse_role_md(md_path, forced_name=role_mapping.name)
 
-        # 头像分离
+        # 头像分离（avatar_file_enable=false 时跳过）
         avatar_result = {}
-        if role_mapping.avatar_file:
+        if story.avatar_file_enable and role_mapping.avatar_file:
             avatar_path = story.avatars_dir / role_mapping.avatar_file
             if avatar_path.exists():
                 avatar_result = client.separate_avatar(avatar_path, role_mapping.name, story.world_id)
