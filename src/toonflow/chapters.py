@@ -218,6 +218,11 @@ def save_chapter_entry(client: ToonflowClient, story: StoryConfig, entry: dict) 
     chapter_id = entry.get("chapterId") or entry.get("id")
     existing_id = chapter_id if chapter_id else None
 
+    # 确保 entry 中有 chapterId 字段（供 client.save_chapter 使用）
+    if existing_id:
+        entry["chapterId"] = existing_id
+        entry["id"] = existing_id
+
     # 保存章节
     saved = client.save_chapter(entry, story.world_id, existing_id)
 

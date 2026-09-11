@@ -138,3 +138,9 @@ python -m src.cli toonflow worldbook --story 黑塔：从超忆症开始成神 -
 - `update` 命中服务器，**真实创建/修改世界**，不可随意回滚（生产环境尤甚）。
 - `worldbook import` 默认 `replace` 会**清掉服务端旧世界书**再导，确认无误再跑。
 - `world_id` 一旦由首次 `update` 回写进 `story.json`，后续 `update`/`import` 都绑定同一世界，不会重复建世界。
+
+
+## 参考例子
+[通天传授-收徒系统](reference/通天传授-收徒系统)
+特别说明:
+"avatar_file_enable": false, 代表不上传头像。

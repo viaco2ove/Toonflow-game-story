@@ -154,8 +154,10 @@ def upload_chapter_images(
     # 4. 保存章节
     if save and (result["cover_path"] or result["background_path"]):
         print("\n[4/4] 保存章节...")
-        # 更新章节数据
+        # 更新章节数据（必须包含 chapterId/id 才不会创建新章节）
         update_data = {
+            "chapterId": chapter.get("id") or chapter_id,
+            "id": chapter.get("id") or chapter_id,
             "title": chapter.get("title"),
             "content": chapter.get("content"),
             "openingRole": chapter.get("openingRole"),
