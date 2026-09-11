@@ -1,5 +1,4 @@
-ai_image_gen_default_fun: openai_gen
-ai_image_openai_url: https://api.agnes-ai.cn/v1/videos
-ai_image_openai_key: xxx
-ai_image_openai_model: agnes-image-2.5-flash
-
+ai_voice_gen_default_fun: mimo
+ai_voice_mimo_url: https://api.xiaomimimo.com/v1/chat/completions
+ai_voice_mimo_key: xxxx
+ai_voice_mimo_model: mimo-v2.5-tts-voicedesign

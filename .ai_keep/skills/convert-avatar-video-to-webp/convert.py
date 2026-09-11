@@ -6,7 +6,7 @@ convert-avatar-video-to-webp  (v2 — 对齐 toonflow-game-app 官方实现)
 mp4 → foreground.webp + background.png + firstFrame.png
 
 主要改进（相比 v1）：
-  - 读取 viedeo_to_webp.yml 配置（FPS / 时长 / 尺寸 / 并发数）
+  - 读取 vedio_to_webp.yml 配置（FPS / 时长 / 尺寸 / 并发数）
   - 默认使用 birefnet-portrait 抠图（对齐官方），可降级到 MODNet
   - webp 使用 libwebp_anim + lossless=1 动画编码（官方参数）
   - 并发批处理帧（VIDEO_TO_ANIMATION_MULTIPLIED_SPEED）
@@ -56,7 +56,7 @@ COMMON_WIN_FFMPEG_PATHS = [
 # --------- 配置加载 ---------
 
 def load_config(config_path: str) -> dict:
-    """读取 viedeo_to_webp.yml，返回 {model, fps, max_seconds, frame_side, concurrency}"""
+    """读取 vedio_to_webp.yml，返回 {model, fps, max_seconds, frame_side, concurrency}"""
     import yaml
 
     cfg = {
@@ -288,7 +288,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="mp4 → foreground.webp + background.png + firstFrame.png")
     p.add_argument("--mp4", required=True, help="输入 mp4 路径")
     p.add_argument("--out-dir", required=True, help="输出目录")
-    p.add_argument("--config", default="", help="viedeo_to_webp.yml 路径（默认在技能目录查找）")
+    p.add_argument("--config", default="", help="vedio_to_webp.yml 路径（默认在技能目录查找）")
     p.add_argument("--model", default="",
                    help="抠图模型: birefnet-portrait 或 modnet（不传则读 yml 的 model，再默认 birefnet-portrait）")
     p.add_argument("--gif-side", type=int, default=None)
@@ -345,7 +345,7 @@ def main() -> int:
     config_path = args.config
     if not config_path:
         skill_dir = Path(__file__).parent
-        default_cfg = skill_dir / ".." / ".." / "config" / "viedeo_to_webp.yml"
+        default_cfg = skill_dir / ".." / ".." / "config" / "vedio_to_webp.yml"
         if default_cfg.exists():
             config_path = str(default_cfg.resolve())
 

@@ -15,6 +15,34 @@ description: >-
 webp 动画头像 + 背景静态图。**不**调用 Toonflow `/game/convertAvatarVideoToGif`，
 避免等待服务端任务队列、节省传输。
 
+读取配置文件：
+[vedio_to_webp.yml](../../config/vedio_to_webp.yml)
+例如：
+```
+# 比较影响内存。建议内存不足的改为3. 不然可能会转换失败
+VIDEO_TO_ANIMATION_MULTIPLIED_SPEED_MODNet: 6
+# mp4 转动图动作帧的秒数，默认4
+MAX_GIF_DURATION_SECONDS_MODNet: 5
+# 每秒多少帧，默认10
+GIF_FPS_MODNet: 15
+FRAME_OUTPUT_SIDE_MODNet: 512
+
+VIDEO_TO_ANIMATION_MULTIPLIED_SPEED_BIREFNE: 3
+# mp4 转动图动作帧的秒数，默认4
+MAX_GIF_DURATION_SECONDS_BIREFNET: 5
+# 每秒多少帧，默认10
+GIF_FPS_BIREFNET: 10
+FRAME_OUTPUT_SIDE_BIREFNET: 512
+# DATA_DIR: /data/toonflow or D:\Users\xxx\tools\Toonflow-game\toonflow-game-app\Toonflow-game or auto
+DATA_DIR: auto
+model_cache: "{DATA_DIR}\\avatar-matting\\birefnet\\model-cache"
+# model: birefnet or modnet or rvm or birefnet_rvm(首帧 BiRefNet 精抠 + 后续帧 RVM 传播) or rvm
+model: birefnet
+```
+
+严格按照配置文件进行转换，不允许自己改模型。
+不允许违规。你可以发现问题，提出解决方案。但是不能自以为是！
+
 ## 何时用
 
 - 已有 `ai_vedio_gen` 生成的 mp4 视频头像，需要 webp 动图 + 背景 png
@@ -122,8 +150,7 @@ rembg 默认去 `~/.u2net/` 找 onnx，**找不到就会联网下载 928MB**（�
 | `--modnet-model` | ❌ | MODNet 模型路径（默认自动定位） |
 | `--ffmpeg` | ❌ | ffmpeg 路径（默认从 `where ffmpeg` / 常见 Win 路径查找） |
 
-读取配置文件：
-[viedeo_to_webp.yml](../../config/viedeo_to_webp.yml)
+
 
 **stdout 末尾**输出 JSON（方便脚本化调用）：
 

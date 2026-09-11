@@ -3,8 +3,8 @@ ai_vedio_openai_url: https://api.agnes-ai.cn/v1/videos
 ai_vedio_openai_key: xxx
 ai_vedio_openai_model: agnes-image-2.5-flash
 
-# tmpfiles.org/file.io/transfer.sh/Cloudflare R2/aliyun/aliyun_oss/aliyun-oss
-TEMP_OSS: tmpfiles.org
+# tmpfiles.org/uguu.se/file.io/transfer.sh/Cloudflare R2/aliyun/aliyun_oss/aliyun-oss
+TEMP_OSS: uguu.se
 ALIYUN_TEMP_OSS_BUCKET: xxx
 ALIYUN_TEMP_OSS_REGION: cn-beijing
 

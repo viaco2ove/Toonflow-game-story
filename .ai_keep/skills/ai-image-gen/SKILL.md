@@ -22,7 +22,8 @@ tags:
 | **ToonFlow API** | 🔧 备用 | 本地 ToonFlow 服务器运行                | ToonFlow 平台专用角色图        |
 | **openai_gen**   | 🔧 备用 | openai api 协议                         | api                            |
 ---
-
+特别注意不允许ai 自己换通道  ！！！！不允许自己换模型！！！
+不允许违规。你可以发现问题，提出解决方案。但是不能自以为是！
 ## 配置文件
 [ai_image_gen.yml](../../config/ai_image_gen.yml)
 例子
@@ -32,6 +33,7 @@ ai_image_openai_url: https://api.agnes-ai.cn/v1/images/generations
 ai_image_openai_key: xxx
 ai_image_openai_model: agnes-image-2.5-flash
 ```
+ai_image_gen_default_fun 代表默认使用那个通道生成
 
 ## 角色卡头像规格
 默认景别：中景
@@ -45,7 +47,8 @@ ai_image_openai_model: agnes-image-2.5-flash
 | **近景** | 表情神态，情绪传递 | 胸部以上 |
 | **特写** | 情绪爆发，细节强调 | 面部或关键物件 |
 
-## 通道一：ImageGen（推荐）
+### 使用示例
+- /ai-image-gen 风格参考图 cover.png 生成 萧肿.md 的头像
 
 ### 工作原理
 两步延迟调用：

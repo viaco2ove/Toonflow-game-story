@@ -1,5 +1,27 @@
 https://www.agnes-ai.cn/zh-Hans/docs/agnes-image-25-flash
 
+## 示例
+### 图生图之风格参考
+```aiexclude
+curl --location 'https://api.agnes-ai.cn/v1/images/generations' \
+--header 'Authorization: Bearer xxxx' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: __cf_bm=mZqFw2H0U1kd_ziZBNjQRzZauGjjXqokp9DDt9PEItA-1789093306.605145-1.0.1.1-le.Il1oKv5yvFqEQxmO1R_fAHeI8ZYp4L.dsoK6lB1zqzLPKJZyh_RWIVjana.MJegfSV7y6JGHVa7.pyKyN4axNW9eEf.9mYvgvfDG_q_bWjQQ80aj17T2hvSHsy2ni' \
+--data '{
+    "model": "agnes-image-2.5-flash",
+    "prompt": "参考图1的画面风格进行生成，不包括服装和人脸，只是画面风格；仙侠风立绘，一位十八九岁的少年，一米八，黑色碎发半束银色发冠，五官清秀，表情自信满满，一手指向前方，握拳姿势。身穿黑色斗篷带帽子镶紫银绣纹，衣摆随微风扬起，腰间系紫玉腰带挂着一枚火红色丹药（异火糖豆）。周围缭绕紫色灵气光焰，脚下云海翻涌，远处仙侠楼阁飞檐高耸。半身像构图，纯竖屏 9:16，超高清，cg 渲染，电影级光影，二次元国漫风格",
+    "size": "1024x768",
+    "extra_body": {
+      "image": [
+        "https://h.uguu.se/JXvoASYJ.jpg"
+      ],
+      "response_format": "url"
+    }
+  }'
+```
+特点：说明参考什么;年龄设定为29（实际18 预防生成的形象看起来只有8岁）
+
+
 > ## Documentation Index
 > Fetch the complete documentation index at: https://wiki.agnes-ai.cn/llms.txt
 > Use this file to discover all available pages before exploring further.
