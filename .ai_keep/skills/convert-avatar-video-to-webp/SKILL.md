@@ -9,44 +9,78 @@ description: >-
   本地视频转 webp 头像、不走接口转 webp。
 ---
 
-# 本地视频转 webp 头像 (convert-avatar-video-to-webp) v4
+# 本地视频转 webp 头像 (convert-avatar-video-to-webp)
+## history
+[重影.history.md](history/重影.history.md)
 
-## v4 修复重影根因：normalizeForegroundLayer 居中粘贴（2026-09-12）
+### 重影根因（v6 已定案，2026-09-13）
 
-**核心**：对齐 app `normalizeForegroundLayer` 的居中粘贴逻辑。
+**结论：重影的唯一根因是 ffmpeg 的 webp 动画编码路径选错，不是抠图质量、不是 alpha 边缘。**
 
-**根因**：v3 normalize 用"左/顶对齐"（`paste(resized, (10, 8))`），character 偏左→背景层沿边覆盖→重影。
-app 用"水平居中 + 底部垂直对齐"（`left=(512-w)/2, top=512-h`）。
+Animated WebP 每一帧（ANMF chunk）帧头有两位：
 
-**修复**：
-```python
-# v3（左对齐）❌
-canvas.paste(resized, (FOREGROUND_SIDE_PADDING, FOREGROUND_TOP_PADDING))
+- `disposal method`：`0 = NONE`（保留上一帧画布）/ `1 = BACKGROUND`（先把该帧矩形清成背景/透明）
+- `blending method`：`BLEND`（新帧 alpha 混合到画布）/ `NO_BLEND`（直接覆写）
 
-# v4（居中对齐）✅ 对齐 app normalizeForegroundLayer
-left = max(0, round((AVATAR_STD_SIZE - w2) / 2))
-top  = max(0, AVATAR_STD_SIZE - h2 - FOREGROUND_BOTTOM_PADDING)
-canvas.paste(resized, (left, top))
+规范默认是 `disposal=0 + BLEND`。这个组合下新帧里 alpha=0 的像素**不清画布，而是"露出上一帧"** → 这就是拖影的机械原理。对透明立绘（主体每帧都在动，让出的区域必须变透明）来说默认值是致命的。
+
+| ffmpeg 路径 | 谁写 ANMF | 结果 |
+|---|---|---|
+| `-c:v libwebp`（或不写 `-c:v`，只给 `out.webp`） | `libavformat/webpenc.c` 自己手拼 ANMF，disposal **硬编码 0**，blend 走默认 BLEND | **必然重影** |
+| `-c:v libwebp_anim` | 交给 libwebp 官方 `WebPAnimEncoder`，逐帧计算最小子矩形 + dispose/blend，保证解码结果 == 输入 | **不重影** |
+
+这是 FFmpeg 挂了 7 年的 [ticket #7941](https://trac.ffmpeg.org/ticket/7941)，comment:19 直接定位到 `webpenc.c` 第 137 行 `avio_w8(s->pb, 0)`，补丁就是改成 `0x1`（dispose=BACKGROUND）。至今未合并、未暴露成选项。
+
+**v3~v5 一直是 `-c:v libwebp`，所以无论怎么改 alpha 都治不好。v6 已改为 `libwebp_anim`。**
+
+#### 实测证据（512×512 软边圆平移 12 帧，无损编码）
+
+直接解析产物的 ANMF 帧头 + 统计每帧不透明像素（期望恒为 6036）：
+
+```
+=== libwebp（v5 旧） ===
+  ANMF#01..12  512x512 @(0,0)  blend=BLEND     dispose=NONE
+  实测 [6036, 8944, 11852, 14760, 17668, 20576, 23484, 26392, 29300, 32208, 35116, 38024]
+  -> 重影帧: 2~12（逐帧线性累积，正是肉眼看到的拖影）
+
+=== libwebp_anim（v6 新） ===
+  ANMF#01..11   88x88  @(移动)  blend=NO_BLEND  dispose=BACKGROUND
+  实测 [6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036]
+  -> 重影帧: 无
 ```
 
-**同时新增** `normalizeForegroundLayer` 等效函数（extractOpaqueBounds + resizeInside + 居中画布），在 colorkey 之前处理每一帧。
+#### app 是怎么解决的
 
-## v3 修复重影（2026-09-12）
+两条路径（`renderSemanticAvatarAssets` / `renderLegacyAvatarAssets`）都显式指定 `libwebp_anim`：
 
-| 修复 | 问题 | 方案 |
-|------|------|------|
-| **A. webp 无损编码** | v2 用 `lossless=0 + q=80` 有损压缩，alpha 边缘被压坏，背景色"漏"出形成重影 | 改为 `lossless=1 + quality=90 + compression_level=4`（对齐 app libwebp_anim） |
-| **B. 背景用 512 垫边 matte 帧** | v2 对原始分辨率首帧重新抠图，mask 几何与抽帧管线不一致，导致背景人物区域偏移 | 直接复用 `matte_dir/frame_0001.png`（512×512，同管线产出） |
-| **C. colorkey 软抠边** | 发丝/轮廓边缘残留的近黑像素（alpha 极低），无损压缩后"渗出"形成重影 | 对 matte 帧加 `colorkey=0x000000:0.08:0.05` 软透明化（对齐 app legacy 路径） |
+```
+-c:v libwebp_anim  -lossless 1  -quality 90  -compression_level 4  -loop 0  -an  -vsync 0
+```
 
-### 重影根因分析
+三个要素按重要度排：
 
-1. **WebP 编码参数（最直接）** — app 用无损，本技能用有损，半透明 alpha 被压掉
-2. **背景图尺寸来源不一致** — matte 用 512 垫边帧，背景生成用原始分辨率重新抠图，几何错位
-3. **边缘残留像素未处理** — 极低 alpha 的近黑像素在无损压缩后边界"渗出"
+1. **`-c:v libwebp_anim`** ← 真正的根因修复。绕开 ffmpeg 自己拼 ANMF 的 bug，把 dispose/blend 决策权交回 libwebp。
+2. **`-lossless 1`** ← 让帧间差分逐位精确。libwebp 在 lossless 下用 `IncreaseTransparency()`：把"与上一帧画布相同"的像素主动置成 alpha=0，靠 BLEND 从上一帧取回 —— 无损下是数学恒等；一旦 lossy，VP8 重建误差会让 blend 逐帧累积漂移，即使用了 libwebp_anim 也会有淡残影。所以它不是"编码质量"问题，而是**帧间差分的正确性前提**。
+3. **每帧几何完全一致的全画布帧** ← `normalizeForegroundLayer` 把每帧重建到一张全新的 512×512 全透明画布（水平居中 + 底部对齐），`alpha<=14` 一律当透明裁边、外扩 6px。保证透明区 RGBA 逐帧位级一致，编码器算出的差分矩形就是真实运动区域。
 
-读取配置文件：
+#### 曾经的三个误判（v3~v5，均已在 v6 撤销）
+
+| 版本 | 当时的"修复" | 为什么是误判 |
+|---|---|---|
+| v3 C | `colorkey=0x000000:0.08:0.05` 软抠边 | app 没有这一步；键掉近黑像素治的是单帧黑边，不是跨帧残留 |
+| v4 | alpha 二值化（<128→0，>=128→255） | 把发丝/轮廓软边打成硬锯齿，是治不好病之后的错误代偿 |
+| — | 有损/无损 | 方向对但定位错：坏的不是"半透明 alpha 边缘"，而是帧间差分的可逆性。alpha_quality 拉到 100，只要走 `-c:v libwebp` 照样重影 |
+
+尺寸不一致 / 边缘残留产生的是**单帧内的空间缺陷**（错位、黑边光晕）；重影是**跨帧的时间缺陷**，两回事。
+
+> **生物与非生物同时生效**：portrait（`birefnet` / `birefnet_rvm` / `modnet`）与 inanimate（`u2net` / `u2netp` / `isnet-general-use`）两条路径在 `convert.py` 里共用同一套 normalize（step 8）+ 编码（step 9），所以这一处修复对两者同时覆盖，无需分别处理。
+
+> `convert.py` 启动时会执行 `assert_webp_anim_encoder()`：ffmpeg 不带 `libwebp_anim` **直接报错**，绝不静默回退到 `-c:v libwebp` 产出带拖影的 webp。
+
+
+## 读取配置文件：
 [vedio_to_webp.yml](../../config/vedio_to_webp.yml)
+
 例如：
 ```
 # 比较影响内存。建议内存不足的改为3. 不然可能会转换失败
@@ -70,6 +104,12 @@ model_cache: "{DATA_DIR}\\avatar-matting\\birefnet\\model-cache"
 model: birefnet
 # 非生物抠图模型：isnet-general-use/u2net/u2netp
 model_inanimate: u2net
+VIDEO_TO_ANIMATION_MULTIPLIED_SPEED_INANIMATE: 6
+# mp4 转动图动作帧的秒数，默认4
+MAX_GIF_DURATION_SECONDS_INANIMATE: 5
+# 每秒多少帧，默认10
+GIF_FPS_INANIMATE: 15
+FRAME_OUTPUT_SIDE_INANIMATE: 512
 ```
 
 严格按照配置文件进行转换，不允许自己改模型。
@@ -106,7 +146,7 @@ model_inanimate: u2net
    │      │
    │      └──► MODNet (onnxruntime) 逐帧前景抠图（透明背景）  →  alpha_frames/frame_%04d.png
    │             │
-   │             └──► ffmpeg libwebp 编码  →  foreground.webp
+   │             └──► ffmpeg -c:v libwebp_anim 编码  →  foreground.webp
    │
    └──► cp →  video.mp4
 ```
@@ -148,15 +188,28 @@ model_inanimate: u2net
 **⚠️ birefnet_rvm 的 dsr 坑（2026-09-08 定案）**：`--dsr` 原默认 0.25 是 RVM 官方 **1080p** 推荐值；512px 输入下缩小后特征图仅 128px，细节丢失导致 **RVM 把静态背景（桌椅）幻觉进 mask**（半透明像素 1.5%→5.2%，frame20 起肉眼可见残影）。**已改默认 dsr=0.75**（512×0.75=384px 特征图）：残影消失（半透回落 1.02%），抖动 0.00099 优于 MODNet（0.00152）。ema 0.85/0.95/1.0 影响很小。**口诀：dsr × 输入边长 ≥ 256px**。
 质量排序（陈曦_6s.mp4 实测）：birefnet_rvm(dsr0.75) ≈ birefnet 逐帧 > modnet；速度：birefnet_rvm(36s) ≈ modnet(27s) >> birefnet(8min)。
 
-### WebP 编码参数（v3 对齐 app）
+### WebP 编码参数（v6 逐项对齐 app，不可改）
 
-| 参数 | v2（错误） | v3（正确，对齐 app） |
-|---|---|---|
-| `-lossless` | `0`（有损） | `1`（无损） |
-| `-quality` | `80`（`q:v`） | `90` |
-| `-compression_level` | `6` | `4` |
+```
+-framerate {fps} -i frame_%04d.png
+-c:v libwebp_anim -lossless 1 -quality 90 -compression_level 4 -loop 0 -an -vsync 0
+```
 
-v2 有损编码是重影的直接原因之一。alpha 通道被压后半透明边缘"透"出背景色。
+| 参数 | v2 | v3~v5 | v6（正确，对齐 app） |
+|---|---|---|---|
+| `-c:v` | 缺省（=libwebp） | `libwebp` ❌ | **`libwebp_anim`** ✅ 根因修复 |
+| `-lossless` | `0`（有损） | `1` | `1` |
+| `-quality` | `80`（`q:v`） | `90` | `90` |
+| `-compression_level` | `6` | `4` | `4` |
+| `-preset` | — | `picture` ❌ | **不加**（app 没有） |
+
+## webp 合成的重影问题
+
+只有一处修复：**编码器必须是 `libwebp_anim`**（详见上面"重影根因"）。
+配合 `normalizeForegroundLayer`（每帧重建到统一的 512×512 全透明画布，居中 + 底对齐）
+保证帧间几何一致，编码器才能算出正确的差分矩形。
+**不做** alpha 二值化，**不做** colorkey 软抠边 —— app 都没有，加了只会破坏软边。
+
 
 ## ⚠️ U2NET_HOME（必须知道）
 
@@ -173,7 +226,7 @@ rembg 默认去 `~/.u2net/` 找 onnx，**找不到就会联网下载 928MB**（�
 
 | 依赖 | 路径 | 说明 |
 |---|---|---|
-| ffmpeg | 系统 PATH 或 `FFMPEG_PATH` 环境变量 | 抽帧 + libwebp 编码 |
+| ffmpeg | 系统 PATH 或 `FFMPEG_PATH` 环境变量 | 抽帧 + **`libwebp_anim`** 编码（必须 `--enable-libwebp` 构建；官方 win64-gpl-shared 已含） |
 | Python 3.13 | `D:\Users\viaco\tools\Toonflow-game\Toonflow-game-app\Toonflow-game\tools\avatar-matting\birefnet\venv\Scripts\python.exe` | 已装 onnxruntime/numpy/PIL |
 | MODNet ONNX | `…\birefnet\model-cache\modnet_photographic_portrait_matting.onnx` | 24 MB，已下载 |
 
@@ -269,6 +322,8 @@ avatars/<role>.png
 | `未找到 ffmpeg` | 系统无 ffmpeg | 安装 ffmpeg 并加 PATH，或 `--ffmpeg` 显式指定 |
 | `onnxruntime not found` | 默认 venv 失效 | `--python` 指向带 onnxruntime 的环境 |
 | `model not found` | 模型文件缺失 | 检查 `…\birefnet\model-cache\modnet_photographic_portrait_matting.onnx`；或重跑 `run_modnet.py --warmup` |
+| `当前 ffmpeg 不带 libwebp_anim 编码器` | ffmpeg 未用 `--enable-libwebp` 构建 | 换官方 win64-gpl-shared 构建；**不要**改回 `-c:v libwebp`，那必然重影 |
+| webp 有重影/拖影 | 编码器被改回 `-c:v libwebp` | 改回 `libwebp_anim`（见"重影根因"），并用 `.cache/_ghost_probe/probe4.py` 复测 |
 | webp 边缘发黑/有黑边 | MODNet 训练域外（动画 CG） | 一般不影响，必要时调 `--gif-side` 缩小；或改用 `birefnet-portrait`（见 run_birefnet.py） |
 | 背景 png 上看不到角色 | 这是预期行为——背景是首帧，含原角色；webp 透明层叠在背景之上 | 客户端渲染层级问题，不是本技能 bug |
 | 处理非常慢 | MODNet 逐帧 CPU 推理 | 24MB 模型单帧 0.5-2s（CPU），30 帧视频约 30-60s；如有 NVIDIA GPU 装 onnxruntime-gpu 可大幅加速 |
@@ -294,3 +349,7 @@ avatars/<role>.png
 ```
 model_inanimate: u2netp
 ```
+
+非生物路径只替换抠图模型与并发/时长/FPS 配置块（`*_INANIMATE`），
+**normalize（step 8）与 webp 编码（step 9）与生物路径完全共用**，
+因此 `libwebp_anim` 的重影修复对非生物同样生效，无需额外处理。

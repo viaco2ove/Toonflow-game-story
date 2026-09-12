@@ -1,40 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-convert-avatar-video-to-webp  (v6 — 重影根因修复：libwebp_anim)
+convert-avatar-video-to-webp  (v3 — 修复 webp/背景重影)
 
 mp4 → foreground.webp + background.png + firstFrame.png
-
-v6 重影根因修复（2026-09-13）：
-  重影的真正根因是 **编码器选错**，不是抠图质量、不是 alpha 边缘。
-  Animated WebP 每个 ANMF 帧头有两位：disposal（0=NONE 保留上一帧画布 /
-  1=BACKGROUND 先清成透明）与 blending（BLEND alpha 混合 / NO_BLEND 覆写），
-  规范默认 disposal=0 + BLEND —— 新帧里 alpha=0 的像素不清画布，而是
-  "露出上一帧" → 拖影。
-  ffmpeg 有两条 webp 动画输出路径：
-    -c:v libwebp      → libavformat/webpenc.c 手拼 ANMF，disposal 硬编码 0
-                        （FFmpeg ticket #7941，挂了 7 年未修）→ **必然重影**
-    -c:v libwebp_anim → 交给 libwebp 官方 WebPAnimEncoder，逐帧计算子矩形 +
-                        dispose/blend，保证解码结果 == 输入 → **不重影**
-  v3~v5 一直是 `-c:v libwebp`，所以无论怎么改 alpha 都治不好。
-  本版改为 libwebp_anim（对齐 app renderSemanticAvatarAssets），并同步：
-    - 删掉 alpha 二值化（v4）与 colorkey 软抠边（v3 C）：app 都没有，
-      二值化会把发丝边缘打成硬锯齿，是治不好病之后的错误代偿
-    - extract_opaque_bounds 对齐 app：alpha>14 判定 + 6px padding
-    - 启动时校验 ffmpeg 是否带 libwebp_anim，缺失直接报错而不是静默重影
-  生物（portrait: birefnet / birefnet_rvm / modnet）与非生物（inanimate:
-  u2net / u2netp / isnet-general-use）两条路径共用同一套 normalize + 编码
-  步骤，因此本修复对两者同时生效。
-
-v5 修复 rembg alpha_matting 边缘混合（2026-09-13）：
-  rembg 默认 alpha_matting=True，会在边缘把像素 RGB 与背景黑色混合，
-  导致 B 通道被压低 22%、边缘偏黑。收徒系统角色本来颜色偏冷蓝，
-  被 rembg 边缘混合后 RGB 失真 → normalize 后 RGB 更暗 → 合成 webp 出现重影。
-  加 alpha_matting=False 禁用软混合，保留原始 RGB。
-
-v4 修复拖影（2026-09-13，已被 v6 撤销）：
-  去掉 colorkey 软抠边（产生半透明 alpha 中间值），改为 alpha 二值化。
-  —— 事后判定为误判：半透明 alpha 不是重影原因，编码器才是。v6 已移除。
 
 v3 修复重影（2026-09-12，A/B/C）：
   A. webp 无损编码：lossless=1 + quality=90 + compression_level=4
@@ -97,10 +66,8 @@ COMMON_WIN_FFMPEG_PATHS = [
 
 # --------- 配置加载 ---------
 
-def load_config(config_path: str, model_class: str = "portrait") -> dict:
-    """读取 vedio_to_webp.yml，返回 {model, fps, max_seconds, frame_side, concurrency}。
-    model_class: 'portrait'（角色立绘，modnet/birefnet）或 'inanimate'（非生物，u2net/...）
-    """
+def load_config(config_path: str) -> dict:
+    """读取 vedio_to_webp.yml，返回 {model, fps, max_seconds, frame_side, concurrency}"""
     import yaml
 
     cfg = {
@@ -113,8 +80,6 @@ def load_config(config_path: str, model_class: str = "portrait") -> dict:
         "bg_side": DEFAULT_BG_SIDE,
     }
 
-    is_inanimate = (model_class == "inanimate")
-
     if config_path and Path(config_path).exists():
         with open(config_path, encoding="utf-8") as f:
             raw = yaml.safe_load(f) or {}
@@ -126,10 +91,7 @@ def load_config(config_path: str, model_class: str = "portrait") -> dict:
         model_is_birefnet_rvm = model_val == "birefnet_rvm"
         model_is_birefnet = model_val in ("birefnet", "birefnet-portrait") or model_is_birefnet_rvm
 
-        if is_inanimate:
-            # inanimate 路径：读 yml.model_inanimate（默认 u2net）
-            cfg["model"] = str(raw.get("model_inanimate", "u2net")).strip().lower()
-        elif model_is_modnet:
+        if model_is_modnet:
             cfg["model"] = "modnet"
         elif model_is_birefnet_rvm:
             cfg["model"] = "birefnet_rvm"
@@ -139,17 +101,7 @@ def load_config(config_path: str, model_class: str = "portrait") -> dict:
         # --- 第二步：根据实际模型类型解析对应配置块 ---
         for key, value in raw.items():
             k = key.upper()
-            if is_inanimate and "INANIMATE" in k:
-                if "MULTIPLIED_SPEED" in k and value:
-                    cfg["concurrency"] = max(1, int(value))
-                elif "MAX_GIF_DURATION_SECONDS" in k and value:
-                    cfg["max_seconds"] = int(value)
-                elif "GIF_FPS" in k and value:
-                    cfg["fps"] = max(1, min(30, int(value)))
-                elif "FRAME_OUTPUT_SIDE" in k and value:
-                    cfg["frame_side"] = max(128, int(value))
-                    cfg["gif_side"] = cfg["frame_side"]
-            elif model_is_modnet and "MODNET" in k:
+            if model_is_modnet and "MODNET" in k:
                 if "MULTIPLIED_SPEED" in k and value:
                     cfg["concurrency"] = max(1, int(value))
                 elif "MAX_GIF_DURATION_SECONDS" in k and value:
@@ -213,41 +165,18 @@ def run_ffmpeg(ffmpeg: str, args: list[str], check: bool = True) -> subprocess.C
     return proc
 
 
-def assert_webp_anim_encoder(ffmpeg: str) -> None:
-    """确认 ffmpeg 带 libwebp_anim 编码器。
-
-    必须硬失败：一旦回退到 -c:v libwebp，ANMF 的 disposal 会被 ffmpeg 硬编码为
-    0(NONE)，透明帧露出上一帧 → 重影。宁可报错，不能静默产出带拖影的 webp。
-    """
-    proc = subprocess.run(
-        [ffmpeg, "-hide_banner", "-h", "encoder=libwebp_anim"],
-        capture_output=True, text=True, encoding="utf-8", errors="replace", check=False,
-    )
-    if "Encoder libwebp_anim" not in (proc.stdout or ""):
-        raise RuntimeError(
-            f"当前 ffmpeg 不带 libwebp_anim 编码器：{ffmpeg}\n"
-            "必须使用 --enable-libwebp 构建的 ffmpeg（官方 win64-gpl-shared 构建已包含）。\n"
-            "不能回退到 -c:v libwebp：那条路径会把 ANMF disposal 硬编码为 0(NONE)，"
-            "必然产生重影（FFmpeg ticket #7941）。"
-        )
-
-
 # --------- BiRefNet / MODNet 抠图 ---------
 
-def matte_frame_rembg(frame_bytes: bytes, python: Path, model_name: str, model_path: Path) -> bytes:
+def matte_frame_birefnet(frame_bytes: bytes, python: Path, model_path: Path) -> bytes:
     """用 birefnet venv 的 rembg 抠一张帧，返回 RGBA PNG bytes。
-    rembg new_session(<model_name>) 会去 $U2NET_HOME 找对应 .onnx。
-    model_name 形如 'birefnet-portrait' / 'u2net' / 'u2netp' / 'isnet-general-use'。
-
-    v5 Fix：加 alpha_matting=False 禁用边缘软混合（rembg 默认开启 alpha_matting，
-    会把边缘像素 RGB 与背景黑色混合，导致 B 通道被压低 22%，边缘偏黑形成重影）。
-    alpha_matting=False 让模型输出纯 alpha 二值分割，RGB 保持原始值。
+    rembg new_session('birefnet-portrait') 会去 $U2NET_HOME 找 birefnet-portrait.onnx。
+    必须把 U2NET_HOME 指向本地 model-cache，否则 rembg 会联网下载 928MB（极慢/卡死）。
     """
     script = "\n".join([
         "import sys",
         "from rembg import new_session, remove",
-        f"session = new_session('{model_name}')",
-        "result = remove(sys.stdin.buffer.read(), session=session, force_return_bytes=True, alpha_matting=False)",
+        "session = new_session('birefnet-portrait')",
+        "result = remove(sys.stdin.buffer.read(), session=session, force_return_bytes=True)",
         "sys.stdout.buffer.write(result)",
     ])
     # 关键：把 U2NET_HOME 指向本地已存在的模型目录，避免联网下载
@@ -260,11 +189,8 @@ def matte_frame_rembg(frame_bytes: bytes, python: Path, model_name: str, model_p
         env=env,
     )
     if proc.returncode != 0:
-        raise RuntimeError(f"rembg({model_name}) 抠图失败: {proc.stderr.decode('utf-8', errors='replace')[-500:]}")
+        raise RuntimeError(f"birefnet 抠图失败: {proc.stderr.decode('utf-8', errors='replace')[-500:]}")
     return proc.stdout
-
-# 兼容旧名字（birefnet_portrait）
-matte_frame_birefnet = matte_frame_rembg
 
 
 def matte_frame_modnet(frame_path: Path, out_path: Path, model_path: Path) -> None:
@@ -310,22 +236,18 @@ def matte_frame_modnet(frame_path: Path, out_path: Path, model_path: Path) -> No
 
 
 def matte_frame_wrapper(args):
-    """并发包装：matte 一帧。返回 (frame_index, rgba_bytes or None, error)
-    args: (idx, src_path, matte_dir, model_label, python, model_path, use_rembg, rembg_model_name)
-    """
-    idx, src_path, matte_dir, model, python, model_path, use_rembg, rembg_model_name = args
+    """并发包装：matte 一帧。返回 (frame_index, rgba_bytes or None, error)"""
+    idx, src_path, matte_dir, model, python, modnet_model, use_birefnet = args
     out_path = matte_dir / f"frame_{str(idx).zfill(4)}.png"
     last_err = None
     for attempt in range(3):  # Windows 并发写盘偶发 Permission denied，重试
         try:
-            if use_rembg:
-                # rembg 通用路径（birefnet-portrait / u2net / u2netp / isnet-general-use）
-                rgba_bytes = matte_frame_rembg(src_path.read_bytes(), python, rembg_model_name, model_path)
+            if use_birefnet:
+                rgba_bytes = matte_frame_birefnet(src_path.read_bytes(), python, modnet_model)
                 out_path.parent.mkdir(parents=True, exist_ok=True)
                 out_path.write_bytes(rgba_bytes)
             else:
-                # legacy modnet onnxruntime 路径
-                matte_frame_modnet(src_path, out_path, model_path)
+                matte_frame_modnet(src_path, out_path, modnet_model)
             return idx, out_path.read_bytes(), None
         except Exception as e:
             last_err = str(e)
@@ -338,31 +260,18 @@ AVATAR_STD_SIZE = 512
 FOREGROUND_SIDE_PADDING = 10
 FOREGROUND_TOP_PADDING = 8
 FOREGROUND_BOTTOM_PADDING = 0
-# 对齐 app separateRoleAvatar.ts: ALPHA_CROP_PADDING=6，且 alpha<=14 一律当透明
-ALPHA_CROP_PADDING = 6
-ALPHA_OPAQUE_THRESHOLD = 14
 
 
 def extract_opaque_bounds(img: Image.Image) -> tuple[int, int, int, int] | None:
-    """找不透明像素外接矩形，返回 (left, top, width, height) 或 None（全透明）。
-
-    对齐 app extractOpaqueBounds：alpha<=14 视为透明（滤掉抠图模型残留的
-    极低 alpha 光晕），外扩 ALPHA_CROP_PADDING=6 像素后再裁。
-    """
+    """找 alpha>0 像素的外接矩形，返回 (left, top, width, height) 或 None（全透明）。"""
     a = np.asarray(img.getchannel("A"))
-    mask = a > ALPHA_OPAQUE_THRESHOLD
-    rows = np.any(mask, axis=1)
-    cols = np.any(mask, axis=0)
+    rows = np.any(a > 0, axis=1)
+    cols = np.any(a > 0, axis=0)
     if not rows.any() or not cols.any():
         return None
-    img_h, img_w = a.shape
     top, bot = np.where(rows)[0][[0, -1]]
     left, right = np.where(cols)[0][[0, -1]]
-    left = max(0, int(left) - ALPHA_CROP_PADDING)
-    top = max(0, int(top) - ALPHA_CROP_PADDING)
-    right = min(img_w - 1, int(right) + ALPHA_CROP_PADDING)
-    bot = min(img_h - 1, int(bot) + ALPHA_CROP_PADDING)
-    return (left, top, right - left + 1, bot - top + 1)
+    return (int(left), int(top), int(right - left + 1), int(bot - top + 1))
 
 
 def resize_inside(img: Image.Image, max_w: int, max_h: int) -> Image.Image:
@@ -374,89 +283,71 @@ def resize_inside(img: Image.Image, max_w: int, max_h: int) -> Image.Image:
 
 
 def normalize_foreground_layer(img: Image.Image) -> Image.Image:
-    """单图版 normalize（逐帧独立，完全对齐 app normalizeForegroundLayer）。
+    """对齐 app normalizeForegroundLayer（separateRoleAvatar.ts line 307）：
 
-    1. extractOpaqueBounds — 裁掉 matte 周围透明空白（alpha<=14 当透明，外扩 6px）
-    2. resizeInside(492×504) — 等比缩进可用区域（512-10*2, 512-8-0）
-    3. 贴到全新的 512×512 全透明画布：水平居中 + 底部对齐
+    1. extractOpaqueBounds — 裁掉 matte 周围全透明空白
+    2. resizeInside(492×492) — 等比缩进可用区域（512-10*2, 512-8-0）
+    3. 贴到 512×512 透明画布（left=10, top=8，character 靠左上）
 
-    ⚠️ **不要用它逐帧处理动画**（v7）：每帧自己算 bbox 会导致位置/缩放
-    逐帧漂移（前景"位置变来变去"）。动画请用
-    plan_foreground_geometry() + apply_foreground_geometry()。
-    本函数仅用于单张静图，或 --normalize-mode per-frame 的对照模式。
+    关键：app 保存 matte 帧时经过此处理，而非 raw matte。
+    raw matte 直接合成 webp → character 紧贴 top-left → 背景模糊层压在边缘 → 重影。
+    normalize 后 character 居中偏上，四周有透明 padding → 背景层留白 → 无重影。
     """
-    geom = plan_foreground_geometry(extract_opaque_bounds(img))
-    return apply_foreground_geometry(img, geom)
-
-
-# --------- v7：全局统一几何（修前景逐帧漂移）---------
-#
-# app 的 matteVideoFrame 对**每一帧**单独调 normalizeForegroundLayer，
-# 每帧都按自己的不透明 bbox 重新裁切 → 缩放 → 居中底对齐。
-# 立绘微动视频里主体每帧会动几个像素，于是：
-#   - bbox 宽高变 → scale 变 → 主体逐帧微缩放（呼吸感脉动）
-#   - bbox 中心变 → 重新居中会把位移"拉回去" → 主体向反方向跳
-#   - bbox 底边变 → 底对齐把整体上下推
-# 这是 app 自身的缺陷（不是重影）。v7 改为：先求所有帧 bbox 的**并集**，
-# 算一次 crop/scale/paste，然后用**同一套几何**刷所有帧：
-#   - 帧间相对位置完全保留（真实微动还在），但不再整体漂移
-#   - libwebp_anim 的差分矩形更小，体积也更小
-
-def plan_foreground_geometry(bounds: tuple[int, int, int, int] | None) -> dict | None:
-    """由（并集）bbox 算出一套固定的 crop / resize / paste 参数。"""
+    bounds = extract_opaque_bounds(img)
     if bounds is None:
-        return None
+        return img  # 全透明原样返回
+
     left, top, bw, bh = bounds
+    cropped = img.crop((left, top, left + bw, top + bh))
+
     avail_w = max(1, AVATAR_STD_SIZE - FOREGROUND_SIDE_PADDING * 2)
     avail_h = max(1, AVATAR_STD_SIZE - FOREGROUND_TOP_PADDING - FOREGROUND_BOTTOM_PADDING)
-    scale = min(avail_w / max(bw, 1), avail_h / max(bh, 1), 1.0)
-    tw = max(1, int(bw * scale + 0.5))
-    th = max(1, int(bh * scale + 0.5))
-    return {
-        "crop": (left, top, left + bw, top + bh),
-        "size": (tw, th),
-        "paste": (max(0, round((AVATAR_STD_SIZE - tw) / 2)),
-                  max(0, AVATAR_STD_SIZE - th - FOREGROUND_BOTTOM_PADDING)),
-        "bounds": [int(left), int(top), int(bw), int(bh)],
-        "scale": round(scale, 6),
-    }
+    resized = resize_inside(cropped, avail_w, avail_h)
 
-
-def apply_foreground_geometry(img: Image.Image, geom: dict | None) -> Image.Image:
-    """用固定几何把一帧重建到 512×512 全透明画布。"""
-    if geom is None:
-        return img
-    cropped = img.crop(geom["crop"])
-    if cropped.size != tuple(geom["size"]):
-        cropped = cropped.resize(tuple(geom["size"]), Image.Resampling.LANCZOS)
     canvas = Image.new("RGBA", (AVATAR_STD_SIZE, AVATAR_STD_SIZE), (0, 0, 0, 0))
-    canvas.paste(cropped, tuple(geom["paste"]))
+    # 对齐 app normalizeForegroundLayer：水平居中，垂直底部对齐
+    w2, h2 = resized.size
+    left = max(0, round((AVATAR_STD_SIZE - w2) / 2))
+    top = max(0, AVATAR_STD_SIZE - h2 - FOREGROUND_BOTTOM_PADDING)
+    canvas.paste(resized, (left, top))
     return canvas
 
 
-def plan_global_foreground_geometry(frame_paths: list[Path]) -> dict | None:
-    """扫一遍所有 matte 帧，取不透明 bbox 的并集，算出全局几何。"""
-    l = t = None
-    r = b = None
-    for p in frame_paths:
-        with Image.open(p) as im:
-            bnd = extract_opaque_bounds(im.convert("RGBA"))
-        if bnd is None:
-            continue
-        bl, bt, bw, bh = bnd
-        br, bb = bl + bw, bt + bh
-        l = bl if l is None else min(l, bl)
-        t = bt if t is None else min(t, bt)
-        r = br if r is None else max(r, br)
-        b = bb if b is None else max(b, bb)
-    if l is None:
-        return None
-    return plan_foreground_geometry((l, t, r - l, b - t))
+def apply_colorkey_edge(img: Image.Image, threshold: float = 0.08, softness: float = 0.05) -> Image.Image:
+    """对齐 app.js legacy 路径的 colorkey 软抠边。
 
+    v3 Fix C：对 matte 帧的 RGB 做色键透明。
+    发丝/轮廓边缘残留的近黑像素（alpha 极低、RGB 极暗）会被软透明化，
+    防止这些残留像素在 webp 无损压缩后"渗出"形成重影。
 
-# v6：v3 的 colorkey 软抠边 / v4 的 alpha 二值化都已移除。
-# app 的语义抠图路径不做任何 alpha 后处理，保留模型输出的软边（发丝、轮廓）；
-# 二值化会把边缘打成硬锯齿，而且它压根不是重影的解药（见文件头 v6）。
+    参数（对齐 app.js）：
+      threshold=0.08  — alpha < 0.08 的近黑像素视为边缘
+      softness=0.05   — 0.08~0.13 区间软过渡
+    """
+    alpha = img.getchannel("A")
+    rgb = img.convert("RGB")
+
+    a = np.asarray(alpha, dtype=np.float32) / 255.0
+    r, g, b = np.asarray(rgb, dtype=np.float32).transpose(2, 0, 1)
+
+    # 近黑检测：R/G/B 均 < 20 且 alpha < threshold
+    is_near_black = ((r < 20) & (g < 20) & (b < 20)).astype(np.float32)
+    edge_mask = is_near_black * np.clip(a / max(threshold, 0.001), 0, 1)
+    # softness 平滑：0.08~0.13 区间线性过渡
+    softness_start = threshold
+    softness_end = threshold + softness
+    a_soft = np.where(
+        (a >= softness_start) & (a < softness_end),
+        (a - softness_start) / (softness_end - softness_start),
+        np.where(a >= softness_end, np.ones_like(a), np.zeros_like(a))
+    )
+    # 近黑像素 + 边缘区共同决定软抠边强度
+    soft_edge = np.clip(edge_mask * 0.5 + a_soft * is_near_black, 0, 1)
+    new_alpha = np.clip(a + soft_edge * (1 - a), 0, 1)
+
+    out = img.copy()
+    out.putalpha(Image.fromarray((new_alpha * 255).astype(np.uint8), mode="L"))
+    return out
 
 
 # --------- 背景生成（官方算法）---------
@@ -507,15 +398,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out-dir", required=True, help="输出目录")
     p.add_argument("--config", default="", help="vedio_to_webp.yml 路径（默认在技能目录查找）")
     p.add_argument("--model", default="",
-                   help="抠图模型: birefnet-portrait / modnet（不传则读 yml 的 model，再默认 birefnet-portrait）")
-    p.add_argument("--model-class", default="portrait", choices=["portrait", "inanimate"],
-                   help="模型类别: portrait（角色立绘，birefnet/modnet/rvm）"
-                        " 或 inanimate（非生物，u2net/u2netp/isnet-general-use）。"
-                        "inanimate 时读 yml 的 model_inanimate")
-    p.add_argument("--normalize-mode", default="global", choices=["global", "per-frame"],
-                   help="normalize 几何模式：global（默认，v7）用所有帧 bbox 并集算"
-                        "一套固定 crop/scale/paste，前景不会逐帧漂移；"
-                        "per-frame 逐帧各算自己的 bbox（完全等同 app，但主体会抱6动）")
+                   help="抠图模型: birefnet-portrait 或 modnet（不传则读 yml 的 model，再默认 birefnet-portrait）")
     p.add_argument("--gif-side", type=int, default=None)
     p.add_argument("--bg-side", type=int, default=None)
     p.add_argument("--fps", type=int, default=None)
@@ -574,54 +457,33 @@ def main() -> int:
         if default_cfg.exists():
             config_path = str(default_cfg.resolve())
 
-    cfg = load_config(config_path, args.model_class) if config_path else {}
+    cfg = load_config(config_path) if config_path else {}
     # 优先级：命令行显式传参 > yml > 内置默认
     fps = args.fps if args.fps is not None else cfg.get("fps", DEFAULT_FPS)
     max_seconds = args.max_seconds if args.max_seconds is not None else cfg.get("max_seconds", DEFAULT_MAX_SECONDS)
     gif_side = args.gif_side if args.gif_side is not None else cfg.get("gif_side", DEFAULT_GIF_SIDE)
     bg_side = args.bg_side if args.bg_side is not None else cfg.get("bg_side", DEFAULT_BG_SIDE)
     concurrency = args.concurrency if args.concurrency is not None else cfg.get("concurrency", DEFAULT_CONCURRENCY)
-    # 模型选择：
-    # - portrait 路径：yml.model / 命令行 --model（默认 birefnet-portrait）
-    # - inanimate 路径：yml.model_inanimate（默认 u2net），命令行 --model 可覆盖
-    is_inanimate = (args.model_class == "inanimate")
-    if is_inanimate:
-        model_name = args.model or cfg.get("model", "u2net")  # load_config 已从 model_inanimate 填到 cfg["model"]
-    else:
-        model_name = args.model or cfg.get("model", "birefnet-portrait")
+    # yml 里有 model 配置；命令行 --model 空字符串时以 yml 为准
+    model_name = args.model or cfg.get("model", "birefnet-portrait")
 
     print(json.dumps({"ok": True, "phase": "start", "config": cfg, "model": model_name,
-                      "model_class": args.model_class,
                       "fps": fps, "max_seconds": max_seconds, "concurrency": concurrency},
                      ensure_ascii=False), file=sys.stderr)
 
     ffmpeg = discover_ffmpeg(args.ffmpeg)
-    assert_webp_anim_encoder(ffmpeg)
     python_birefnet = Path(args.python_birefnet)
     modnet_model = Path(args.modnet_model)
     birefnet_model = Path(args.birefnet_model)
 
     use_birefnet = model_name.lower().startswith("birefnet")
     use_birefnet_rvm = model_name.lower() == "birefnet_rvm"
-    # inanimate 路径统一走 rembg（birefnet-portrait / u2net / u2netp / isnet-general-use）
-    use_rembg = use_birefnet or is_inanimate
-    # rembg 用的模型目录（model-cache）：u2netp.onnx / birefnet-portrait.onnx 都在这里
     effective_model = birefnet_model if use_birefnet else modnet_model
     rvm_pth = Path(DEFAULT_RVM_PTH)
 
     if not python_birefnet.exists():
         print(json.dumps({"ok": False, "error": f"python 不存在: {python_birefnet}"}), file=sys.stderr)
         return 2
-    # inanimate 路径的模型放在 birefnet model-cache 目录（U2NET_HOME 指向它）
-    # 校验：必须能找到对应的 .onnx（u2net / u2netp / isnet-general-use / birefnet-portrait）
-    if use_rembg:
-        expected_onnx = birefnet_model.parent / f"{model_name}.onnx"
-        if not expected_onnx.exists():
-            print(json.dumps({"ok": False, "error":
-                f"inanimate/portrait 模型不存在: {expected_onnx}。"
-                f"需要把 {model_name}.onnx 放到 model-cache 目录。"}, file=sys.stderr))
-            return 2
-        effective_model = expected_onnx
     if not effective_model.exists():
         print(json.dumps({"ok": False, "error": f"模型不存在: {effective_model}"}), file=sys.stderr)
         return 2
@@ -680,7 +542,7 @@ def main() -> int:
     # 6. 并发抠图
     t0 = time.time()
     matte_args = [
-        (i + 1, src, matte_dir, model_name, python_birefnet, effective_model, use_rembg, model_name)
+        (i + 1, src, matte_dir, model_name, python_birefnet, effective_model, use_birefnet)
         for i, src in enumerate(src_frames)
     ]
 
@@ -731,13 +593,15 @@ def main() -> int:
                       "elapsed_s": round(t_modnet, 2)}, ensure_ascii=False), file=sys.stderr)
 
     # 7. 生成背景（官方算法：人物区域模糊化）
-    # 用 normalize 后的首帧：与 foreground.webp 逐像素同构（同 512 画布、同居中
-    # 底对齐），前端 768 背景层 + 512 前景层叠加时几何不会错位。
+    # Fix D：改用 normalize 后的首帧（人物已居中偏上，四周有透明 padding），
+    # 与 build_official_background 配合：透明区不产生 mask → 背景层留白 → 无重影
     bg_start = time.time()
     matte_first_path = matte_dir / "frame_0001.png"
     if not matte_first_path.exists():
         print(json.dumps({"ok": False, "error": f"matte 首帧缺失: {matte_first_path}"}, ensure_ascii=False), file=sys.stderr)
         return 4
+    # 这里取 normalize 后的 matte（normalize 在 step 8），但 step 8 在 step 7 之后，
+    # 所以改用：先 normalize 一次供背景用，后续步骤复用同一帧
     matte_first_raw = Image.open(matte_first_path).convert("RGBA")
     matte_first_for_bg = normalize_foreground_layer(matte_first_raw)
     background_path = out_dir / "background.png"
@@ -745,31 +609,42 @@ def main() -> int:
     print(json.dumps({"ok": True, "phase": "background_done", "elapsed_s": round(time.time()-bg_start, 2)},
                      ensure_ascii=False), file=sys.stderr)
 
-    # 8. normalizeForegroundLayer：对齐 app 保存 matte 帧的处理
-    #    保证每帧几何一致 + 透明区 RGBA 位级一致（app 到这一步为止，不做
-    #    任何 alpha 后处理；v6 已删除 colorkey / 二值化两个错误代偿步骤）
+    # 8. normalizeForegroundLayer + colorkey 软抠边
+    #    Fix D（核心）：对齐 app 保存 matte 帧的 normalizeForegroundLayer 处理，
+    #    再做 Fix C colorkey。顺序：normalize → colorkey → webp
     print(json.dumps({"ok": True, "phase": "normalize_start"}, ensure_ascii=False), file=sys.stderr)
     matte_frames = sorted(matte_dir.glob("frame_*.png"))
+    matte_first_norm = None  # 保留 normalize 后的首帧给背景用
     for mf in matte_frames:
         img = Image.open(mf).convert("RGBA")
-        normalize_foreground_layer(img).save(mf, format="PNG", optimize=False)
+        img_norm = normalize_foreground_layer(img)
+        if mf.name == "frame_0001.png":
+            matte_first_norm = img_norm
+        img_norm.save(mf, format="PNG", optimize=False)
     print(json.dumps({"ok": True, "phase": "normalize_done", "frames": len(matte_frames)},
                      ensure_ascii=False), file=sys.stderr)
 
-    # 9. 合成 webp（v6 根因修复）
-    #    必须 libwebp_anim：-c:v libwebp 走 libavformat/webpenc.c 手拼 ANMF，
-    #    disposal 硬编码 0(NONE) + blend 默认 BLEND → 透明像素露出上一帧 → 重影。
-    #    libwebp_anim 交给 libwebp 官方 WebPAnimEncoder 逐帧决定 dispose/blend。
-    #    参数与 app renderSemanticAvatarAssets 逐项一致（不加 -preset）。
+    # 9. colorkey 软抠边（Fix C）：对齐 app.js legacy 路径
+    print(json.dumps({"ok": True, "phase": "colorkey_start"}, ensure_ascii=False), file=sys.stderr)
+    matte_frames = sorted(matte_dir.glob("frame_*.png"))
+    for mf in matte_frames:
+        img = Image.open(mf).convert("RGBA")
+        img_fixed = apply_colorkey_edge(img)
+        img_fixed.save(mf, format="PNG", optimize=False)
+    print(json.dumps({"ok": True, "phase": "colorkey_done", "frames": len(matte_frames)},
+                     ensure_ascii=False), file=sys.stderr)
+
+    # 9. 合成 webp（v3 Fix A：无损编码，对齐 app libwebp_anim 参数）
     foreground_path = out_dir / "foreground.webp"
     matte_pattern = str(matte_dir / "frame_%04d.png")
     run_ffmpeg(ffmpeg, [
         "-framerate", str(fps),
         "-i", matte_pattern,
-        "-c:v", "libwebp_anim",
+        "-c:v", "libwebp",
         "-lossless", "1",
         "-quality", "90",
         "-compression_level", "4",
+        "-preset", "picture",
         "-loop", "0",
         "-an",
         "-vsync", "0",
@@ -791,15 +666,9 @@ def main() -> int:
         "fps": fps,
         "concurrency": concurrency,
         "model": model_name,
-        "modelClass": args.model_class,
         "mattingSeconds": round(t_modnet, 2),
         "tmpDir": str(tmp_root),
     }
-
-    # 输出 webp.json（技能规范要求）
-    webp_json_path = out_dir / "webp.json"
-    webp_json_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-
     print(json.dumps(result, ensure_ascii=False))
 
     # 结果先输出，再清理临时帧（清理失败不影响结果返回）
