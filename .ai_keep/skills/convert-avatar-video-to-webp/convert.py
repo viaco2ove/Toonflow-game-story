@@ -1,16 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-convert-avatar-video-to-webp  (v2 — 对齐 toonflow-game-app 官方实现)
+convert-avatar-video-to-webp  (v3 — 修复 webp/背景重影)
 
 mp4 → foreground.webp + background.png + firstFrame.png
 
-主要改进（相比 v1）：
+v3 修复重影（2026-09-12，A/B/C）：
+  A. webp 无损编码：lossless=1 + quality=90 + compression_level=4
+     （对齐 app libwebp_anim）—— v2 有损编码压坏半透明 alpha 边缘，
+     背景色"漏"出来形成重影
+  B. 背景改用 512 垫边版首帧 + 同尺寸 matte 帧（同管线产出，像素级
+     对齐）—— v2 原始分辨率首帧重新抠图，mask 几何不一致导致偏移重影
+  C. colorkey=0x000000:0.08:0.05 软抠边（对齐 app legacy 路径），
+     键掉发丝/轮廓边缘残留的近黑像素
+
+v2 改进：
   - 读取 vedio_to_webp.yml 配置（FPS / 时长 / 尺寸 / 并发数）
   - 默认使用 birefnet-portrait 抠图（对齐官方），可降级到 MODNet
-  - webp 使用 libwebp_anim + lossless=1 动画编码（官方参数）
   - 并发批处理帧（VIDEO_TO_ANIMATION_MULTIPLIED_SPEED）
-  - 语义背景：用 rembg erase_foreground 或近似背景生成
+  - 语义背景：官方 createApproximateBackgroundLayer 算法
 
 用法：
   python convert.py --mp4 in.mp4 --out-dir out/ [--config config.yml]
@@ -244,32 +252,74 @@ def matte_frame_wrapper(args):
     return idx, None, f"{last_err} (重试3次后仍失败)"
 
 
+def apply_colorkey_edge(img: Image.Image, threshold: float = 0.08, softness: float = 0.05) -> Image.Image:
+    """对齐 app.js legacy 路径的 colorkey 软抠边。
+
+    v3 Fix C：对 matte 帧的 RGB 做色键透明。
+    发丝/轮廓边缘残留的近黑像素（alpha 极低、RGB 极暗）会被软透明化，
+    防止这些残留像素在 webp 无损压缩后"渗出"形成重影。
+
+    参数（对齐 app.js）：
+      threshold=0.08  — alpha < 0.08 的近黑像素视为边缘
+      softness=0.05   — 0.08~0.13 区间软过渡
+    """
+    alpha = img.getchannel("A")
+    rgb = img.convert("RGB")
+    from PIL import Image
+    import numpy as np
+
+    a = np.asarray(alpha, dtype=np.float32) / 255.0
+    r, g, b = np.asarray(rgb, dtype=np.float32).transpose(2, 0, 1)
+
+    # 近黑检测：R/G/B 均 < 20 且 alpha < threshold
+    is_near_black = ((r < 20) & (g < 20) & (b < 20)).astype(np.float32)
+    edge_mask = is_near_black * np.clip(a / max(threshold, 0.001), 0, 1)
+    # softness 平滑：0.08~0.13 区间线性过渡
+    softness_start = threshold
+    softness_end = threshold + softness
+    a_soft = np.where(
+        (a >= softness_start) & (a < softness_end),
+        (a - softness_start) / (softness_end - softness_start),
+        np.where(a >= softness_end, np.ones_like(a), np.zeros_like(a))
+    )
+    # 近黑像素 + 边缘区共同决定软抠边强度
+    soft_edge = np.clip(edge_mask * 0.5 + a_soft * is_near_black, 0, 1)
+    new_alpha = np.clip(a + soft_edge * (1 - a), 0, 1)
+
+    out = img.copy()
+    out.putalpha(Image.fromarray((new_alpha * 255).astype(np.uint8), mode="L"))
+    return out
+
+
 # --------- 背景生成（官方算法）---------
 
-def build_official_background(source_rgb, foreground_rgba, bg_side: int = 768):
-    """对齐官方 createApproximateBackgroundLayer（app.js separateRoleAvatar）：
-      1. 整图模糊 blur(12) + 亮度 1.01 + 饱和度 0.94
-      2. 前景 alpha 通道 blur(10) 后作为人物 mask
-      3. 原图上仅人物区域叠加模糊版（人物被"融"进背景）
-      4. fillOpaqueCanvas: cover centre 到 bg_side × bg_side
+def build_official_background(matte_first_frame: Image.Image, bg_side: int = 768):
+    """对齐官方 createApproximateBackgroundLayer（app.js separateRoleAvatar）。
+
+    v3 Fix B：改用 512 垫边版首帧 matte（与抽帧管线产出同尺寸），
+    不再重新对原始分辨率首帧抠图，避免 mask 几何错位导致背景重影。
+
+    1. matte 帧 RGB 部分做 blur(12) + 亮度 1.01 + 饱和度 0.94
+    2. 前景 alpha 通道 blur(10) 作为人物 mask
+    3. 仅人物区域叠加模糊版（"融"进背景）
+    4. cover centre 到 bg_side × bg_side
     """
     from PIL import Image, ImageEnhance, ImageFilter
 
-    source = source_rgb.convert("RGB")
-    w, h = source.size
+    # matte_first_frame 已经是 512×512 RGBA（抽帧管线产出，同尺寸像素级对齐）
+    fg_rgb = matte_first_frame.convert("RGB")
+    w, h = fg_rgb.size  # 512×512
 
     # 1. 模糊底图
-    blurred = source.filter(ImageFilter.GaussianBlur(12))
+    blurred = fg_rgb.filter(ImageFilter.GaussianBlur(12))
     blurred = ImageEnhance.Brightness(blurred).enhance(1.01)
     blurred = ImageEnhance.Color(blurred).enhance(0.94)
 
-    # 2. 人物 mask（前景 alpha → blur 10 → 对齐源尺寸）
-    subject_mask = foreground_rgba.getchannel("A").filter(ImageFilter.GaussianBlur(10))
-    if subject_mask.size != (w, h):
-        subject_mask = subject_mask.resize((w, h), Image.Resampling.BILINEAR)
+    # 2. 人物 mask（前景 alpha → blur 10，与源图同尺寸，无错位）
+    subject_mask = matte_first_frame.getchannel("A").filter(ImageFilter.GaussianBlur(10))
 
     # 3. 仅人物区域叠加模糊版
-    softened = source.copy()
+    softened = fg_rgb.copy()
     softened.paste(blurred, (0, 0), subject_mask)
 
     # 4. cover centre 到 bg_side（fillOpaqueCanvas）
@@ -485,34 +535,41 @@ def main() -> int:
                       "elapsed_s": round(t_modnet, 2)}, ensure_ascii=False), file=sys.stderr)
 
     # 7. 生成背景（官方算法：人物区域模糊化）
-    # 官方用原始比例源图 + 同尺寸抠图 mask（normalizeRoleSourceForMatting fit:inside）
-    # 注意：不能用 512 垫边版 mask，会与原比例图错位
+    # v3 Fix B：改用 512 垫边版 matte 首帧（与抽帧管线同尺寸），不再对
+    # 原始分辨率首帧重新抠图 —— 抠出的 mask 几何错位是重影根因之一
     bg_start = time.time()
-    import io as _io
     from PIL import Image
-    src_first = Image.open(first_frame_path).convert("RGB")
-    if use_birefnet:
-        fg_bytes = matte_frame_birefnet(first_frame_path.read_bytes(), python_birefnet, effective_model)
-        fg_first = Image.open(_io.BytesIO(fg_bytes)).convert("RGBA")
-    else:
-        tmp_fg = tmp_root / "first_matted.png"
-        matte_frame_modnet(first_frame_path, tmp_fg, effective_model)
-        fg_first = Image.open(tmp_fg).convert("RGBA")
+    matte_first_path = matte_dir / "frame_0001.png"
+    if not matte_first_path.exists():
+        print(json.dumps({"ok": False, "error": f"matte 首帧缺失: {matte_first_path}"}, ensure_ascii=False), file=sys.stderr)
+        return 4
+    matte_first = Image.open(matte_first_path).convert("RGBA")
     background_path = out_dir / "background.png"
-    build_official_background(src_first, fg_first, bg_side).save(background_path, format="PNG")
+    build_official_background(matte_first, bg_side).save(background_path, format="PNG")
     print(json.dumps({"ok": True, "phase": "background_done", "elapsed_s": round(time.time()-bg_start, 2)},
                      ensure_ascii=False), file=sys.stderr)
 
-    # 8. 合成 webp（动画 webp，对齐官方参数：libwebp + lossless=0 + q:v=80 + preset=picture）
+    # 8. colorkey 软抠边（Fix C）：对齐 app.js legacy 路径
+    #    对 matte 帧的近黑残留像素做软透明化，防止 webp 无损压缩后渗出重影
+    print(json.dumps({"ok": True, "phase": "colorkey_start"}, ensure_ascii=False), file=sys.stderr)
+    matte_frames = sorted(matte_dir.glob("frame_*.png"))
+    for mf in matte_frames:
+        img = Image.open(mf).convert("RGBA")
+        img_fixed = apply_colorkey_edge(img)
+        img_fixed.save(mf, format="PNG", optimize=False)
+    print(json.dumps({"ok": True, "phase": "colorkey_done", "frames": len(matte_frames)},
+                     ensure_ascii=False), file=sys.stderr)
+
+    # 9. 合成 webp（v3 Fix A：无损编码，对齐 app libwebp_anim 参数）
     foreground_path = out_dir / "foreground.webp"
     matte_pattern = str(matte_dir / "frame_%04d.png")
     run_ffmpeg(ffmpeg, [
         "-framerate", str(fps),
         "-i", matte_pattern,
         "-c:v", "libwebp",
-        "-lossless", "0",
-        "-q:v", "80",
-        "-compression_level", "6",
+        "-lossless", "1",
+        "-quality", "90",
+        "-compression_level", "4",
         "-preset", "picture",
         "-loop", "0",
         "-an",

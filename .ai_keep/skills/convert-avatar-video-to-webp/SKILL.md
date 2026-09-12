@@ -9,11 +9,21 @@ description: >-
   本地视频转 webp 头像、不走接口转 webp。
 ---
 
-# 本地视频转 webp 头像 (convert-avatar-video-to-webp)
+# 本地视频转 webp 头像 (convert-avatar-video-to-webp) v3
 
-把 `ai_vedio_gen` 等产出的角色立绘视频（.mp4）**直接在本机**转换为可用的
-webp 动画头像 + 背景静态图。**不**调用 Toonflow `/game/convertAvatarVideoToGif`，
-避免等待服务端任务队列、节省传输。
+## v3 修复重影（2026-09-12）
+
+| 修复 | 问题 | 方案 |
+|------|------|------|
+| **A. webp 无损编码** | v2 用 `lossless=0 + q=80` 有损压缩，alpha 边缘被压坏，背景色"漏"出形成重影 | 改为 `lossless=1 + quality=90 + compression_level=4`（对齐 app libwebp_anim） |
+| **B. 背景用 512 垫边 matte 帧** | v2 对原始分辨率首帧重新抠图，mask 几何与抽帧管线不一致，导致背景人物区域偏移 | 直接复用 `matte_dir/frame_0001.png`（512×512，同管线产出） |
+| **C. colorkey 软抠边** | 发丝/轮廓边缘残留的近黑像素（alpha 极低），无损压缩后"渗出"形成重影 | 对 matte 帧加 `colorkey=0x000000:0.08:0.05` 软透明化（对齐 app legacy 路径） |
+
+### 重影根因分析
+
+1. **WebP 编码参数（最直接）** — app 用无损，本技能用有损，半透明 alpha 被压掉
+2. **背景图尺寸来源不一致** — matte 用 512 垫边帧，背景生成用原始分辨率重新抠图，几何错位
+3. **边缘残留像素未处理** — 极低 alpha 的近黑像素在无损压缩后边界"渗出"
 
 读取配置文件：
 [vedio_to_webp.yml](../../config/vedio_to_webp.yml)
@@ -110,10 +120,20 @@ model: birefnet
 |---|---|---|
 | `modnet` | onnxruntime 逐帧，快（~27s/40帧） | 通用兜底 |
 | `birefnet` | rembg[birefnet-portrait] 逐帧，发丝级边缘 | 质量最优但**极慢（~12s/帧，40帧≈8min）** |
-| `birefnet_rvm` | 首帧 BiRefNet + RVM 时序传播 + EMA | **推荐：质量接近 birefnet，36s 出 40 帧** |
+| `birefnet_rvm` | 首帧 BiRefNet + RVM 时序传播 + EMA | **推荐：质量接近 birefnet，36s 出 40 帧**（v3 默认） |
 
 **⚠️ birefnet_rvm 的 dsr 坑（2026-09-08 定案）**：`--dsr` 原默认 0.25 是 RVM 官方 **1080p** 推荐值；512px 输入下缩小后特征图仅 128px，细节丢失导致 **RVM 把静态背景（桌椅）幻觉进 mask**（半透明像素 1.5%→5.2%，frame20 起肉眼可见残影）。**已改默认 dsr=0.75**（512×0.75=384px 特征图）：残影消失（半透回落 1.02%），抖动 0.00099 优于 MODNet（0.00152）。ema 0.85/0.95/1.0 影响很小。**口诀：dsr × 输入边长 ≥ 256px**。
 质量排序（陈曦_6s.mp4 实测）：birefnet_rvm(dsr0.75) ≈ birefnet 逐帧 > modnet；速度：birefnet_rvm(36s) ≈ modnet(27s) >> birefnet(8min)。
+
+### WebP 编码参数（v3 对齐 app）
+
+| 参数 | v2（错误） | v3（正确，对齐 app） |
+|---|---|---|
+| `-lossless` | `0`（有损） | `1`（无损） |
+| `-quality` | `80`（`q:v`） | `90` |
+| `-compression_level` | `6` | `4` |
+
+v2 有损编码是重影的直接原因之一。alpha 通道被压后半透明边缘"透"出背景色。
 
 ## ⚠️ U2NET_HOME（必须知道）
 
@@ -242,3 +262,9 @@ avatars/<role>.png
 
 > 服务端的 colorkey 假抠图对"非纯黑背景"的视频失效（直接把背景当成透明）；
 > 本技能的 MODNet 真抠图能处理任意背景，质量明显更好。
+
+
+# 非生物的抠图
+模型： isnet-general-use/u2net
+默认为u2net
+

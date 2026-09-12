@@ -251,20 +251,20 @@ def chapters_op(story_name: str = None, op: str = "list", mode: str = "replace",
         if not entry_id:
             raise ValueError("getChapter 操作需要 --entry-id 传章节 id")
         # 返回章节的 json 数据
-        get_chapter_entry(client, story, entry_id)
+        return get_chapter_entry(client, story, entry_id)
     elif op == "save_create":
         if not entry_json:
             raise ValueError("save_create 操作需要 --entry 传章节 JSON 数据")
         entry = json.loads(entry_json)
-        save_chapter_entry(client, story, entry)
+        return save_chapter_entry(client, story, entry)
     elif op == "save_update":
         if not entry_id:
             raise ValueError("save_update 操作需要 --entry-id 传章节 id")
         if not entry_json:
             raise ValueError("save_update 操作需要 --entry 传章节 JSON 数据")
         entry = json.loads(entry_json)
-        # 注入 chapterId 以便更新
+        # 注入 chapterId 以便更新（防重复创建）
         entry["chapterId"] = entry_id
-        save_chapter_entry(client, story, entry)
+        return save_chapter_entry(client, story, entry)
     else:
         raise ValueError(f"未知操作: {op}（支持: getChapter/save_create/save_update）")

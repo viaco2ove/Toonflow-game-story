@@ -24,6 +24,11 @@ Toonflow Game Story - 统一命令行工具
     # 文件上传
     python -m src.cli toonflow client --op uploadImage --entry /path/to/image.png
 
+    # 世界数据操作
+    python -m src.cli toonflow world --story 谁让这个山大王修仙的 --op get
+    python -m src.cli toonflow world --story 谁让这个山大王修仙的 --op save_create --entry '{json}'
+    python -m src.cli toonflow world --story 谁让这个山大王修仙的 --op save_update --entry '{json}'  # 必须含 id
+
     # 工作流：章节封面/背景图上传
     python -m src.cli workflow chapter-background-img --story 谁让这个山大王修仙的 --chapter-id 73 --cover images/ch1.png --background images/ch1_bg.png
     python -m src.cli workflow chapter-background-img --story 谁让这个山大王修仙的 --chapter-id 73 --cover images/ch1.png
@@ -110,6 +115,17 @@ def cmd_toonflow_client(args):
     )
 
 
+def cmd_toonflow_world(args):
+    """世界数据操作"""
+    from src.toonflow.client import world_op
+
+    return world_op(
+        story_name=args.story,
+        op=args.op,
+        entry_json=args.entry,
+    )
+
+
 def cmd_cards_build(args):
     """构建角色卡"""
     from src.cards.builder import build_all_cards
@@ -192,6 +208,42 @@ def cmd_workflow_chapter_background_img(args):
     )
 
 
+def cmd_workflow_role_webp_avatar(args):
+    """角色立绘一角三图上传工作流"""
+    from src.toonflow.workflow.workflow_role_webp_avatar import (
+        workflow_role_webp_avatar,
+    )
+
+    workflow_role_webp_avatar(
+        story_name=args.story,
+        role_name=args.role_name,
+        webp=args.webp,
+        bg=args.bg,
+        first_frame=args.first_frame,
+        video=args.video,
+        duration_ms=args.duration_ms,
+        project_id=args.project_id,
+        is_player=args.is_player,
+    )
+
+
+def cmd_workflow_voice_file_up_save(args):
+    """角色音色文件上传与绑定工作流"""
+    from src.toonflow.workflow.workflow_voice_file_up_save import (
+        workflow_voice_file_up_save,
+    )
+
+    workflow_voice_file_up_save(
+        story_name=args.story,
+        role_name=args.role_name,
+        audio=args.audio,
+        voice_mode=args.voice_mode,
+        reference_text=args.reference_text,
+        project_id=args.project_id,
+        is_player=args.is_player,
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Toonflow Game Story - 统一工具",
@@ -236,12 +288,20 @@ def main():
     p_ch.set_defaults(func=cmd_toonflow_chapters)
 
     # toonflow client：客户端操作
-    p_cl = p_tf_sub.add_parser("client", help="客户端操作（uploadImage）")
-    p_cl.add_argument("--op", default="uploadImage", choices=["uploadImage"],
-                      help="操作: uploadImage(上传图片)")
-    p_cl.add_argument("--entry", default=None, help="文件路径（uploadImage 时必需）")
+    p_cl = p_tf_sub.add_parser("client", help="客户端操作（uploadImage/uploadAudio）")
+    p_cl.add_argument("--op", default="uploadImage", choices=["uploadImage", "uploadAudio"],
+                      help="操作: uploadImage(上传图片) / uploadAudio(上传音频)")
+    p_cl.add_argument("--entry", default=None, help="文件路径")
     p_cl.add_argument("--project-id", type=int, default=1, help="项目 ID，默认 1")
     p_cl.set_defaults(func=cmd_toonflow_client)
+
+    # toonflow world：世界数据操作
+    p_wd = p_tf_sub.add_parser("world", help="世界数据操作（get/save_create/save_update）")
+    p_wd.add_argument("--story", "-s", required=True, help="故事名")
+    p_wd.add_argument("--op", default="get", choices=["get", "save_create", "save_update"],
+                      help="操作: get(获取世界数据) / save_create(新建) / save_update(更新，必须有 id)")
+    p_wd.add_argument("--entry", default=None, help="世界 JSON 数据（save_create/save_update 时必需）")
+    p_wd.set_defaults(func=cmd_toonflow_world)
 
     # cards
     p_cards = subparsers.add_parser("cards", help="角色卡构建和上传")
@@ -293,6 +353,29 @@ def main():
     p_cbi.add_argument("--background", default=None, help="背景图路径")
     p_cbi.add_argument("--project-id", type=int, default=1, help="项目 ID，默认 1")
     p_cbi.set_defaults(func=cmd_workflow_chapter_background_img)
+
+    p_rwa = p_wf_sub.add_parser("role-webp-avatar", help="角色立绘一角三图上传")
+    p_rwa.add_argument("--story", "-s", default=None, help="故事名（不指定则用 CURRENT_STORY）")
+    p_rwa.add_argument("--role-name", required=True, help="角色名（按 name 字段匹配）")
+    p_rwa.add_argument("--webp", default=None, help="前景立绘 webp 路径（avatarPath）")
+    p_rwa.add_argument("--bg", default=None, help="背景图 png 路径（avatarBgPath）")
+    p_rwa.add_argument("--first-frame", default=None, help="首帧 png 路径（avatarFirstFramePath）")
+    p_rwa.add_argument("--video", default=None, help="视频 mp4 路径（avatarVideoPath，玩家无此字段）")
+    p_rwa.add_argument("--duration-ms", type=int, default=None, help="视频时长毫秒（avatarDurationMs）")
+    p_rwa.add_argument("--project-id", type=int, default=1, help="项目 ID，默认 1")
+    p_rwa.add_argument("--is-player", action="store_true", help="是否为玩家角色（playerRole 字段，无 avatarVideoPath）")
+    p_rwa.set_defaults(func=cmd_workflow_role_webp_avatar)
+
+    p_vus = p_wf_sub.add_parser("voice-file-up-save", help="角色音色文件上传与绑定")
+    p_vus.add_argument("--story", "-s", default=None, help="故事名（不指定则用 CURRENT_STORY）")
+    p_vus.add_argument("--role-name", required=True, help="角色名")
+    p_vus.add_argument("--audio", required=True, help="音色文件路径（wav/mp3 等）")
+    p_vus.add_argument("--voice-mode", default="clone", choices=["clone", "prompt_voice", "text"],
+                       help="音色模式（默认 clone）")
+    p_vus.add_argument("--reference-text", default="", help="参考文本（voiceReferenceText）")
+    p_vus.add_argument("--project-id", type=int, default=1, help="项目 ID，默认 1")
+    p_vus.add_argument("--is-player", action="store_true", help="是否为玩家角色（playerRole 字段）")
+    p_vus.set_defaults(func=cmd_workflow_voice_file_up_save)
 
     args = parser.parse_args()
     if not hasattr(args, "func"):

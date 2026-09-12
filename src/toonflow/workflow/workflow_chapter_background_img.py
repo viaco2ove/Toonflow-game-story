@@ -1,11 +1,12 @@
 """
 章节封面/背景图上传工作流
 
-流程:
-1. 获取章节信息 (getChapter)
-2. 上传封面图 (uploadImage) → coverPath
-3. 上传背景图 (uploadImage) → backgroundPath
-4. 保存章节更新 (saveChapter)
+【规范】只允许调用 --op 入口函数，不允许直接调用 save_chapter_entry 等内部函数。
+
+流程（走 CLI 入口）:
+1. getChapter   → 获取章节完整数据
+2. uploadImage  → 上传封面/背景图
+3. save_update  → 保存章节更新
 
 用法:
     from src.toonflow.workflow.workflow_chapter_background_img import (
@@ -26,11 +27,11 @@
         story_name="谁让这个山大王修仙的",
         chapter_id=73,
         image_path=Path("images/chapter_1_cover.png"),
-        image_type="cover",  # 或 "background"
+        image_type="cover",
     )
 
 命令行:
-    python -m src.cli toonflow workflow chapter-background-img \\
+    python -m src.cli workflow chapter-background-img \\
         --story 谁让这个山大王修仙的 \\
         --chapter-id 73 \\
         --cover images/chapter_1_cover.png \\
@@ -39,28 +40,21 @@
 import json
 from pathlib import Path
 
-from src.config import GlobalConfig, StoryConfig, load_config
-from src.toonflow.client import ToonflowClient
-from src.toonflow.chapters import get_chapter_entry, save_chapter_entry
+from src.toonflow.chapters import chapters_op
+from src.toonflow.client import client_op
 
 
 def upload_chapter_image(
-    client: ToonflowClient,
-    story: StoryConfig,
-    chapter_id: int,
+    story_name: str,
     image_path: Path,
-    image_type: str = "cover",
     project_id: int = 1,
 ) -> str | None:
     """
-    上传单张章节图片（封面或背景）
+    上传单张图片（走 client_op 入口）
 
     Args:
-        client: ToonflowClient 实例
-        story: StoryConfig 配置
-        chapter_id: 章节 ID
+        story_name: 故事名称（仅用于日志）
         image_path: 图片文件路径
-        image_type: 图片类型 "cover"（封面）或 "background"（背景）
         project_id: 项目 ID
 
     Returns:
@@ -70,11 +64,12 @@ def upload_chapter_image(
         print(f"  ✗ 文件不存在: {image_path}")
         return None
 
-    # 生成图片类型标识（封面用 cover，背景用 bg）
-    img_type_prefix = "cover" if image_type == "cover" else "chapter_bg"
-
-    print(f"  -> 上传 {image_type}: {image_path.name}")
-    file_path = client.upload_image(image_path, img_type_prefix, project_id)
+    print(f"  -> 上传图片: {image_path.name}")
+    file_path = client_op(
+        op="uploadImage",
+        entry_json=str(image_path),
+        project_id=project_id,
+    )
     return file_path
 
 
@@ -87,7 +82,12 @@ def upload_chapter_images(
     save: bool = True,
 ) -> dict:
     """
-    上传章节封面和背景图，并可选保存章节
+    上传章节封面和背景图，并可选保存章节（走 chapters_op / client_op 入口）
+
+    流程:
+    1. getChapter  → 获取章节完整数据
+    2. uploadImage → 上传封面/背景图（走 client_op）
+    3. save_update → 保存章节更新（走 chapters_op）
 
     Args:
         story_name: 故事名称
@@ -100,77 +100,67 @@ def upload_chapter_images(
     Returns:
         包含上传结果的字典 {cover_path, background_path, chapter}
     """
-    # 加载配置
-    global_cfg, story = load_config(story_name)
-    if not story:
-        raise ValueError(f"未找到故事: {story_name}")
-
     print("=" * 60)
     print(f"章节图片上传")
-    print(f"故事: {story.story_name}")
+    print(f"故事: {story_name}")
     print(f"章节 ID: {chapter_id}")
     print("=" * 60)
-
-    client = ToonflowClient(global_cfg)
-
-    # 1. 获取章节当前数据
-    print("\n[1/4] 获取章节信息...")
-    chapter = get_chapter_entry(client, story, chapter_id)
-    if not chapter:
-        raise Exception(f"无法获取章节 {chapter_id}")
 
     result = {
         "cover_path": None,
         "background_path": None,
-        "chapter": chapter,
+        "chapter": None,
     }
 
-    # 2. 上传封面图
+    # 1. getChapter - 获取章节完整数据（走 chapters_op 入口）
+    print("\n[1/4] 获取章节信息...")
+    chapter = chapters_op(story_name=story_name, op="getChapter", entry_id=chapter_id)
+    if not chapter:
+        raise Exception(f"无法获取章节 {chapter_id}")
+    result["chapter"] = chapter
+    print(f"  ✓ 获取成功: {chapter.get('title', '')} (id={chapter.get('id')})")
+
+    # 2. uploadImage - 上传封面图（走 client_op 入口）
     if cover_path:
         print("\n[2/4] 上传封面图...")
         cover_path = Path(cover_path)
         if cover_path.exists():
-            result["cover_path"] = upload_chapter_image(
-                client, story, chapter_id, cover_path, "cover", project_id
-            )
+            result["cover_path"] = upload_chapter_image(story_name, cover_path, project_id)
         else:
             print(f"  ⚠ 封面文件不存在: {cover_path}")
     else:
         print("\n[2/4] 跳过封面图（未指定）")
 
-    # 3. 上传背景图
+    # 3. uploadImage - 上传背景图（走 client_op 入口）
     if background_path:
         print("\n[3/4] 上传背景图...")
         background_path = Path(background_path)
         if background_path.exists():
-            result["background_path"] = upload_chapter_image(
-                client, story, chapter_id, background_path, "background", project_id
-            )
+            result["background_path"] = upload_chapter_image(story_name, background_path, project_id)
         else:
             print(f"  ⚠ 背景文件不存在: {background_path}")
     else:
         print("\n[3/4] 跳过背景图（未指定）")
 
-    # 4. 保存章节
+    # 4. save_update - 保存章节（走 chapters_op 入口）
     if save and (result["cover_path"] or result["background_path"]):
         print("\n[4/4] 保存章节...")
-        # 更新章节数据（必须包含 chapterId/id 才不会创建新章节）
-        update_data = {
-            "chapterId": chapter.get("id") or chapter_id,
-            "id": chapter.get("id") or chapter_id,
-            "title": chapter.get("title"),
-            "content": chapter.get("content"),
-            "openingRole": chapter.get("openingRole"),
-            "openingText": chapter.get("openingText"),
-            "backgroundPath": result["background_path"] or chapter.get("backgroundPath"),
-            "sort": chapter.get("sort"),
-            "status": chapter.get("status", "draft"),
-        }
-        # 添加封面路径（如果服务器支持）
+        # 基于章节完整数据，只更新图片字段
+        update_data = dict(chapter)
+        update_data["chapterId"] = chapter.get("id") or chapter_id
+        update_data["id"] = chapter.get("id") or chapter_id
+        # 覆盖图片字段
+        if result["background_path"]:
+            update_data["backgroundPath"] = result["background_path"]
         if result["cover_path"]:
             update_data["coverPath"] = result["cover_path"]
 
-        saved = save_chapter_entry(client, story, update_data)
+        saved = chapters_op(
+            story_name=story_name,
+            op="save_update",
+            entry_id=chapter_id,
+            entry_json=json.dumps(update_data),
+        )
         result["chapter"] = saved
         print(f"  ✓ 章节已保存")
     else:

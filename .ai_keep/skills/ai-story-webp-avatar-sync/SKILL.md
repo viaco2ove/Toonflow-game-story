@@ -11,6 +11,9 @@ description: >-
 把本地 mp4 角色视频头像，通过服务端接口转成 webp 动画头像（含去背 foreground + 背景
 background + 原视频 + 首帧），并可选写回世界角色数据。
 
+## 立绘上传的工作流程调用
+[workflow_role_webp_avatar.py](/src/toonflow/workflow/workflow_role_webp_avatar.py)
+
 ## 何时用
 
 - 已用 `ai_vedio_gen` 生成角色立绘视频（.mp4），需要转成游戏可用的 webp 动画头像
@@ -120,8 +123,10 @@ python -m src.cli webp-sync \
    └─ video.mp4
 ```
 
-产物可手动上传服务器，或后续走方案 B 的写回逻辑。
-[api_help/image_api/图片上传.md]
+
+#### 立绘上传的工作流程调用
+[workflow_role_webp_avatar.py](/src/toonflow/workflow/workflow_role_webp_avatar.py)
+
 ### 方案 B：服务端接口（原始方案）
 
 ```

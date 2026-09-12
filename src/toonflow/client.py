@@ -11,7 +11,7 @@ import json
 import requests
 from pathlib import Path
 
-from src.config import GlobalConfig
+from src.config import GlobalConfig, StoryConfig
 
 
 class ToonflowClient:
@@ -382,6 +382,39 @@ class ToonflowClient:
             print(f"    ✗ 上传失败: {result.get('message')}")
             return None
 
+    def upload_audio(self, file_path: Path, project_id: int = 1) -> str:
+        """上传音频到 voice 服务，返回 filePath（/voice/uploadAudio）"""
+        import base64
+
+        if not file_path.exists():
+            print(f"    ✗ 文件不存在: {file_path}")
+            return None
+
+        with open(file_path, "rb") as f:
+            audio_data = f.read()
+
+        ext = file_path.suffix.lower().strip(".")
+        if ext == "":
+            ext = "wav"
+        mime_type = f"audio/{ext}"
+
+        b64_data = f"data:{mime_type};base64,{base64.b64encode(audio_data).decode('utf-8')}"
+
+        print(f"    上传音频: {file_path.name}")
+        result = self.api_call("/voice/uploadAudio", {
+            "projectId": project_id,
+            "base64Data": b64_data,
+            "fileName": file_path.name,
+        })
+
+        if result.get("code") == 200:
+            path = result.get("data", {}).get("filePath")
+            print(f"    ✓ 上传成功: {path}")
+            return path
+        else:
+            print(f"    ✗ 上传失败: {result.get('message')}")
+            return None
+
 
 def upload_image(client: ToonflowClient, file_path: Path, project_id: int = 1) -> str:
     """
@@ -396,6 +429,95 @@ def upload_image(client: ToonflowClient, file_path: Path, project_id: int = 1) -
         服务器返回的 filePath，失败返回 None
     """
     return client.upload_image(file_path, "scene", project_id)
+
+
+def upload_audio(client: ToonflowClient, file_path: Path, project_id: int = 1) -> str:
+    """
+    上传音频（全局入口函数）
+
+    Args:
+        client: ToonflowClient 实例
+        file_path: 音频文件路径（wav/mp3 等）
+        project_id: 项目 ID
+
+    Returns:
+        服务器返回的 filePath，失败返回 None
+    """
+    return client.upload_audio(file_path, project_id)
+
+
+def get_world_entry(client: ToonflowClient, story: StoryConfig) -> dict:
+    """获取世界完整数据（全局入口函数）"""
+    if not story.world_id:
+        raise ValueError("story.world_id 为空，请先创建/绑定世界")
+    world = client.get_world(story.world_id)
+    print(f"  ✓ 获取世界: {world.get('name')} (id={world.get('id')})")
+    return world
+
+
+def save_world_entry(client: ToonflowClient, story: StoryConfig, world_data: dict) -> dict:
+    """保存世界（全局入口函数 — 仅 save_update 路径，禁止无 id 的更新）"""
+    if not story.world_id:
+        raise ValueError("story.world_id 为空，请先创建/绑定世界")
+    # 强制校验：禁止无 id 的更新行为
+    data_id = world_data.get("id") or world_data.get("worldId")
+    if not data_id:
+        raise ValueError(
+            "禁止无 id 的更新行为！world_data 中必须包含 id 或 worldId 字段，"
+            "防止误创建新世界。请用 save_create op 显式创建，或确保数据来自 get_world 返回值。"
+        )
+    # 注入 worldId 防止丢失
+    world_data["id"] = story.world_id
+    world_data["worldId"] = story.world_id
+    return client.save_world(world_data)
+
+
+def world_op(story_name: str = None, op: str = "get", entry_json: str = None):
+    """
+    世界数据操作入口（供 cli 调用）
+
+    op:
+      get          - 获取世界完整数据
+      save_create  - 新建世界（--entry 传 JSON，id 会被置 0）
+      save_update  - 更新现有世界（--entry 传 JSON，必须有 id；禁止无 id 更新）
+    """
+    from src.config import load_config
+
+    global_cfg, story = load_config(story_name)
+    if not story:
+        raise ValueError("未指定故事名，且 .env 中无 CURRENT_STORY")
+
+    print("=" * 60)
+    print(f"世界数据维护: {story.story_name}")
+    print(f"环境: {global_cfg.base_url} | World ID: {story.world_id}")
+    print(f"操作: {op}")
+    print("=" * 60)
+
+    client = ToonflowClient(global_cfg)
+
+    if op == "get":
+        return get_world_entry(client, story)
+    elif op == "save_create":
+        if not entry_json:
+            raise ValueError("save_create 操作需要 --entry 传世界 JSON 数据")
+        world_data = json.loads(entry_json)
+        # 强制 id=0 走新建路径
+        world_data["id"] = 0
+        world_data["worldId"] = 0
+        return client.save_world(world_data)
+    elif op == "save_update":
+        if not entry_json:
+            raise ValueError("save_update 操作需要 --entry 传世界 JSON 数据")
+        world_data = json.loads(entry_json)
+        # 禁用：禁止无 id 的更新行为（防止误创建新世界）
+        if not (world_data.get("id") or world_data.get("worldId")):
+            raise ValueError(
+                "禁止无 id 的更新行为！请传入包含 id/worldId 的完整 world_data，"
+                "或先用 get 操作拉取现有世界数据再修改。"
+            )
+        return save_world_entry(client, story, world_data)
+    else:
+        raise ValueError(f"未知操作: {op}（支持: get/save_create/save_update）")
 
 
 def client_op(story_name: str = None, op: str = "list", mode: str = "replace",
@@ -425,5 +547,15 @@ def client_op(story_name: str = None, op: str = "list", mode: str = "replace",
         if result:
             print(f"\n  服务器路径: {result}")
         return result
+    elif op == "uploadAudio":
+        if not entry_json:
+            raise ValueError("uploadAudio 操作需要 --entry 传音色文件路径")
+        file_path = Path(entry_json)
+        if not file_path.exists():
+            raise FileNotFoundError(f"音色文件不存在: {file_path}")
+        result = upload_audio(client, file_path, project_id)
+        if result:
+            print(f"\n  服务器路径: {result}")
+        return result
     else:
-        raise ValueError(f"未知操作: {op}（支持: uploadImage）")
+        raise ValueError(f"未知操作: {op}（支持: uploadImage/uploadAudio）")
