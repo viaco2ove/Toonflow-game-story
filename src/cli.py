@@ -170,6 +170,20 @@ def cmd_list_stories(args):
         print()
 
 
+def cmd_webp(args):
+    """mp4 立绘转 webp（本地，分步可重跑）"""
+    from src.webp.webp import webp_op
+
+    webp_op(
+        config=args.config,
+        path_json=args.path_json,
+        step=args.step or "",
+        type_flag=args.type_flag or "",
+        keep_tmp=args.keep_tmp,
+        ffmpeg=args.ffmpeg,
+    )
+
+
 def cmd_webp_sync(args):
     """mp4 视频头像转 webp 并同步到角色"""
     from src.toonflow.webp_avatar_sync import convert_video_to_webp, sync_to_role
@@ -334,6 +348,15 @@ def main():
     p_agme.add_argument("--world-id", default=None, help="world ID（不指定则从 story.json 读取）")
     p_agme.add_argument("--project-id", default=None, help="project ID，默认 1")
     p_agme.set_defaults(func=lambda a: __import__("src.toonflow.agme_cache", fromlist=["cmd_agme_cache_pull"]).cmd_agme_cache_pull(a))
+
+    # webp：mp4 立绘转 webp（本地转换，分步可重跑）
+    # python -m src.cli webp --living {config} {path_json}
+    # python -m src.cli webp --living --tmp_frames {config} {path_json}
+    from src.webp.webp import add_webp_arguments
+
+    p_webp_local = subparsers.add_parser("webp", help="mp4 立绘转 webp（本地，分步可重跑）")
+    add_webp_arguments(p_webp_local)
+    p_webp_local.set_defaults(func=cmd_webp)
 
     # webp-sync：mp4 视频头像转 webp 并同步到角色
     p_webp = subparsers.add_parser("webp-sync", help="mp4 视频头像转 webp 并同步到角色")

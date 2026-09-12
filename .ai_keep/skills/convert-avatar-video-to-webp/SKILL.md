@@ -10,114 +10,8 @@ description: >-
 ---
 
 # 本地视频转 webp 头像 (convert-avatar-video-to-webp)
-## history
-[重影.history.md](history/重影.history.md)
-
-### 重影根因（v6 已定案，2026-09-13）
-
-**结论：重影的唯一根因是 ffmpeg 的 webp 动画编码路径选错，不是抠图质量、不是 alpha 边缘。**
-
-Animated WebP 每一帧（ANMF chunk）帧头有两位：
-
-- `disposal method`：`0 = NONE`（保留上一帧画布）/ `1 = BACKGROUND`（先把该帧矩形清成背景/透明）
-- `blending method`：`BLEND`（新帧 alpha 混合到画布）/ `NO_BLEND`（直接覆写）
-
-规范默认是 `disposal=0 + BLEND`。这个组合下新帧里 alpha=0 的像素**不清画布，而是"露出上一帧"** → 这就是拖影的机械原理。对透明立绘（主体每帧都在动，让出的区域必须变透明）来说默认值是致命的。
-
-| ffmpeg 路径 | 谁写 ANMF | 结果 |
-|---|---|---|
-| `-c:v libwebp`（或不写 `-c:v`，只给 `out.webp`） | `libavformat/webpenc.c` 自己手拼 ANMF，disposal **硬编码 0**，blend 走默认 BLEND | **必然重影** |
-| `-c:v libwebp_anim` | 交给 libwebp 官方 `WebPAnimEncoder`，逐帧计算最小子矩形 + dispose/blend，保证解码结果 == 输入 | **不重影** |
-
-这是 FFmpeg 挂了 7 年的 [ticket #7941](https://trac.ffmpeg.org/ticket/7941)，comment:19 直接定位到 `webpenc.c` 第 137 行 `avio_w8(s->pb, 0)`，补丁就是改成 `0x1`（dispose=BACKGROUND）。至今未合并、未暴露成选项。
-
-**v3~v5 一直是 `-c:v libwebp`，所以无论怎么改 alpha 都治不好。v6 已改为 `libwebp_anim`。**
-
-#### 实测证据（512×512 软边圆平移 12 帧，无损编码）
-
-直接解析产物的 ANMF 帧头 + 统计每帧不透明像素（期望恒为 6036）：
-
-```
-=== libwebp（v5 旧） ===
-  ANMF#01..12  512x512 @(0,0)  blend=BLEND     dispose=NONE
-  实测 [6036, 8944, 11852, 14760, 17668, 20576, 23484, 26392, 29300, 32208, 35116, 38024]
-  -> 重影帧: 2~12（逐帧线性累积，正是肉眼看到的拖影）
-
-=== libwebp_anim（v6 新） ===
-  ANMF#01..11   88x88  @(移动)  blend=NO_BLEND  dispose=BACKGROUND
-  实测 [6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036, 6036]
-  -> 重影帧: 无
-```
-
-#### app 是怎么解决的
-
-两条路径（`renderSemanticAvatarAssets` / `renderLegacyAvatarAssets`）都显式指定 `libwebp_anim`：
-
-```
--c:v libwebp_anim  -lossless 1  -quality 90  -compression_level 4  -loop 0  -an  -vsync 0
-```
-
-三个要素按重要度排：
-
-1. **`-c:v libwebp_anim`** ← 真正的根因修复。绕开 ffmpeg 自己拼 ANMF 的 bug，把 dispose/blend 决策权交回 libwebp。
-2. **`-lossless 1`** ← 让帧间差分逐位精确。libwebp 在 lossless 下用 `IncreaseTransparency()`：把"与上一帧画布相同"的像素主动置成 alpha=0，靠 BLEND 从上一帧取回 —— 无损下是数学恒等；一旦 lossy，VP8 重建误差会让 blend 逐帧累积漂移，即使用了 libwebp_anim 也会有淡残影。所以它不是"编码质量"问题，而是**帧间差分的正确性前提**。
-3. **每帧几何完全一致的全画布帧** ← `normalizeForegroundLayer` 把每帧重建到一张全新的 512×512 全透明画布（水平居中 + 底部对齐），`alpha<=14` 一律当透明裁边、外扩 6px。保证透明区 RGBA 逐帧位级一致，编码器算出的差分矩形就是真实运动区域。
-
-#### 曾经的三个误判（v3~v5，均已在 v6 撤销）
-
-| 版本 | 当时的"修复" | 为什么是误判 |
-|---|---|---|
-| v3 C | `colorkey=0x000000:0.08:0.05` 软抠边 | app 没有这一步；键掉近黑像素治的是单帧黑边，不是跨帧残留 |
-| v4 | alpha 二值化（<128→0，>=128→255） | 把发丝/轮廓软边打成硬锯齿，是治不好病之后的错误代偿 |
-| — | 有损/无损 | 方向对但定位错：坏的不是"半透明 alpha 边缘"，而是帧间差分的可逆性。alpha_quality 拉到 100，只要走 `-c:v libwebp` 照样重影 |
-
-尺寸不一致 / 边缘残留产生的是**单帧内的空间缺陷**（错位、黑边光晕）；重影是**跨帧的时间缺陷**，两回事。
-
-> **生物与非生物同时生效**：portrait（`birefnet` / `birefnet_rvm` / `modnet`）与 inanimate（`u2net` / `u2netp` / `isnet-general-use`）两条路径在 `convert.py` 里共用同一套 normalize（step 8）+ 编码（step 9），所以这一处修复对两者同时覆盖，无需分别处理。
-
-> `convert.py` 启动时会执行 `assert_webp_anim_encoder()`：ffmpeg 不带 `libwebp_anim` **直接报错**，绝不静默回退到 `-c:v libwebp` 产出带拖影的 webp。
-
-
-## 前景位置漂移根因（v7 已修）
-
-重影治好后又出现的另一个症状：**“前景对象位置变来变去”**。这与重影无关，是 `normalize` 阶段的几何问题。
-
-根因：app 的 `matteVideoFrame`（`convertAvatarVideoToGif.ts` L603）对**每一帧**单独调 `normalizeForegroundLayer`，每帧都按**自己的**不透明 bbox 重新 裁切 → 缩放 → 水平居中 + 底对齐，然后把 normalize 后的 buffer 写成 matte 帧（L721）。立绘微动视频里主体每帧会动几个像素，于是：
-
-| bbox 变化 | 后果 |
-|---|---|
-| 宽高变 → scale 变 | 主体逐帧微缩放（呼吸感脉动） |
-| 中心变 → 重新居中 | 真实位移被“拉回”，主体向反方向跳 |
-| 底边变 → 底对齐 | 整体上下推 |
-
-抠图 mask 本身逐帧不稳定时最致命：某帧丢了一块 → bbox 突变 → 整个主体被重新居中 → 疾飞几十像素。
-
-**这是 app 自身的缺陷**，照抄会一起抄过来。v7 改为先求所有帧 bbox 的**并集**，算一次 crop/scale/paste，然后用**同一套几何**刷所有帧（包括背景首帧）：
-
-- 帧间相对位置完整保留（真实微动还在），但不再整体漂移
-- `background.png` 与 `foreground.webp` 用同一套几何 → 图层叠加不错位
-- `libwebp_anim` 的差分矩形更小，体积也更小
-
-实测（`收徒系统_立绘微动.mp4`，75 帧 / u2net / inanimate，`.cache/_ghost_probe/ab_v7.py`）：
-
-```
-=== per-frame（app 原行为）会引入的抖动 ===
-  paste.x min/max = 40 181   spread = 141
-  paste.y min/max = 21  49   spread = 28
-  内容平移量 dx spread = 83   相邻帧 dx 最大跳变 = 74
-  内容平移量 dy spread =  6   相邻帧 dy 最大跳变 =  5
-
-=== global（v7 实际产物）===
-  scale 固定 1.0，paste 固定 (40,18)，所有帧 dx=dy=0 → 无归一化抖动
-```
-
-相邻帧 74px 的水平突跳，就是肉眼可见的“位置变来变去”。
-
-> `--normalize-mode` 默认 `global`。需要逐帧严格复现 app 行为时才传 `per-frame`（仅作对照，会抖）。
-> 产物 `webp.json` 会写出 `normalizeMode` 与 `foregroundGeometry`（`bounds` / `scale` / `size` / `paste`）供核对。
-
-> 残留问题（**不是** normalize 造成的）：rembg 逐帧独立推理，mask 本身会闪。上例中不透明像素数 min/max = 35502/71823（相差 2.02×），个别帧丢掉大半个对象。这是抠图模型的时序不稳定，portrait 路径可用 `birefnet_rvm`（RVM 递归传播 + EMA）缓解；inanimate 目前没有对应方案。
-
+本地视频转 webp 头像 的cli 脚本
+[webp.py](/src/webp/webp.py)
 
 ## 读取配置文件：
 [vedio_to_webp.yml](../../config/vedio_to_webp.yml)
@@ -244,161 +138,32 @@ FRAME_OUTPUT_SIDE_INANIMATE: 512
 | `-compression_level` | `6` | `4` | `4` |
 | `-preset` | — | `picture` ❌ | **不加**（app 没有） |
 
-## webp 合成的重影问题
-
-只有一处修复：**编码器必须是 `libwebp_anim`**（详见上面"重影根因"）。
-配合 `normalizeForegroundLayer`（每帧重建到统一的 512×512 全透明画布，居中 + 底对齐）
-保证帧间几何一致，编码器才能算出正确的差分矩形。
-**不做** alpha 二值化，**不做** colorkey 软抠边 —— app 都没有，加了只会破坏软边。
 
 
-## ⚠️ U2NET_HOME（必须知道）
+# 重影根因分析
+重影是合成webp 时导致的，上一帧的图像残留到了下一帧导致了图像拖影。
 
-rembg 默认去 `~/.u2net/` 找 onnx，**找不到就会联网下载 928MB**（极慢、会挂死，残留 tmp 文件）。本地已有权重在：
+#### 不太重要的原因
+1. **WebP 编码参数（最直接）** — app 用无损，本技能用有损，半透明 alpha 被压掉
+2. **背景图尺寸来源不一致** — matte 用 512 垫边帧，背景生成用原始分辨率重新抠图，几何错位
+3. **边缘残留像素未处理** — 极低 alpha 的近黑像素在无损压缩后边界"渗出"
 
-```
-…\avatar-matting\birefnet\model-cache\birefnet-portrait.onnx   (928MB)
-```
-
-`convert.py` 与 `_birefnet_rvm_worker.py` 已自动设置 `U2NET_HOME` 指向该目录。
-手动跑 rembg 时务必：`export U2NET_HOME=<model-cache 目录>`，加载 ~10s，零下载。
-
-## 依赖（必须）
-
-| 依赖 | 路径 | 说明 |
-|---|---|---|
-| ffmpeg | 系统 PATH 或 `FFMPEG_PATH` 环境变量 | 抽帧 + **`libwebp_anim`** 编码（必须 `--enable-libwebp` 构建；官方 win64-gpl-shared 已含） |
-| Python 3.13 | `D:\Users\viaco\tools\Toonflow-game\Toonflow-game-app\Toonflow-game\tools\avatar-matting\birefnet\venv\Scripts\python.exe` | 已装 onnxruntime/numpy/PIL |
-| MODNet ONNX | `…\birefnet\model-cache\modnet_photographic_portrait_matting.onnx` | 24 MB，已下载 |
-
-如不在默认位置，可用 `--python` / `--modnet-model` 显式指定。
-
-## 工具与参数（convert.py）
-
-| 参数 | 必填 | 说明 |
-|---|---|---|
-| `--mp4` | ✅ | 输入 mp4 路径（通常 `.cache/character/{story}/{rolename}/*.mp4`） |
-| `--out-dir` | ✅ | 输出目录 |
-| `--gif-side` | ❌ | 前景 webp 边长，默认 512 |
-| `--bg-side` | ❌ | 背景 png 边长，默认 768 |
-| `--fps` | ❌ | 抽帧率，默认 10 |
-| `--max-seconds` | ❌ | 取前 N 秒，默认 4 |
-| `--model-class` | ❌ | `portrait`（默认，读 yml `model`）/ `inanimate`（读 yml `model_inanimate`） |
-| `--normalize-mode` | ❌ | `global`（默认，v7：全局 bbox 并集，前景不漂移）/ `per-frame`（逐帧各算，等同 app，会抖） |
-| `--python` | ❌ | Python 解释器（默认自动定位 birefnet venv） |
-| `--modnet-model` | ❌ | MODNet 模型路径（默认自动定位） |
-| `--ffmpeg` | ❌ | ffmpeg 路径（默认从 `where ffmpeg` / 常见 Win 路径查找） |
-
-
-
-**stdout 末尾**输出 JSON（方便脚本化调用）：
-
-```json
-{
-  "ok": true,
-  "foreground": "D:\\…\\webp\\foreground.webp",
-  "background": "D:\\…\\webp\\background.png",
-  "firstFrame": "D:\\…\\webp\\firstFrame.png",
-  "video": "D:\\…\\webp\\video.mp4",
-  "durationMs": 5042,
-  "frames": 40
-}
-```
-
-```
-输出：{root}/.cache/character/{story}/{rolename}/webp
-background.png
-firstFrame.png
-foreground.webp
-video.mp4
-webp.json
-```
-
-## 调用示例
-
-### 单角色
-
-```bash
-python D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.workbuddy/skills/convert-avatar-video-to-webp/convert.py \
-  --mp4   "D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.cache/character/黑塔：从超忆症开始成神/林凡/林凡_6s.mp4" \
-  --out-dir "D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.cache/character/黑塔：从超忆症开始成神/林凡/webp"
-```
-
-### 批量（PowerShell）
-
-```powershell
-$root = "D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story"
-$cache = "$root/.cache/character/黑塔：从超忆症开始成神"
-$convert = "$root/.workbuddy/skills/convert-avatar-video-to-webp/convert.py"
-Get-ChildItem $cache -Directory | ForEach-Object {
-  $mp4 = Get-ChildItem $_.FullName -Filter *.mp4 | Select-Object -First 1
-  if ($mp4) {
-    $out = Join-Path $_.FullName 'webp'
-    python $convert --mp4 $mp4.FullName --out-dir $out
-  }
-}
-```
-
-## 与 ai_vedio_gen 串联
-
-```
-avatars/<role>.png
-   │  ai_vedio_gen  (VideoGen 图生视频，mp4 落 .cache)
-   ▼
-.cache/character/{story}/{role}/<role>_6s.mp4
-   │  convert-avatar-video-to-webp  (本地 ffmpeg + MODNet)
-   ▼
-.cache/character/{story}/{role}/webp/
-    ├─ foreground.webp
-    ├─ background.png
-    ├─ firstFrame.png
-    └─ video.mp4
-```
-
-如果想同步到世界角色数据库，**仍然走** `ai-story-webp-avatar-sync`：
-本技能只做**纯本地转换**，产物尚未上传服务器。
-
-## 排查
-
-| 症状 | 原因 | 解法 |
-|---|---|---|
-| `未找到 ffmpeg` | 系统无 ffmpeg | 安装 ffmpeg 并加 PATH，或 `--ffmpeg` 显式指定 |
-| `onnxruntime not found` | 默认 venv 失效 | `--python` 指向带 onnxruntime 的环境 |
-| `model not found` | 模型文件缺失 | 检查 `…\birefnet\model-cache\modnet_photographic_portrait_matting.onnx`；或重跑 `run_modnet.py --warmup` |
-| `当前 ffmpeg 不带 libwebp_anim 编码器` | ffmpeg 未用 `--enable-libwebp` 构建 | 换官方 win64-gpl-shared 构建；**不要**改回 `-c:v libwebp`，那必然重影 |
-| webp 有重影/拖影 | 编码器被改回 `-c:v libwebp` | 改回 `libwebp_anim`（见"重影根因"），并用 `.cache/_ghost_probe/probe4.py` 复测 |
-| webp 边缘发黑/有黑边 | MODNet 训练域外（动画 CG） | 一般不影响，必要时调 `--gif-side` 缩小；或改用 `birefnet-portrait`（见 run_birefnet.py） |
-| 背景 png 上看不到角色 | 这是预期行为——背景是首帧，含原角色；webp 透明层叠在背景之上 | 客户端渲染层级问题，不是本技能 bug |
-| 前景对象位置变来变去 / 主体跳动 | 逐帧各自重新居中（`--normalize-mode per-frame`） | 用默认 `global`（见“前景位置漂移根因”），并用 `.cache/_ghost_probe/ab_v7.py` 复测 |
-| 主体局部闪烁 / 某帧丢块 | 抠图模型逐帧独立推理，mask 时序不稳定 | portrait 改 `model: birefnet_rvm`；inanimate 暂无方案，可降 fps / 换 `isnet-general-use` 试 |
-| 背景与前景错位 | 两者几何不同源 | v7 已保证 `background.png` 与所有前景帧共用同一套几何；核对 `webp.json.foregroundGeometry` |
-| 处理非常慢 | MODNet 逐帧 CPU 推理 | 24MB 模型单帧 0.5-2s（CPU），30 帧视频约 30-60s；如有 NVIDIA GPU 装 onnxruntime-gpu 可大幅加速 |
-
-## 与服务端实现的差异
-
-| 维度 | 服务端 `convertAvatarVideoToGif` | 本技能 |
-|---|---|---|
-| 抠图方式 | ffmpeg `colorkey=0x000000`（黑底键） | **MODNet 真实抠图**（onnxruntime） |
-| 网络 | 必须 HTTP 提交+轮询 | 完全离线 |
-| 队列 | 受服务端任务队列限制 | 本地串行 |
-| 输出位置 | 写到 OSS 服务器 | 写到本地 `.cache` |
-| 写回世界数据 | 是（`saveWorld`） | 否（仅生成文件） |
-
-> 服务端的 colorkey 假抠图对"非纯黑背景"的视频失效（直接把背景当成透明）；
-> 本技能的 MODNet 真抠图能处理任意背景，质量明显更好。
-
-
-# 非生物的抠图
-模型： isnet-general-use/u2net/u2netp
-默认为u2net
-对应配置文件的片段为
-```
-model_inanimate: u2netp
-```
-
-非生物路径只替换抠图模型与并发/时长/FPS 配置块（`*_INANIMATE`），
-**normalize（step 8）与 webp 编码（step 9）与生物路径完全共用**，
-因此 `libwebp_anim` 的重影修复（v6）与全局几何修复（v7）对非生物同样生效，无需额外处理。
-
-非生物已验证样本：`收徒系统_立绘微动.mp4` → 75 帧 / 15fps / u2net，ANMF 全部 `NO_BLEND`（无重影），`foregroundGeometry.scale=1.0` `paste=(40,18)`（无漂移）。
-
+#### 真正的原因和解决
+Animated WebP 每一帧（ANMF chunk）有两个位：
+disposal method：0 = NONE（保留上一帧画布）、1 = BACKGROUND（先把该帧矩形清成背景色/透明）
+blending method：+b = BLEND（新帧 alpha 混合到画布上）、-b = NO_BLEND（直接覆写）
+规范默认值是 disposal=0 + blend=BLEND。 这个组合下，新帧里 alpha=0 的像素不会清掉画布，而是"露出上一帧" → 这就是拖影/重影的机械原理。对透明立绘动画（主体每帧都在动，让出的区域必须变透明）来说，默认值是致命的。而 ffmpeg 有两条完全不同的 webp 动画输出路径：
+路径	谁写 ANMF	结果
+-c:v libwebp（或者干脆不写 -c:v，只给 out.webp）	libavformat/webpenc.c 自己手拼 ANMF，disposal 硬编码为 0，blend 走默认 BLEND	必然重影
+-c:v libwebp_anim	交给 libwebp 官方 WebPAnimEncoder，由它逐帧计算子矩形 + dispose/blend，保证解码结果 == 输入	不重影
+这是 FFmpeg 挂了 7 年的 ticket #7941，comment:19 直接定位到 webpenc.c 第 137 行 avio_w8(s->pb, 0)，补丁就是改成 0x1（dispose=BACKGROUND）。至今未合并、未暴露成选项。
+app 是怎么解决的
+两条路径都显式指定了 libwebp_anim，见 renderSemanticAvatarAssets 和 renderLegacyAvatarAssets：
+-c:v libwebp_anim  -lossless 1  -quality 90  -compression_level 4  -loop 0  -an  -vsync 0
+三个要素按重要度排：
+-c:v libwebp_anim ← 真正的根因修复。绕开 ffmpeg 自己拼 ANMF 的 bug，把 dispose/blend 决策权交回 libwebp。
+-lossless 1 ← 让上面那套帧间差分逐位精确。libwebp 在 lossless 下用 IncreaseTransparency()：把"与上一帧画布相同"的像素主动置成 alpha=0，靠 BLEND 从上一帧取回。这在无损下是数学恒等；一旦 lossy，VP8 重建误差会让 blend 逐帧累积漂移，即使用了 libwebp_anim 也会出现淡淡的残影。所以它不是"编码质量"问题，而是帧间差分的正确性前提。
+每帧几何完全一致的全画布帧 ← normalizeForegroundLayer 把每帧都重建到一张全新的 512×512 全透明画布（background: {r:0,g:0,b:0,alpha:0}，水平居中 + 底部对齐），alpha<=14 一律当透明裁边。这保证透明区的 RGBA 逐帧位级一致，编码器算出的差分矩形就是真实运动区域，不会因为主体抖动/画布尺寸漂移而留下矩形外的旧像素。
+你列的三条为什么是次要的
+有损/无损：方向对了，但定位错了 —— 它坏的不是"半透明 alpha 边缘"，而是帧间差分的可逆性。就算你把 alpha_quality 调到 100，只要走了 -c:v libwebp 路径照样重影。
+尺寸不一致 / 边缘残留：这些产生的是错位和黑边光晕，是单帧内的空间缺陷；重影是跨帧的时间缺陷，两回事。
