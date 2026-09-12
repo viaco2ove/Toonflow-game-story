@@ -78,6 +78,47 @@ Animated WebP 每一帧（ANMF chunk）帧头有两位：
 > `convert.py` 启动时会执行 `assert_webp_anim_encoder()`：ffmpeg 不带 `libwebp_anim` **直接报错**，绝不静默回退到 `-c:v libwebp` 产出带拖影的 webp。
 
 
+## 前景位置漂移根因（v7 已修）
+
+重影治好后又出现的另一个症状：**“前景对象位置变来变去”**。这与重影无关，是 `normalize` 阶段的几何问题。
+
+根因：app 的 `matteVideoFrame`（`convertAvatarVideoToGif.ts` L603）对**每一帧**单独调 `normalizeForegroundLayer`，每帧都按**自己的**不透明 bbox 重新 裁切 → 缩放 → 水平居中 + 底对齐，然后把 normalize 后的 buffer 写成 matte 帧（L721）。立绘微动视频里主体每帧会动几个像素，于是：
+
+| bbox 变化 | 后果 |
+|---|---|
+| 宽高变 → scale 变 | 主体逐帧微缩放（呼吸感脉动） |
+| 中心变 → 重新居中 | 真实位移被“拉回”，主体向反方向跳 |
+| 底边变 → 底对齐 | 整体上下推 |
+
+抠图 mask 本身逐帧不稳定时最致命：某帧丢了一块 → bbox 突变 → 整个主体被重新居中 → 疾飞几十像素。
+
+**这是 app 自身的缺陷**，照抄会一起抄过来。v7 改为先求所有帧 bbox 的**并集**，算一次 crop/scale/paste，然后用**同一套几何**刷所有帧（包括背景首帧）：
+
+- 帧间相对位置完整保留（真实微动还在），但不再整体漂移
+- `background.png` 与 `foreground.webp` 用同一套几何 → 图层叠加不错位
+- `libwebp_anim` 的差分矩形更小，体积也更小
+
+实测（`收徒系统_立绘微动.mp4`，75 帧 / u2net / inanimate，`.cache/_ghost_probe/ab_v7.py`）：
+
+```
+=== per-frame（app 原行为）会引入的抖动 ===
+  paste.x min/max = 40 181   spread = 141
+  paste.y min/max = 21  49   spread = 28
+  内容平移量 dx spread = 83   相邻帧 dx 最大跳变 = 74
+  内容平移量 dy spread =  6   相邻帧 dy 最大跳变 =  5
+
+=== global（v7 实际产物）===
+  scale 固定 1.0，paste 固定 (40,18)，所有帧 dx=dy=0 → 无归一化抖动
+```
+
+相邻帧 74px 的水平突跳，就是肉眼可见的“位置变来变去”。
+
+> `--normalize-mode` 默认 `global`。需要逐帧严格复现 app 行为时才传 `per-frame`（仅作对照，会抖）。
+> 产物 `webp.json` 会写出 `normalizeMode` 与 `foregroundGeometry`（`bounds` / `scale` / `size` / `paste`）供核对。
+
+> 残留问题（**不是** normalize 造成的）：rembg 逐帧独立推理，mask 本身会闪。上例中不透明像素数 min/max = 35502/71823（相差 2.02×），个别帧丢掉大半个对象。这是抠图模型的时序不稳定，portrait 路径可用 `birefnet_rvm`（RVM 递归传播 + EMA）缓解；inanimate 目前没有对应方案。
+
+
 ## 读取配置文件：
 [vedio_to_webp.yml](../../config/vedio_to_webp.yml)
 
@@ -242,6 +283,8 @@ rembg 默认去 `~/.u2net/` 找 onnx，**找不到就会联网下载 928MB**（�
 | `--bg-side` | ❌ | 背景 png 边长，默认 768 |
 | `--fps` | ❌ | 抽帧率，默认 10 |
 | `--max-seconds` | ❌ | 取前 N 秒，默认 4 |
+| `--model-class` | ❌ | `portrait`（默认，读 yml `model`）/ `inanimate`（读 yml `model_inanimate`） |
+| `--normalize-mode` | ❌ | `global`（默认，v7：全局 bbox 并集，前景不漂移）/ `per-frame`（逐帧各算，等同 app，会抖） |
 | `--python` | ❌ | Python 解释器（默认自动定位 birefnet venv） |
 | `--modnet-model` | ❌ | MODNet 模型路径（默认自动定位） |
 | `--ffmpeg` | ❌ | ffmpeg 路径（默认从 `where ffmpeg` / 常见 Win 路径查找） |
@@ -326,6 +369,9 @@ avatars/<role>.png
 | webp 有重影/拖影 | 编码器被改回 `-c:v libwebp` | 改回 `libwebp_anim`（见"重影根因"），并用 `.cache/_ghost_probe/probe4.py` 复测 |
 | webp 边缘发黑/有黑边 | MODNet 训练域外（动画 CG） | 一般不影响，必要时调 `--gif-side` 缩小；或改用 `birefnet-portrait`（见 run_birefnet.py） |
 | 背景 png 上看不到角色 | 这是预期行为——背景是首帧，含原角色；webp 透明层叠在背景之上 | 客户端渲染层级问题，不是本技能 bug |
+| 前景对象位置变来变去 / 主体跳动 | 逐帧各自重新居中（`--normalize-mode per-frame`） | 用默认 `global`（见“前景位置漂移根因”），并用 `.cache/_ghost_probe/ab_v7.py` 复测 |
+| 主体局部闪烁 / 某帧丢块 | 抠图模型逐帧独立推理，mask 时序不稳定 | portrait 改 `model: birefnet_rvm`；inanimate 暂无方案，可降 fps / 换 `isnet-general-use` 试 |
+| 背景与前景错位 | 两者几何不同源 | v7 已保证 `background.png` 与所有前景帧共用同一套几何；核对 `webp.json.foregroundGeometry` |
 | 处理非常慢 | MODNet 逐帧 CPU 推理 | 24MB 模型单帧 0.5-2s（CPU），30 帧视频约 30-60s；如有 NVIDIA GPU 装 onnxruntime-gpu 可大幅加速 |
 
 ## 与服务端实现的差异
@@ -352,4 +398,7 @@ model_inanimate: u2netp
 
 非生物路径只替换抠图模型与并发/时长/FPS 配置块（`*_INANIMATE`），
 **normalize（step 8）与 webp 编码（step 9）与生物路径完全共用**，
-因此 `libwebp_anim` 的重影修复对非生物同样生效，无需额外处理。
+因此 `libwebp_anim` 的重影修复（v6）与全局几何修复（v7）对非生物同样生效，无需额外处理。
+
+非生物已验证样本：`收徒系统_立绘微动.mp4` → 75 帧 / 15fps / u2net，ANMF 全部 `NO_BLEND`（无重影），`foregroundGeometry.scale=1.0` `paste=(40,18)`（无漂移）。
+

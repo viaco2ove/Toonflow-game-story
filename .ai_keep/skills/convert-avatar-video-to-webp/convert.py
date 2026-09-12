@@ -515,7 +515,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--normalize-mode", default="global", choices=["global", "per-frame"],
                    help="normalize 几何模式：global（默认，v7）用所有帧 bbox 并集算"
                         "一套固定 crop/scale/paste，前景不会逐帧漂移；"
-                        "per-frame 逐帧各算自己的 bbox（完全等同 app，但主体会抱6动）")
+                        "per-frame 逐帧各算自己的 bbox（完全等同 app，但主体会抖动）")
     p.add_argument("--gif-side", type=int, default=None)
     p.add_argument("--bg-side", type=int, default=None)
     p.add_argument("--fps", type=int, default=None)
@@ -730,29 +730,55 @@ def main() -> int:
     print(json.dumps({"ok": True, "phase": "matting_done", "total": len(src_frames),
                       "elapsed_s": round(t_modnet, 2)}, ensure_ascii=False), file=sys.stderr)
 
+    # 6.5 规划前景几何（v7）
+    #     global：扫全部 matte 帧取不透明 bbox 并集，算一套固定 crop/scale/paste，
+    #             背景与所有前景帧共用 → 前景不再逐帧漂移，帧间真实微动保留。
+    #     per-frame：逐帧各算自己的 bbox（完全等同 app 行为，仅作对照）。
+    matte_frames = sorted(matte_dir.glob("frame_*.png"))
+    if not matte_frames:
+        print(json.dumps({"ok": False, "error": "matte 目录为空"}, ensure_ascii=False), file=sys.stderr)
+        return 4
+    global_geom = None
+    if args.normalize_mode == "global":
+        global_geom = plan_global_foreground_geometry(matte_frames)
+        print(json.dumps({"ok": True, "phase": "geometry", "mode": "global",
+                          "bounds": (global_geom or {}).get("bounds"),
+                          "scale": (global_geom or {}).get("scale"),
+                          "size": list((global_geom or {}).get("size") or []),
+                          "paste": list((global_geom or {}).get("paste") or [])},
+                         ensure_ascii=False), file=sys.stderr)
+    else:
+        print(json.dumps({"ok": True, "phase": "geometry", "mode": "per-frame"},
+                         ensure_ascii=False), file=sys.stderr)
+
+    def normalize_one(img: Image.Image) -> Image.Image:
+        if args.normalize_mode == "global":
+            return apply_foreground_geometry(img, global_geom)
+        return normalize_foreground_layer(img)
+
     # 7. 生成背景（官方算法：人物区域模糊化）
-    # 用 normalize 后的首帧：与 foreground.webp 逐像素同构（同 512 画布、同居中
-    # 底对齐），前端 768 背景层 + 512 前景层叠加时几何不会错位。
+    # 用 normalize 后的首帧：与 foreground.webp 逐像素同构（同 512 画布、同一套
+    # 几何），前端 768 背景层 + 512 前景层叠加时几何不会错位。
     bg_start = time.time()
     matte_first_path = matte_dir / "frame_0001.png"
     if not matte_first_path.exists():
         print(json.dumps({"ok": False, "error": f"matte 首帧缺失: {matte_first_path}"}, ensure_ascii=False), file=sys.stderr)
         return 4
     matte_first_raw = Image.open(matte_first_path).convert("RGBA")
-    matte_first_for_bg = normalize_foreground_layer(matte_first_raw)
+    matte_first_for_bg = normalize_one(matte_first_raw)
     background_path = out_dir / "background.png"
     build_official_background(matte_first_for_bg, bg_side).save(background_path, format="PNG")
     print(json.dumps({"ok": True, "phase": "background_done", "elapsed_s": round(time.time()-bg_start, 2)},
                      ensure_ascii=False), file=sys.stderr)
 
-    # 8. normalizeForegroundLayer：对齐 app 保存 matte 帧的处理
-    #    保证每帧几何一致 + 透明区 RGBA 位级一致（app 到这一步为止，不做
-    #    任何 alpha 后处理；v6 已删除 colorkey / 二值化两个错误代偿步骤）
-    print(json.dumps({"ok": True, "phase": "normalize_start"}, ensure_ascii=False), file=sys.stderr)
-    matte_frames = sorted(matte_dir.glob("frame_*.png"))
+    # 8. normalize 所有 matte 帧
+    #    v6：不做任何 alpha 后处理（已删除 colorkey / 二值化两个错误代偿步骤）
+    #    v7：global 模式下所有帧共用 6.5 算好的同一套几何 → 无逐帧漂移
+    print(json.dumps({"ok": True, "phase": "normalize_start", "mode": args.normalize_mode},
+                     ensure_ascii=False), file=sys.stderr)
     for mf in matte_frames:
         img = Image.open(mf).convert("RGBA")
-        normalize_foreground_layer(img).save(mf, format="PNG", optimize=False)
+        normalize_one(img).save(mf, format="PNG", optimize=False)
     print(json.dumps({"ok": True, "phase": "normalize_done", "frames": len(matte_frames)},
                      ensure_ascii=False), file=sys.stderr)
 
@@ -792,6 +818,8 @@ def main() -> int:
         "concurrency": concurrency,
         "model": model_name,
         "modelClass": args.model_class,
+        "normalizeMode": args.normalize_mode,
+        "foregroundGeometry": global_geom,
         "mattingSeconds": round(t_modnet, 2),
         "tmpDir": str(tmp_root),
     }
