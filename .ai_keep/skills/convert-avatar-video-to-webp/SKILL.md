@@ -9,7 +9,27 @@ description: >-
   本地视频转 webp 头像、不走接口转 webp。
 ---
 
-# 本地视频转 webp 头像 (convert-avatar-video-to-webp) v3
+# 本地视频转 webp 头像 (convert-avatar-video-to-webp) v4
+
+## v4 修复重影根因：normalizeForegroundLayer 居中粘贴（2026-09-12）
+
+**核心**：对齐 app `normalizeForegroundLayer` 的居中粘贴逻辑。
+
+**根因**：v3 normalize 用"左/顶对齐"（`paste(resized, (10, 8))`），character 偏左→背景层沿边覆盖→重影。
+app 用"水平居中 + 底部垂直对齐"（`left=(512-w)/2, top=512-h`）。
+
+**修复**：
+```python
+# v3（左对齐）❌
+canvas.paste(resized, (FOREGROUND_SIDE_PADDING, FOREGROUND_TOP_PADDING))
+
+# v4（居中对齐）✅ 对齐 app normalizeForegroundLayer
+left = max(0, round((AVATAR_STD_SIZE - w2) / 2))
+top  = max(0, AVATAR_STD_SIZE - h2 - FOREGROUND_BOTTOM_PADDING)
+canvas.paste(resized, (left, top))
+```
+
+**同时新增** `normalizeForegroundLayer` 等效函数（extractOpaqueBounds + resizeInside + 居中画布），在 colorkey 之前处理每一帧。
 
 ## v3 修复重影（2026-09-12）
 
@@ -48,11 +68,14 @@ DATA_DIR: auto
 model_cache: "{DATA_DIR}\\avatar-matting\\birefnet\\model-cache"
 # model: birefnet or modnet or rvm or birefnet_rvm(首帧 BiRefNet 精抠 + 后续帧 RVM 传播) or rvm
 model: birefnet
+# 非生物抠图模型：isnet-general-use/u2net/u2netp
+model_inanimate: u2net
 ```
 
 严格按照配置文件进行转换，不允许自己改模型。
 不允许违规。你可以发现问题，提出解决方案。但是不能自以为是！
 
+（非生物）inanimate 路径用 rembg + u2net 等模型 替代 portrait 模型，具体看model_inanimate 的参数配置
 ## 何时用
 
 - 已有 `ai_vedio_gen` 生成的 mp4 视频头像，需要 webp 动图 + 背景 png
@@ -265,6 +288,9 @@ avatars/<role>.png
 
 
 # 非生物的抠图
-模型： isnet-general-use/u2net
+模型： isnet-general-use/u2net/u2netp
 默认为u2net
-
+对应配置文件的片段为
+```
+model_inanimate: u2netp
+```

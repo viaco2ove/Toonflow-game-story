@@ -74,3 +74,4 @@ __pycache__/
 *.mp4
 CLAUDE.md
 AGENTS.md
+/.playwright-cli/
