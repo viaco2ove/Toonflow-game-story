@@ -3,7 +3,10 @@
 python -m src.cli webp --living {config} {path_json}
 python -m src.cli webp --inanimate {config} {path_json}
 
-config 就是配置文件，如 .workbuddy/config/vedio_to_webp.yml
+config 就是配置文件，
+如 .workbuddy/config/vedio_to_webp.yml 用在使用默认配置
+  .workbuddy/config/vedio_to_webp_temp.yml 用在/d:convert-avatar-video-to-webp角色卡头像制作.mp4 使用birefnet 模型 ，这种单次需求
+
 path_json 就是 生图json 入参。如
 npc
 {

@@ -12,6 +12,31 @@ description: >-
 # 本地视频转 webp 头像 (convert-avatar-video-to-webp)
 本地视频转 webp 头像 的cli 脚本
 [webp.py](/src/webp/webp.py)
+如：python -m src.cli webp --living {config} {path_json}
+
+## config 就是配置文件，
+如 .workbuddy/config/vedio_to_webp.yml 用在使用默认配置
+  .workbuddy/config/vedio_to_webp_temp.yml 用在/d:convert-avatar-video-to-webp角色卡头像制作.mp4 使用birefnet 模型 ，这种单次需求
+## path_json 就是 生图json 入参。如
+npc
+{
+"input_video":.cache/character/通天传授-收徒系统/墨老/墨老_立绘微动.mp4",
+"rolename":"墨老",
+"rolenType":"npc",
+"story":"通天传授-收徒系统",
+"type":"living",
+"output_path":".cache/character/通天传授-收徒系统/墨老/webp/"
+}
+用户
+{
+"input_video":.cache/character/通天传授-收徒系统/陆川/陆川_立绘微动.mp4",
+"rolename":"陆川",
+"rolenType":"player",
+"story":"通天传授-收徒系统",
+"type":"living",
+"output_path":".cache/character/通天传授-收徒系统/陆川/webp/"
+}
+
 
 ## 读取配置文件：
 [vedio_to_webp.yml](../../config/vedio_to_webp.yml)
