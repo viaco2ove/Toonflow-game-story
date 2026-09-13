@@ -3,6 +3,27 @@
 python -m src.cli webp --living {config} {path_json}
 python -m src.cli webp --inanimate {config} {path_json}
 
+config 就是配置文件，如 .workbuddy/config/vedio_to_webp.yml
+path_json 就是 生图json 入参。如
+npc
+{
+"input_video":.cache/character/通天传授-收徒系统/墨老/墨老_立绘微动.mp4",
+"rolename":"墨老",
+"rolenType":"npc",
+"story":"通天传授-收徒系统",
+"type":"living",
+"output_path":".cache/character/通天传授-收徒系统/墨老/webp/"
+}
+用户
+{
+"input_video":.cache/character/通天传授-收徒系统/陆川/陆川_立绘微动.mp4",
+"rolename":"陆川",
+"rolenType":"player",
+"story":"通天传授-收徒系统",
+"type":"living",
+"output_path":".cache/character/通天传授-收徒系统/陆川/webp/"
+}
+
 分步操作：视频-》抽帧 -》背景-》首帧-》webp文件-》webp.json
 # video.mp4 到 .cache/character/{story}/{rolename}/webp/video.mp4
 python -m src.cli webp --living --video.mp4 {config} {path_json}
