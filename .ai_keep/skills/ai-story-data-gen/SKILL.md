@@ -181,6 +181,32 @@ for f in ["cover.png","chapter_1_bg.png","chapter_2_bg.png"]:
 
 ---
 
+## 章节内容
+详细查看 toonflow-chapter-design 技能
+### 文件格式（JSON + MD 配对）
+
+Toonflow 章节支持两种格式，**JSON 优先于 MD**（见 `src/toonflow/chapters.py` 的 `_find_chapter_files`）：
+
+1. **JSON 格式** `chapter_N.json`：承载结构化元数据
+2. **MD 格式** `chapter_N_标题.md`：承载可读正文，**必须与 JSON 配对存在**
+
+两者放在 `chapters/` 目录，同名/同数字前缀时 JSON 覆盖 MD。
+
+### 参考
+[reference](reference)
+- chapter_1_穿越成山大王.md 第一章节的markdown 格式内容
+- chapter_1.json 第一章节的json 格式内容
+- chapter_1.phases toonflow game最终游玩时转换的phases数据
+    - phase_1_苏醒: 来源 “## 苏醒”
+      - phase_1_苏醒_stage_1_穿越醒来 来源 “### 穿越醒来”
+        - targetSummary 来源 “### 穿越醒来” 的正文
+
+- “## 非事件” 不转换为 phases数据。
+#### 特别注意：
+- phase（阶段） 必须有stage 数据。也就是 “## 苏醒” 这种二级标题，里面必须有 “### 穿越醒来” 这种三级标题
+- stage（步骤） 的数量：一个phase 里面推荐三个stage 不要过多stage.
+- 特殊stage：“### 用户发言”，这将会显式编排用户发言
+
 ## 合格范例（黑塔：从超忆症开始成神）
 
 - `story.json`：12 个 npc_roles（含某女子/某男子），chapter_covers 含 1/2
