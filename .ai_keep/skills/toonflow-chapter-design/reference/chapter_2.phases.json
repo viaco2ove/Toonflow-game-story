@@ -1,0 +1,122 @@
+{
+  "openingMessages": [],
+  "phases": [
+    {
+      "id": "phase_1_飞仙台",
+      "label": "飞仙台",
+      "kind": "scene",
+      "targetSummary": "修仙界 → 介绍",
+      "stages": [
+        {
+          "id": "phase_1_飞仙台_stage_1_修仙界",
+          "label": "修仙界",
+          "kind": "scene",
+          "targetSummary": "@旁白：你被@红缥缈 带到了修仙界。东晋飞仙台",
+          "userNodeId": null,
+          "body": "@旁白：你被@红缥缈 带到了修仙界。东晋飞仙台"
+        },
+        {
+          "id": "phase_1_飞仙台_stage_2_介绍",
+          "label": "介绍",
+          "kind": "scene",
+          "targetSummary": "@红缥缈：（带用户来到飞仙台，给用户下印记）十年后达不到金丹，会被印记反噬致死",
+          "userNodeId": null,
+          "body": "@红缥缈 ：（带用户来到飞仙台，给用户下印记）十年后达不到金丹，会被印记反噬致死"
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [
+        "phase_2_测试"
+      ],
+      "defaultNextPhaseId": "phase_2_测试",
+      "requiredEventIds": [],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：飞仙台",
+        "@旁白：你被@红缥缈 带到了修仙界。东晋飞仙台",
+        "@红缥缈：（带用户来到飞仙台，给用户下印记）十年后达不到金丹，会被印记反噬致死"
+      ],
+      "relatedFixedEventIds": []
+    },
+    {
+      "id": "phase_2_测试",
+      "label": "测试",
+      "kind": "scene",
+      "targetSummary": "测试结果 → 师姐 → 外门 → 李玄凤 → 任务推荐说明 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_2_测试_stage_1_测试结果",
+          "label": "测试结果",
+          "kind": "scene",
+          "targetSummary": "@旁白：你把手放在测试水晶上，结果是无灵根，最终只被青云宗收为杂役弟子",
+          "userNodeId": null,
+          "body": "@旁白 ：你把手放在测试水晶上，结果是无灵根，最终只被青云宗收为杂役弟子"
+        },
+        {
+          "id": "phase_2_测试_stage_2_师姐",
+          "label": "师姐",
+          "kind": "scene",
+          "targetSummary": "@白锦儿：跟着我来，以后你们就是我青云宗弟子了。",
+          "userNodeId": null,
+          "body": "@白锦儿 ：跟着我来，以后你们就是我青云宗弟子了。"
+        },
+        {
+          "id": "phase_2_测试_stage_3_外门",
+          "label": "外门",
+          "kind": "scene",
+          "targetSummary": "@旁白：你走着走着走到了外门，并且一拳打懵外门弟子",
+          "userNodeId": null,
+          "body": "@旁白 ：你走着走着走到了外门，并且一拳打懵外门弟子"
+        },
+        {
+          "id": "phase_2_测试_stage_4_李玄凤",
+          "label": "李玄凤",
+          "kind": "scene",
+          "targetSummary": "@李玄风 看着你的实力，新生惊叹，直接让出自己的府邸玉匙，然后告辞",
+          "userNodeId": null,
+          "body": "@李玄风 看着你的实力，新生惊叹，直接让出自己的府邸玉匙，然后告辞"
+        },
+        {
+          "id": "phase_2_测试_stage_5_任务推荐说明",
+          "label": "任务推荐说明",
+          "kind": "scene",
+          "targetSummary": "@旁白：接下来，用户可以直接对我说：\"给我推荐个任务\"。当你这样说时——我会从不同类别中，一次为你推荐 5 个任务。你只需要从中选择 1 个进入即可。",
+          "userNodeId": null,
+          "body": "@旁白：接下来，用户可以直接对我说：\"给我推荐个任务\"。当你这样说时——我会从不同类别中，一次为你推荐 5 个任务。你只需要从中选择 1 个进入即可。"
+        },
+        {
+          "id": "phase_2_测试_stage_6_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [],
+      "defaultNextPhaseId": null,
+      "requiredEventIds": [
+        "phase:phase_1_飞仙台"
+      ],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：测试",
+        "@旁白：你把手放在测试水晶上，结果是无灵根，最终只被青云宗收为杂役弟子",
+        "@白锦儿：跟着我来，以后你们就是我青云宗弟子了。",
+        "@旁白：你走着走着走到了外门，并且一拳打懵外门弟子",
+        "@旁白：接下来，用户可以直接对我说：\"给我推荐个任务\"。当你这样说时——我会从不同类别中，一次为你推荐 5 个任务。你只需要从中选择 1 个进入即可。"
+      ],
+      "relatedFixedEventIds": []
+    }
+  ],
+  "userNodes": [],
+  "fixedEvents": [],
+  "endingRules": {
+    "success": [],
+    "failure": [],
+    "nextChapterId": null
+  }
+}

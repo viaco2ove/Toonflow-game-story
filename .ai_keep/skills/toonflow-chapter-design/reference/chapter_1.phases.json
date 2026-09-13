@@ -1,0 +1,537 @@
+{
+  "openingMessages": [
+    {
+      "role": "旁白",
+      "roleType": "narrator",
+      "content": "冰冷的石板硌着后背，你猛地睁开眼。脑海中涌入的信息让你意识到——你穿越了，还成了黑风寨大当家。你揉了揉眼睛，发现世界变得不一样了：周围的物品散发着不同颜色的光芒……"
+    }
+  ],
+  "phases": [
+    {
+      "id": "phase_1_苏醒",
+      "label": "苏醒",
+      "kind": "scene",
+      "targetSummary": "穿越醒来 → 发现身份 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_1_苏醒_stage_1_穿越醒来",
+          "label": "穿越醒来",
+          "kind": "scene",
+          "targetSummary": "@旁白：冰冷的石板硌着后背，用户猛地睁开眼。",
+          "userNodeId": null,
+          "body": "@旁白：冰冷的石板硌着后背，用户猛地睁开眼。"
+        },
+        {
+          "id": "phase_1_苏醒_stage_2_发现身份",
+          "label": "发现身份",
+          "kind": "scene",
+          "targetSummary": "@旁白：脑海中涌现信息——用户穿越了，还成了黑风寨大当家。",
+          "userNodeId": null,
+          "body": "@旁白：脑海中涌现信息——用户穿越了，还成了黑风寨大当家。"
+        },
+        {
+          "id": "phase_1_苏醒_stage_3_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [
+        "phase_2_觉醒财气眼"
+      ],
+      "defaultNextPhaseId": "phase_2_觉醒财气眼",
+      "requiredEventIds": [],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：苏醒",
+        "@旁白：冰冷的石板硌着后背，用户猛地睁开眼。",
+        "@旁白：脑海中涌现信息——用户穿越了，还成了黑风寨大当家。"
+      ],
+      "relatedFixedEventIds": []
+    },
+    {
+      "id": "phase_2_觉醒财气眼",
+      "label": "觉醒财气眼",
+      "kind": "scene",
+      "targetSummary": "发现异常 → 财气眼说明 → 财气眼觉醒 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_2_觉醒财气眼_stage_1_发现异常",
+          "label": "发现异常",
+          "kind": "scene",
+          "targetSummary": "@旁白：用户揉了揉眼睛，发现世界变得不一样了。",
+          "userNodeId": null,
+          "body": "@旁白：用户揉了揉眼睛，发现世界变得不一样了。"
+        },
+        {
+          "id": "phase_2_觉醒财气眼_stage_2_财气眼说明",
+          "label": "财气眼说明",
+          "kind": "scene",
+          "targetSummary": "@旁白：周围的物品都散发着不同颜色的光芒。灰色、白色、绿色、蓝色……",
+          "userNodeId": null,
+          "body": "@旁白：周围的物品都散发着不同颜色的光芒。灰色、白色、绿色、蓝色……"
+        },
+        {
+          "id": "phase_2_觉醒财气眼_stage_3_财气眼觉醒",
+          "label": "财气眼觉醒",
+          "kind": "scene",
+          "targetSummary": "@旁白：脑海中浮现信息：财气眼已觉醒。能看透万物蕴含的财气。",
+          "userNodeId": null,
+          "body": "@旁白：脑海中浮现信息：财气眼已觉醒。能看透万物蕴含的财气。"
+        },
+        {
+          "id": "phase_2_觉醒财气眼_stage_4_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [
+        "phase_3_试探索山寨"
+      ],
+      "defaultNextPhaseId": "phase_3_试探索山寨",
+      "requiredEventIds": [
+        "phase:phase_1_苏醒"
+      ],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：觉醒财气眼",
+        "@旁白：用户揉了揉眼睛，发现世界变得不一样了。",
+        "@旁白：周围的物品都散发着不同颜色的光芒。灰色、白色、绿色、蓝色……",
+        "@旁白：脑海中浮现信息：财气眼已觉醒。能看透万物蕴含的财气。"
+      ],
+      "relatedFixedEventIds": []
+    },
+    {
+      "id": "phase_3_试探索山寨",
+      "label": "试探索山寨",
+      "kind": "scene",
+      "targetSummary": "黑风寨大旗 → 聚义厅椅子 → 后山方向 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_3_试探索山寨_stage_1_黑风寨大旗",
+          "label": "黑风寨大旗",
+          "kind": "scene",
+          "targetSummary": "@旁白：黑风寨大旗：白气（普通物品）。",
+          "userNodeId": null,
+          "body": "@旁白：黑风寨大旗：白气（普通物品）。"
+        },
+        {
+          "id": "phase_3_试探索山寨_stage_2_聚义厅椅子",
+          "label": "聚义厅椅子",
+          "kind": "scene",
+          "targetSummary": "@旁白：聚义厅的椅子：绿气（略有价值）。",
+          "userNodeId": null,
+          "body": "@旁白：聚义厅的椅子：绿气（略有价值）。"
+        },
+        {
+          "id": "phase_3_试探索山寨_stage_3_后山方向",
+          "label": "后山方向",
+          "kind": "scene",
+          "targetSummary": "@旁白：后山方向：蓝气闪烁（中等价值，可能有宝物）。",
+          "userNodeId": null,
+          "body": "@旁白：后山方向：蓝气闪烁（中等价值，可能有宝物）。"
+        },
+        {
+          "id": "phase_3_试探索山寨_stage_4_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [
+        "phase_4_富婆送上门"
+      ],
+      "defaultNextPhaseId": "phase_4_富婆送上门",
+      "requiredEventIds": [
+        "phase:phase_2_觉醒财气眼"
+      ],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：试探索山寨",
+        "@旁白：黑风寨大旗：白气（普通物品）。",
+        "@旁白：聚义厅的椅子：绿气（略有价值）。",
+        "@旁白：后山方向：蓝气闪烁（中等价值，可能有宝物）。"
+      ],
+      "relatedFixedEventIds": []
+    },
+    {
+      "id": "phase_4_富婆送上门",
+      "label": "富婆送上门",
+      "kind": "scene",
+      "targetSummary": "小喽啰报告 → 决定打劫 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_4_富婆送上门_stage_1_小喽啰报告",
+          "label": "小喽啰报告",
+          "kind": "scene",
+          "targetSummary": "@小喽啰：大……大当家！外面来了个富婆！看着很有财气！",
+          "userNodeId": null,
+          "body": "@小喽啰：大……大当家！外面来了个富婆！看着很有财气！"
+        },
+        {
+          "id": "phase_4_富婆送上门_stage_2_决定打劫",
+          "label": "决定打劫",
+          "kind": "scene",
+          "targetSummary": "@旁白：用户眼睛一亮。这就送上门了？",
+          "userNodeId": null,
+          "body": "@旁白：用户眼睛一亮。这就送上门了？"
+        },
+        {
+          "id": "phase_4_富婆送上门_stage_3_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [
+        "phase_5_遭遇女仙人"
+      ],
+      "defaultNextPhaseId": "phase_5_遭遇女仙人",
+      "requiredEventIds": [
+        "phase:phase_3_试探索山寨"
+      ],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：富婆送上门",
+        "@小喽啰：大……大当家！外面来了个富婆！看着很有财气！",
+        "@旁白：用户眼睛一亮。这就送上门了？"
+      ],
+      "relatedFixedEventIds": []
+    },
+    {
+      "id": "phase_5_遭遇女仙人",
+      "label": "遭遇女仙人",
+      "kind": "scene",
+      "targetSummary": "拦路打劫 → 用户发言 → 女仙人回应 → 自报家门 → 用户发言 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_5_遭遇女仙人_stage_1_拦路打劫",
+          "label": "拦路打劫",
+          "kind": "scene",
+          "targetSummary": "拦路打劫",
+          "userNodeId": null,
+          "body": ""
+        },
+        {
+          "id": "phase_5_遭遇女仙人_stage_2_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        },
+        {
+          "id": "phase_5_遭遇女仙人_stage_3_女仙人回应",
+          "label": "女仙人回应",
+          "kind": "scene",
+          "targetSummary": "@红缥缈：你是何人？",
+          "userNodeId": null,
+          "body": "@红缥缈：你是何人？"
+        },
+        {
+          "id": "phase_5_遭遇女仙人_stage_4_自报家门",
+          "label": "自报家门",
+          "kind": "scene",
+          "targetSummary": "自报家门",
+          "userNodeId": null,
+          "body": ""
+        },
+        {
+          "id": "phase_5_遭遇女仙人_stage_5_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        },
+        {
+          "id": "phase_5_遭遇女仙人_stage_6_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [
+        "phase_6_发现惹错人"
+      ],
+      "defaultNextPhaseId": "phase_6_发现惹错人",
+      "requiredEventIds": [
+        "phase:phase_4_富婆送上门"
+      ],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：遭遇女仙人",
+        "@红缥缈：你是何人？"
+      ],
+      "relatedFixedEventIds": []
+    },
+    {
+      "id": "phase_6_发现惹错人",
+      "label": "发现惹错人",
+      "kind": "scene",
+      "targetSummary": "财气眼分析 → 内心 OS → 用户发言 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_6_发现惹错人_stage_1_财气眼分析",
+          "label": "财气眼分析",
+          "kind": "scene",
+          "targetSummary": "@旁白：用户发动财气眼，发现她虽然重伤，但实力深不可测。紫气→金气→红气！",
+          "userNodeId": null,
+          "body": "@旁白：用户发动财气眼，发现她虽然重伤，但实力深不可测。紫气→金气→红气！"
+        },
+        {
+          "id": "phase_6_发现惹错人_stage_2_内心_os",
+          "label": "内心 OS",
+          "kind": "scene",
+          "targetSummary": "内心 OS",
+          "userNodeId": null,
+          "body": ""
+        },
+        {
+          "id": "phase_6_发现惹错人_stage_3_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        },
+        {
+          "id": "phase_6_发现惹错人_stage_4_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [
+        "phase_7_获得神秘小塔"
+      ],
+      "defaultNextPhaseId": "phase_7_获得神秘小塔",
+      "requiredEventIds": [
+        "phase:phase_5_遭遇女仙人"
+      ],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：发现惹错人",
+        "@旁白：用户发动财气眼，发现她虽然重伤，但实力深不可测。紫气→金气→红气！"
+      ],
+      "relatedFixedEventIds": []
+    },
+    {
+      "id": "phase_7_获得神秘小塔",
+      "label": "获得神秘小塔",
+      "kind": "scene",
+      "targetSummary": "认怂 → 用户发言 → 撸下手镯 → 神秘小塔掉落 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_7_获得神秘小塔_stage_1_认怂",
+          "label": "认怂",
+          "kind": "scene",
+          "targetSummary": "认怂",
+          "userNodeId": null,
+          "body": ""
+        },
+        {
+          "id": "phase_7_获得神秘小塔_stage_2_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        },
+        {
+          "id": "phase_7_获得神秘小塔_stage_3_撸下手镯",
+          "label": "撸下手镯",
+          "kind": "scene",
+          "targetSummary": "@旁白：她抬手，用户手腕上的手镯被她撸下。",
+          "userNodeId": null,
+          "body": "@旁白：她抬手，用户手腕上的手镯被她撸下。"
+        },
+        {
+          "id": "phase_7_获得神秘小塔_stage_4_神秘小塔掉落",
+          "label": "神秘小塔掉落",
+          "kind": "scene",
+          "targetSummary": "@旁白：但用户眼睛尖，发现手镯里掉出个东西——神秘小塔！",
+          "userNodeId": null,
+          "body": "@旁白：但用户眼睛尖，发现手镯里掉出个东西——神秘小塔！"
+        },
+        {
+          "id": "phase_7_获得神秘小塔_stage_5_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [
+        "phase_8_被丢入修仙界"
+      ],
+      "defaultNextPhaseId": "phase_8_被丢入修仙界",
+      "requiredEventIds": [
+        "phase:phase_6_发现惹错人"
+      ],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：获得神秘小塔",
+        "@旁白：她抬手，用户手腕上的手镯被她撸下。",
+        "@旁白：但用户眼睛尖，发现手镯里掉出个东西——神秘小塔！"
+      ],
+      "relatedFixedEventIds": []
+    },
+    {
+      "id": "phase_8_被丢入修仙界",
+      "label": "被丢入修仙界",
+      "kind": "scene",
+      "targetSummary": "女仙人发怒 → 被抛向空中 → 女仙人台词 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_8_被丢入修仙界_stage_1_女仙人发怒",
+          "label": "女仙人发怒",
+          "kind": "scene",
+          "targetSummary": "@红缥缈：（大怒）找死！",
+          "userNodeId": null,
+          "body": "@红缥缈：（大怒）找死！"
+        },
+        {
+          "id": "phase_8_被丢入修仙界_stage_2_被抛向空中",
+          "label": "被抛向空中",
+          "kind": "scene",
+          "targetSummary": "@旁白：用户被一股力量抛向空中。眼前的黑风寨越来越远……",
+          "userNodeId": null,
+          "body": "@旁白：用户被一股力量抛向空中。眼前的黑风寨越来越远……"
+        },
+        {
+          "id": "phase_8_被丢入修仙界_stage_3_女仙人台词",
+          "label": "女仙人台词",
+          "kind": "scene",
+          "targetSummary": "@红缥缈：既然你如此执着，那就去修仙界吧！希望你能活过三天！",
+          "userNodeId": null,
+          "body": "@红缥缈：既然你如此执着，那就去修仙界吧！希望你能活过三天！"
+        },
+        {
+          "id": "phase_8_被丢入修仙界_stage_4_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [
+        "phase_9_抵达修仙界"
+      ],
+      "defaultNextPhaseId": "phase_9_抵达修仙界",
+      "requiredEventIds": [
+        "phase:phase_7_获得神秘小塔"
+      ],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：被丢入修仙界",
+        "@红缥缈：（大怒）找死！",
+        "@旁白：用户被一股力量抛向空中。眼前的黑风寨越来越远……",
+        "@红缥缈：既然你如此执着，那就去修仙界吧！希望你能活过三天！"
+      ],
+      "relatedFixedEventIds": []
+    },
+    {
+      "id": "phase_9_抵达修仙界",
+      "label": "抵达修仙界",
+      "kind": "scene",
+      "targetSummary": "失去意识 → 醒来 → 这里是修仙界 → 用户发言",
+      "stages": [
+        {
+          "id": "phase_9_抵达修仙界_stage_1_失去意识",
+          "label": "失去意识",
+          "kind": "scene",
+          "targetSummary": "@旁白：用户失去了意识。",
+          "userNodeId": null,
+          "body": "@旁白：用户失去了意识。"
+        },
+        {
+          "id": "phase_9_抵达修仙界_stage_2_醒来",
+          "label": "醒来",
+          "kind": "scene",
+          "targetSummary": "@旁白：再次醒来时，用户发现自己身处一个陌生的地方。远处有仙山楼阁，近处有修士御剑飞行。",
+          "userNodeId": null,
+          "body": "@旁白：再次醒来时，用户发现自己身处一个陌生的地方。远处有仙山楼阁，近处有修士御剑飞行。"
+        },
+        {
+          "id": "phase_9_抵达修仙界_stage_3_这里是修仙界",
+          "label": "这里是修仙界",
+          "kind": "scene",
+          "targetSummary": "@旁白：这里……就是真正的修仙界？",
+          "userNodeId": null,
+          "body": "@旁白：这里……就是真正的修仙界？"
+        },
+        {
+          "id": "phase_9_抵达修仙界_stage_4_用户发言",
+          "label": "用户发言",
+          "kind": "user",
+          "targetSummary": "用户发言",
+          "userNodeId": null,
+          "body": ""
+        }
+      ],
+      "userNodeId": null,
+      "allowedSpeakers": [],
+      "nextPhaseIds": [],
+      "defaultNextPhaseId": null,
+      "requiredEventIds": [
+        "phase:phase_8_被丢入修仙界"
+      ],
+      "completionEventIds": [],
+      "advanceSignals": [
+        "事件标题：抵达修仙界",
+        "@旁白：用户失去了意识。",
+        "@旁白：再次醒来时，用户发现自己身处一个陌生的地方。远处有仙山楼阁，近处有修士御剑飞行。",
+        "@旁白：这里……就是真正的修仙界？"
+      ],
+      "relatedFixedEventIds": []
+    }
+  ],
+  "userNodes": [],
+  "fixedEvents": [
+    {
+      "id": "fixed_event_用户被女仙人带到修真界",
+      "label": "用户被女仙人带到修真界",
+      "requiredBeforeFinish": true,
+      "conditionExpr": null
+    }
+  ],
+  "endingRules": {
+    "success": [
+      "fixed_event_用户被女仙人带到修真界"
+    ],
+    "failure": [],
+    "nextChapterId": null
+  }
+}

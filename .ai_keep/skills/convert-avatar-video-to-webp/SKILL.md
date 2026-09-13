@@ -39,6 +39,7 @@ model_cache: "{DATA_DIR}\\avatar-matting\\birefnet\\model-cache"
 # SegmentCommonImage 为阿里云的在线抠图模型
 # birefnet_rvm(首帧 BiRefNet 精抠 + 后续帧 RVM 传播) 
 # u2net_modnet:u2net 出粗 mask → trimap → MODNet 融合
+# 质量： modnet < birefnet，其他的模型人像不稳定。modnet 是较差但稳定
 model: birefnet
 # 非生物抠图模型：isnet-general-use/u2net/u2netp
 model_inanimate: u2net
