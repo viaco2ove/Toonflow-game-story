@@ -196,7 +196,7 @@ Toonflow 章节支持两种格式，**JSON 优先于 MD**（见 `src/toonflow/ch
 [reference](reference)
 - chapter_1_穿越成山大王.md 第一章节的markdown 格式内容
 - chapter_1.json 第一章节的json 格式内容
-- chapter_1.phases toonflow game最终游玩时转换的phases数据
+- chapter_1.phases toonflow game最终游玩时转换的phases数据，这个是toonflow game 自己发布时生成，不是我们生成，只是给你看markdown 格式内容要怎么写！！！
     - phase_1_苏醒: 来源 “## 苏醒”
       - phase_1_苏醒_stage_1_穿越醒来 来源 “### 穿越醒来”
         - targetSummary 来源 “### 穿越醒来” 的正文
