@@ -35,8 +35,10 @@ FRAME_OUTPUT_SIDE_BIREFNET: 512
 # DATA_DIR: /data/toonflow or D:\Users\xxx\tools\Toonflow-game\toonflow-game-app\Toonflow-game or auto
 DATA_DIR: auto
 model_cache: "{DATA_DIR}\\avatar-matting\\birefnet\\model-cache"
-# model: birefnet or modnet or rvm or birefnet_rvm(首帧 BiRefNet 精抠 + 后续帧 RVM 传播) or rvm or SegmentCommonImage
+# model: birefnet/modnet/rvm/birefnet_rvm/rvm/SegmentCommonImage/u2net/u2net_modnet
 # SegmentCommonImage 为阿里云的在线抠图模型
+# birefnet_rvm(首帧 BiRefNet 精抠 + 后续帧 RVM 传播) 
+# u2net_modnet:u2net 出粗 mask → trimap → MODNet 融合
 model: birefnet
 # 非生物抠图模型：isnet-general-use/u2net/u2netp
 model_inanimate: u2net
