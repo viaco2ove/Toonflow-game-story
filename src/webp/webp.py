@@ -36,12 +36,18 @@ python -m src.cli webp --living --video.mp4 {config} {path_json}
 python -m src.cli webp --living --tmp_frames {config} {path_json}
 # 生成背景图片到 到 .cache/character/{story}/{rolename}/webp/background.png
 python -m src.cli webp --living --background {config} {path_json}
+python -m src.cli webp --living --background .workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
+
 # 生成首帧图片到 到 .cache/character/{story}/{rolename}/webp/firstFrame.png
 python -m src.cli webp --living --firstFrame {config} {path_json}
+python -m src.cli webp --living --firstFrame .workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
+
 # 生成抠图后的webp到 .cache/character/{story}/{rolename}/webp/foreground.webp
 python -m src.cli webp --living --foreground.webp {config} {path_json}
+python -m src.cli webp --living --foreground.webp .workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
 
 python -m src.cli webp --living --webp.json {config} {path_json}
+python -m src.cli webp --living --webp.json .workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
 
 
 ================================================================================
@@ -1084,6 +1090,8 @@ def step_foreground(t: WebpTask) -> dict:
             else normalize_foreground_layer(img)
         out.save(t.norm_dir / mf.name, format="PNG", optimize=False)
     log(ok=True, phase="normalize_done", mode=t.normalize_mode, frames=len(matte_frames))
+
+    log(ok=True, phase="norm_dir", norm_dir= str(t.norm_dir / "frame_%04d.png"))
 
     # 参数与 app renderSemanticAvatarAssets 逐项一致（不加 -preset）
     t.out_dir.mkdir(parents=True, exist_ok=True)
