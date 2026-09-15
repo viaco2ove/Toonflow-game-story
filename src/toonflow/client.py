@@ -315,8 +315,27 @@ class ToonflowClient:
 
     def get_chapters(self, world_id: int) -> dict:
         """获取世界的章节列表，返回 {sort序号: chapter} 和 {title: chapter} 双索引"""
-        resp = self.api_call("/game/getWorld", {"worldId": world_id})
         chapters = {}
+        # 首选: getChapter 只带 worldId 直接返回列表（getWorld 不返回 chapters 字段）
+        try:
+            resp = self.api_call("/game/getChapter", {"worldId": world_id}, timeout=30)
+            if resp.get("code") == 200 and resp.get("data"):
+                ch_list = resp.get("data", [])
+                for ch in ch_list:
+                    if not ch.get("id"):
+                        continue
+                    raw_sort = ch.get("sort", -1)
+                    key = raw_sort - 1 if raw_sort >= 1 else raw_sort
+                    chapters[key] = ch
+                    chapters[raw_sort] = ch
+                    title = ch.get("title", "")
+                    if title and title not in chapters:
+                        chapters[title] = ch
+                return chapters
+        except Exception:
+            pass
+        # 兜底: getWorld → chapters[]
+        resp = self.api_call("/game/getWorld", {"worldId": world_id})
         if resp.get("code") == 200:
             data = resp.get("data", {})
             ch_list = data.get("chapters", [])
