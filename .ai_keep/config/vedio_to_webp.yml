@@ -1,19 +1,32 @@
 # 比较影响内存。建议内存不足的改为3. 不然可能会转换失败
-VIDEO_TO_ANIMATION_MULTIPLIED_SPEED_MODNet: 3
+VIDEO_TO_ANIMATION_MULTIPLIED_SPEED_MODNet: 6
 # mp4 转动图动作帧的秒数，默认4
 MAX_GIF_DURATION_SECONDS_MODNet: 5
 # 每秒多少帧，默认10
 GIF_FPS_MODNet: 15
 FRAME_OUTPUT_SIDE_MODNet: 512
 
+# irefnet 的并发数控制在 1~2 比较稳妥
 VIDEO_TO_ANIMATION_MULTIPLIED_SPEED_BIREFNE: 2
 # mp4 转动图动作帧的秒数，默认4
-MAX_GIF_DURATION_SECONDS_BIREFNET: 4
+MAX_GIF_DURATION_SECONDS_BIREFNET: 5
 # 每秒多少帧，默认10
 GIF_FPS_BIREFNET: 10
 FRAME_OUTPUT_SIDE_BIREFNET: 512
 # DATA_DIR: /data/toonflow or D:\Users\xxx\tools\Toonflow-game\toonflow-game-app\Toonflow-game or auto
 DATA_DIR: auto
 model_cache: "{DATA_DIR}\\avatar-matting\\birefnet\\model-cache"
-# model: birefnet or modnet or rvm or birefnet_rvm(首帧 BiRefNet 精抠 + 后续帧 RVM 传播) or rvm
+# model: birefnet/modnet/rvm/birefnet_rvm/rvm/SegmentCommonImage/u2net/u2net_modnet
+# SegmentCommonImage 为阿里云的在线抠图模型
+# birefnet_rvm(首帧 BiRefNet 精抠 + 后续帧 RVM 传播)
+# u2net_modnet:u2net 出粗 mask → trimap → MODNet 融合
+# 质量： modnet < birefnet，其他的模型人像不稳定。modnet 是较差但稳定
 model: birefnet
+# 非生物抠图模型：isnet-general-use/u2net/u2netp
+model_inanimate: u2net
+VIDEO_TO_ANIMATION_MULTIPLIED_SPEED_INANIMATE: 6
+# mp4 转动图动作帧的秒数，默认4
+MAX_GIF_DURATION_SECONDS_INANIMATE: 5
+# 每秒多少帧，默认10
+GIF_FPS_INANIMATE: 15
+FRAME_OUTPUT_SIDE_INANIMATE: 512

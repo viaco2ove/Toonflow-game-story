@@ -19,7 +19,63 @@ curl --location 'https://api.agnes-ai.cn/v1/images/generations' \
     }
   }'
 ```
-特点：说明参考什么;年龄设定为29（实际18 预防生成的形象看起来只有8岁）
+特点：说明参考什么“画面风格进行生成，不包括服装和人脸” 说明不能复用服装和脸;年龄设定为29（实际18 预防生成的形象看起来只有8岁）
+
+### 图生图维持人物形象
+```
+curl --location 'https://api.agnes-ai.cn/v1/images/generations' \
+--header 'Authorization: Bearer xxxx' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: __cf_bm=vUB_ZqfTduXcTj1jMwLGaQp3jVw4d3pjbVcr7aJoiUI-1789402786.857852-1.0.1.1-NlOTjYcYrOC568p0j4jrmbOuQaJNR2LcHAX8kQEsq_nIPhe11PQcFvY4w1u71rkzsC469SzN4F9Uo7RSL3MclhHF.ZNrPFed.12klB0RFaeG6MFLgk9ipd5eBb3u37UM' \
+--data '{
+    "model": "agnes-image-2.1-flash",
+    "prompt": "把图1中间的人物独立出来，风格和人物形象和环境维持原图的效果。做角色卡头像，竖屏，无边框,正脸，中景",
+    "size": "1024x768",
+    "extra_body": {
+      "image": [
+        "https://n.uguu.se/moTtmgyp.jpg"
+      ],
+      "response_format": "url"
+    }
+  }'
+```
+特点：不要加任何的形象描述词。用“风格和人物形象和环境维持原图的效果”锁定形象， 
+### 纯抠图
+```
+curl --location 'https://api.agnes-ai.cn/v1/images/generations' \
+--header 'Authorization: Bearer xxxx' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: __cf_bm=vUB_ZqfTduXcTj1jMwLGaQp3jVw4d3pjbVcr7aJoiUI-1789402786.857852-1.0.1.1-NlOTjYcYrOC568p0j4jrmbOuQaJNR2LcHAX8kQEsq_nIPhe11PQcFvY4w1u71rkzsC469SzN4F9Uo7RSL3MclhHF.ZNrPFed.12klB0RFaeG6MFLgk9ipd5eBb3u37UM' \
+--data '{
+    "model": "agnes-image-2.1-flash",
+    "prompt": "把图1中间的人物独立出来，不要有其他人物，风格和人物形象维持原图的效果。尺寸不变。",
+    "size": "1024x768",
+    "extra_body": {
+      "image": [
+        "https://n.uguu.se/moTtmgyp.jpg"
+      ],
+      "response_format": "url"
+    }
+  }'
+```
+特点去环境维持尺寸。也是可以用于做webp 动图的，
+
+### file oss, 例如uguu.se
+curl 'https://uguu.se/upload.php' \
+  -H 'accept: */*' \
+  -H 'accept-language: zh-CN,zh;q=0.9' \
+  -H 'content-type: multipart/form-data; boundary=----WebKitFormBoundaryAGBeZYWF95qS0rxf' \
+  -H 'origin: https://uguu.se' \
+  -H 'priority: u=1, i' \
+  -H 'referer: https://uguu.se/' \
+  -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36' \
+  --data-raw $'------WebKitFormBoundaryAGBeZYWF95qS0rxf\r\nContent-Disposition: form-data; name="files[]"; filename="微信图片_20260915000958_294_52.jpg"\r\nContent-Type: image/jpeg\r\n\r\n\r\n------WebKitFormBoundaryAGBeZYWF95qS0rxf--\r\n'
 
 
 > ## Documentation Index

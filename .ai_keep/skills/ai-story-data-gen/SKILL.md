@@ -10,12 +10,16 @@ description: 为 Toonflow 互动故事生成"上传所需的所有 JSON 数据"�
 
 ## 何时使用
 
+
 - 新建一个 Toonflow 故事，需要补齐全部可上传的 JSON
 - 已有故事目录（只有 roles/*.md、chapters/*.md、image/*）但缺 JSON 配置
 - 用户说："补全上传故事需要的 json""生成故事数据""把故事数据补齐"
 - 参考榜样：`ai_story/171/谁让这个山大王修仙的`（含 worldbook 96 条）、`ai_story/android_sj/黑塔：从超忆症开始成神`（本技能实战样例）
 
 ## 上传流程读取哪些 JSON（契约）
+ai-story-data-gen
+这个技能的目的是为 ai-story-story-sync 技能生成故事所需要的数据。 请检验数据完整性。
+包括 章节，章节json, story.json. 章节封面，故事封面，角色md,角色头像，世界书。
 这个技能不上传数据。只设计故事的数据。
 上传由用户自己 调用 ai-story-story-sync 技能实现。
 

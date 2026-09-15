@@ -22,7 +22,7 @@ def gen_voice(voice_desc_cn: str, out_path: str) -> dict:
         "audio": {"format": "wav", "optimize_text_preview": True}
     }
     try:
-        r = requests.post(URL, headers={"api-key": APIKEY}, json=payload, timeout=120)
+        r = requests.post(URL, headers={"api-key": APIKEY}, json=payload, timeout=300)
         r.raise_for_status()
         data = r.json()
         audio_data = data["choices"][0]["message"]["audio"]["data"]

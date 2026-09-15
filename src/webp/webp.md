@@ -70,3 +70,51 @@ libwebp_anim 在 -lossless 1 下判断"每帧覆写同一个矩形就够了"，
 为什么不能靠 ffmpeg 参数解决：
 libwebp_anim 只暴露 lossless / preset / cr_threshold / cr_size / quality 五个选项，
 没有任何方式指定 disposal。所以修法只能是编码完成后对产物打这个 1 字节位补丁。
+
+
+## _state.json
+_state.json 是谁产出的？
+_state.json 由代码中的 write_state() 方法产出，保存在 {output_path}/_tmp_frames/_state.json。它在两个步骤的末尾各写一次：
+① step_tmp_frames 末尾（抽帧+抠图完成后）：
+python
+
+编辑
+
+
+
+t.write_state(frames=len(src_frames), mattingSeconds=matting_seconds,
+              model=t.model, fps=fps, gifSide=gif_side, concurrency=concurrency)
+写入字段：frames, mattingSeconds, model, fps, gifSide, concurrency
+② step_foreground 末尾（WebP 编码完成后）：
+python
+
+编辑
+
+
+
+t.write_state(normalizeMode=t.normalize_mode, foregroundGeometry=geom,
+              frames=len(matte_frames))
+写入字段：normalizeMode, foregroundGeometry, frames
+write_state 是 read-modify-write：先读已有的 _state.json，合并新字段，再整体写回。所以正常情况下，最终文件应该包含两组字段。
+为什么你的 _state_2.json（有问题的）缺字段？
+对比两个文件：
+表格
+字段	_state_1.json（正常的）	_state_2.json（有问题的）
+frames	75	48
+mattingSeconds	20.32	缺失
+model	modnet	缺失
+fps	15	缺失
+gifSide	512	缺失
+concurrency	6	缺失
+normalizeMode	global	global
+foregroundGeometry	有	有
+缺少的 5 个字段（mattingSeconds, model, fps, gifSide, concurrency）恰好就是 step_tmp_frames 写入的那一组。
+这说明：step_tmp_frames 的 write_state 调用从未被执行到，只有 step_foreground 的 write_state 被执行了。
+是不是进程中断导致的？
+是的，几乎可以确定。 推理过程：
+step_tmp_frames 的抠图步骤（尤其是 birefnet-portrait + concurrency=2）非常慢，需要几分钟到十几分钟
+在这个过程中，进程被中断了（Ctrl+C、超时、崩溃、系统杀进程等）
+中断时，matte 帧文件已经写到了 _tmp_frames/matte/ 目录，但 step_tmp_frames 末尾的 write_state 还没执行到
+之后你重新运行（用了 --foreground.webp 只跑 foreground 步骤），step_foreground 找到了已有的 matte 帧，正常执行完毕，它的 write_state 写入了 _state.json
+但因为 step_tmp_frames 的 write_state 从未执行，所以文件中缺少那 5 个字段
+运行日志也佐证了这一点——你第 3 轮运行的命令是 --foreground.webp，日志里只有 geometry / normalize_done / foreground_done，完全没有 frames_extracted / matting_done 这些 step_tmp_frames 的日志，说明 step_tmp_frames 根本没跑。

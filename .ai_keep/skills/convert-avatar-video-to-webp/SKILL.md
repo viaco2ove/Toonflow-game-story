@@ -193,6 +193,85 @@ app 是怎么解决的
 -c:v libwebp_anim ← 真正的根因修复。绕开 ffmpeg 自己拼 ANMF 的 bug，把 dispose/blend 决策权交回 libwebp。
 -lossless 1 ← 让上面那套帧间差分逐位精确。libwebp 在 lossless 下用 IncreaseTransparency()：把"与上一帧画布相同"的像素主动置成 alpha=0，靠 BLEND 从上一帧取回。这在无损下是数学恒等；一旦 lossy，VP8 重建误差会让 blend 逐帧累积漂移，即使用了 libwebp_anim 也会出现淡淡的残影。所以它不是"编码质量"问题，而是帧间差分的正确性前提。
 每帧几何完全一致的全画布帧 ← normalizeForegroundLayer 把每帧都重建到一张全新的 512×512 全透明画布（background: {r:0,g:0,b:0,alpha:0}，水平居中 + 底部对齐），alpha<=14 一律当透明裁边。这保证透明区的 RGBA 逐帧位级一致，编码器算出的差分矩形就是真实运动区域，不会因为主体抖动/画布尺寸漂移而留下矩形外的旧像素。
+### ⚠️ 产出 webp 完全不动（静态图）——根因是帧序号断档（2026-09-14 定案）
+
+**症状**：`foreground.webp` 只有 ~114KB，播放器里完全静止，日志 `disposalPatched: 0`。
+
+**根因链**（实测复现，与 `-lossless` 无关）：
+
+1. `matte/` 帧序号**不连续**（如缺 `frame_0002`、`frame_0035`）——抠图失败遗留，或调试期手动 copy 帧混入
+2. `step_foreground` 用 `out.save(t.norm_dir / mf.name)` **原样保留文件名** → `norm/` 同样断档
+3. ffmpeg image2 解复用器 `-i norm/frame_%04d.png` 遇到序号断档**立即停止读取**
+4. 只读到 1 帧 → libwebp_anim 输出**静态 VP8L**（`RIFF....WEBP VP8L`），而非 `VP8X` + ANMF
+5. 没有 ANMF → `patch_anmf_disposal_background` 改 0 帧 → **`disposalPatched: 0`**
+
+**`disposalPatched == 0` 就是唯一的 smoking gun。看到 0 先怀疑这链条，别怀疑 `-lossless`。**
+
+实测对照：
+
+| norm/ 序号 | ffmpeg 实际读到 | 输出 |
+|---|---|---|
+| 1..50，缺 2 和 35 | `frame= 1` | 静态 VP8L ❌ |
+| 1..75，连续 | `frame= 75` | VP8X + 75 ANMF ✅（带 `-lossless 1`，7.61MB） |
+
+> 结论：**`-lossless 1` 无罪**。多帧输入下它照样产出正常动态图。
+> 曾误判删过一次，**已回滚**。教训：`-lossless 1` 是 `-c:v libwebp_anim` 帧间差分可逆性的前提（见上文 v6 参数表），不可擅自移除。
+> SKILL 明确规定「发现问题可提方案，但不能自以为是擅自改」——改动前先用下面的命令隔离验证。
+
+**排障三步（按顺序跑）**：
+
+```bash
+# 1) 断档检测：norm/ 与 matte/ 必须 min..max 全连续
+python -c "
+import pathlib,re
+for d in ['src','matte','norm']:
+    ns=sorted(int(re.search(r'(\d+)',f.stem).group(1)) for f in pathlib.Path(d).glob('frame_*.png'))
+    print(d,'count=',len(ns),'min=',min(ns),'max=',max(ns),'缺口=',[n for n in range(min(ns),max(ns)+1) if n not in ns])
+"
+
+# 2) 反推 ffmpeg 到底读了几帧（最关键）
+ffmpeg -hide_banner -framerate 10 -i "norm/frame_%04d.png" -f null - 2>&1 | grep -E "Duration|frame="
+
+# 3) 看容器类型 + 数 ANMF
+python -c "
+import struct
+d=open('foreground.webp','rb').read()
+print('容器=',d[12:16].decode())
+pos,n=12,0
+while pos+8<=len(d):
+    if d[pos:pos+4]==b'ANMF': n+=1
+    sz=struct.unpack('<I',d[pos+4:pos+8])[0]
+    pos+=8+sz+(sz&1)
+print('ANMF=',n)
+"
+```
+
+**已知守卫漏洞**：`step_tmp_frames` 第 1008 行有 `if len(matte) != len(src): raise`，
+但手动往 `matte/` copy 帧会绕过它（数量对得上、序号却断了）。
+**禁止手动往 `src/matte/norm` 里塞帧**；重跑请走完整 `--tmp_frames` 让脚本自己清干净重抽。
+
+**待加固（尚未改，需确认）**：`norm/` 帧按 `enumerate(start=1)` 重编号成连续序列 + ffmpeg 补 `-start_number 1`，
+并在编码后校验 ANMF 数 == 输入帧数，不一致直接 raise。
+
+### `_state.json` 是什么、怎么坏
+
+`_tmp_frames/_state.json` 是**跨步骤的结果快照**，不是开关，`step_foreground` 完全不读它。
+
+| 写入点 | 字段 |
+|---|---|
+| `step_tmp_frames` (~1011 行) | `frames` / `mattingSeconds` / `model` / `fps` / `gifSide` / `concurrency` |
+| `step_foreground` (~1111 行) | `normalizeMode` / `foregroundGeometry` / `frames` |
+
+`write_state` 是 merge 语义。唯一消费点是 `step_webp_json`（`read_state()`）。
+
+**坏样本特征**：只有 `normalizeMode` + `foregroundGeometry` + `frames`，
+缺 `mattingSeconds/model/fps/gifSide/concurrency` → 说明这份文件**没被 `step_tmp_frames` 写过**，
+是本轮 `--tmp_frames` 之前残留的旧状态。
+后果：`step_webp_json` 盲目信任 `state["frames"]`，**webp.json 里的 frames 与实际不一致**。
+
+**判一句话**：`_state.json` 是受害者/指示器，静态图的元凶永远是上面的帧序号断档。
+怀疑它过期就直接删掉让流程重写，别手改里面的数字。
+
 你列的三条为什么是次要的
 有损/无损：方向对了，但定位错了 —— 它坏的不是"半透明 alpha 边缘"，而是帧间差分的可逆性。就算你把 alpha_quality 调到 100，只要走了 -c:v libwebp 路径照样重影。
 尺寸不一致 / 边缘残留：这些产生的是错位和黑边光晕，是单帧内的空间缺陷；重影是跨帧的时间缺陷，两回事。
