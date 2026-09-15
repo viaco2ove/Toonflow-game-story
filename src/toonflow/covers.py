@@ -61,8 +61,8 @@ def upload_world_covers(client: ToonflowClient, story: StoryConfig, world_data: 
         chapter_extras = settings.get("chapterExtras", [])
         # 章节序号 → chapterId 映射（直接从服务器查）
         import requests
-        r_ch = requests.post("http://xxxx:xxxx/game/getChapter",
-            headers={"Authorization": "Bearer xxxx",
+        r_ch = requests.post(f"{client.base_url}/game/getChapter",
+            headers={"Authorization": f"Bearer {client.token}",
                      "Content-Type": "application/json"},
             json={"worldId": story.world_id}, timeout=30, verify=False)
         sorted_chapters = sorted(r_ch.json().get("data", []), key=lambda c: c.get("sort", 0))

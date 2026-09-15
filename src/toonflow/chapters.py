@@ -109,10 +109,8 @@ def update_chapters(client: ToonflowClient, story: StoryConfig, world_data: dict
     # 获取现有章节（从 getChapter API 获取原始列表，按 sort 字段排序）
     # 注意：get_chapters 的 dict 有 sort 重复覆盖问题，直接从原始列表取值
     import requests
-    API_BASE = ""
-    TOKEN = ""
-    r_ch = requests.post(f"{API_BASE}/game/getChapter",
-        headers={"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"},
+    r_ch = requests.post(f"{client.base_url}/game/getChapter",
+        headers={"Authorization": f"Bearer {client.token}", "Content-Type": "application/json"},
         json={"worldId": story.world_id}, timeout=30, verify=False)
     raw_chapters = r_ch.json().get("data", []) or []
     # 按 sort 字段排序，保持服务器返回顺序
