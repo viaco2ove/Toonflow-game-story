@@ -60,18 +60,34 @@ run.local.ps1
 /nul
 /logs2/
 
-/.workbuddy/
+/.aispace/workbuddy/
 /ai_story/
 /characters_repo/
 /.hide/
 /.trellis/
-/.codex/
+/.aispace/.codex/
 /.agents/
-/.dsh/
+/.aispace/.dsh/
 /__pycache__/
 */__pycache__/
 __pycache__/
 *.mp4
 CLAUDE.md
 AGENTS.md
-/.playwright-cli/
+/.aispace/.playwright-cli/
+
+# >>> init-aispace managed >>>
+# 根上的链接目录是 junction，git 会跟随其内容造成重复跟踪，统一忽略
+/.claude/
+/.qoder/
+# .aispace 下各工具的会话/缓存类数据不进仓库
+.aispace/*/cache/
+.aispace/*/sessions/
+.aispace/*/journal/
+.aispace/*/memory/
+.aispace/*/*.db
+.aispace/*/*.sqlite
+# <<< init-aispace managed <<<
+/.aispace/
+/init-aispace-links.js
+/.serena/

@@ -3,10 +3,10 @@
 python -m src.cli webp --living {config} {path_json}
 python -m src.cli webp --inanimate {config} {path_json}
 
-python -m src.cli webp --living .workbuddy/config/vedio_to_webp.yml  .cache/tasks/chen_nanxuan_webp.json
+python -m src.cli webp --living workbuddy/config/vedio_to_webp.yml  .cache/tasks/chen_nanxuan_webp.json
 
 config 就是配置文件，
-如 .workbuddy/config/vedio_to_webp.yml 用在使用默认配置
+如 workbuddy/config/vedio_to_webp.yml 用在使用默认配置
   .cache/config/vedio_to_webp_temp.yml 用在/d:convert-avatar-video-to-webp角色卡头像制作.mp4 使用birefnet 模型 ，这种单次需求
 
 path_json 就是 生图json 入参。如
@@ -36,25 +36,25 @@ python -m src.cli webp --living --video.mp4 {config} {path_json}
 python -m src.cli webp --living --tmp_frames {config} {path_json}
 # 生成背景图片到 到 .cache/character/{story}/{rolename}/webp/background.png
 python -m src.cli webp --living --background {config} {path_json}
-python -m src.cli webp --living --background .workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
+python -m src.cli webp --living --background workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
 
 # 生成首帧图片到 到 .cache/character/{story}/{rolename}/webp/firstFrame.png
 python -m src.cli webp --living --firstFrame {config} {path_json}
-python -m src.cli webp --living --firstFrame .workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
+python -m src.cli webp --living --firstFrame workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
 
 # 生成抠图后的webp到 .cache/character/{story}/{rolename}/webp/foreground.webp
 python -m src.cli webp --living --foreground.webp {config} {path_json}
-python -m src.cli webp --living --foreground.webp .workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
+python -m src.cli webp --living --foreground.webp workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
 
 python -m src.cli webp --living --webp.json {config} {path_json}
-python -m src.cli webp --living --webp.json .workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
+python -m src.cli webp --living --webp.json workbuddy/config/vedio_to_webp.yml .cache/tasks/chen_nanxuan_webp.json
 
 
 ================================================================================
 入参
 ================================================================================
 
-{config}     配置文件路径，如 .workbuddy/config/vedio_to_webp.yml
+{config}     配置文件路径，如 workbuddy/config/vedio_to_webp.yml
              （相对路径按项目根 Toonflow-game-story/ 解析）
 
 {path_json}  生图 json 入参路径，内容如：
@@ -156,8 +156,8 @@ DEFAULT_RVM_PTH = DEFAULT_MODEL_CACHE / "rvm_mobilenetv3.pth"
 # birefnet_rvm 的 worker（首帧 BiRefNet 精抠 + RVM 传播 + EMA）候选位置
 RVM_WORKER_CANDIDATES = [
     PROJECT_ROOT / "src" / "webp" / "_birefnet_rvm_worker.py",
-    PROJECT_ROOT / ".workbuddy" / "skills" / "convert-avatar-video-to-webp" / "_birefnet_rvm_worker.py",
-    PROJECT_ROOT / ".workbuddy" / "skills" / "convert-avatar-video-to-webp" / "laji" / "_birefnet_rvm_worker.py",
+    PROJECT_ROOT / "workbuddy" / "skills" / "convert-avatar-video-to-webp" / "_birefnet_rvm_worker.py",
+    PROJECT_ROOT / "workbuddy" / "skills" / "convert-avatar-video-to-webp" / "laji" / "_birefnet_rvm_worker.py",
     PROJECT_ROOT / ".ai_keep" / "skills" / "convert-avatar-video-to-webp" / "_birefnet_rvm_worker.py",
 ]
 
@@ -1183,7 +1183,7 @@ def webp_op(config: str | Path, path_json: str | Path, step: str = "",
             type_flag: str = "", keep_tmp: bool = True, ffmpeg: str = "") -> dict:
     """webp操作入口（供 cli 调用）
 
-    config     配置文件路径，如 .workbuddy/config/vedio_to_webp.yml
+    config     配置文件路径，如 workbuddy/config/vedio_to_webp.yml
     path_json  生图 json 入参路径
     step       "" → 跑完整流程；否则为 FULL_PIPELINE 中的单个步骤（支持 STEP_ALIASES
                里的 --video.mp4 / --foreground.webp / --webp.json 等写法）
@@ -1249,7 +1249,7 @@ def add_webp_arguments(parser) -> None:
     ):
         g_step.add_argument(flag, dest="step", action="store_const", const=const, help=helptext)
 
-    parser.add_argument("config", help="配置文件，如 .workbuddy/config/vedio_to_webp.yml")
+    parser.add_argument("config", help="配置文件，如 workbuddy/config/vedio_to_webp.yml")
     parser.add_argument("path_json", help="生图 json 入参路径")
     parser.add_argument("--ffmpeg", default="", help="ffmpeg 路径（默认自动查找）")
     parser.add_argument("--no-keep-tmp", dest="keep_tmp", action="store_false",

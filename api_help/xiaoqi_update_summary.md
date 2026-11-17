@@ -50,7 +50,7 @@
 
 ### 修改文件
 - `ai_story/我的诡异表妹/avatars/xiaoqi_old.png`：旧头像备份
-- `.workbuddy/memory/2026-05-28.md`：工作记录
+- `../.aispace/workbuddy/memory/2026-05-28.md`：工作记录
 
 ## 验证结果
 

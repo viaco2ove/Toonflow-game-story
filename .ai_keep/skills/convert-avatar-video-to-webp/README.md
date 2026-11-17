@@ -8,7 +8,7 @@ webp 动画头像 + png 背景。不走 Toonflow `/game/convertAvatarVideoToGif`
 ## 快速开始
 
 ```bash
-python D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.workbuddy/skills/convert-avatar-video-to-webp/convert.py \
+python D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/workbuddy/skills/convert-avatar-video-to-webp/convert.py \
   --mp4    "<mp4 路径>" \
   --out-dir "<输出目录>"
 ```

@@ -14,7 +14,7 @@ If a Trellis command is available on your platform (e.g. `/trellis:finish-work`,
 
 If you're using Codex or another agent-capable tool, additional project-scoped helpers may live in:
 - `.agents/skills/` — reusable Trellis skills
-- `.codex/agents/` — optional custom subagents
+- `../.aispace/.codex/agents/` — optional custom subagents
 
 Managed by Trellis. Edits outside this block are preserved; edits inside may be overwritten by a future `trellis update`.
 

@@ -319,7 +319,7 @@ webp.json
 ### 单角色
 
 ```bash
-python D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.workbuddy/skills/convert-avatar-video-to-webp/convert.py \
+python D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/workbuddy/skills/convert-avatar-video-to-webp/convert.py \
   --mp4   "D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.cache/character/黑塔：从超忆症开始成神/林凡/林凡_6s.mp4" \
   --out-dir "D:/Users/viaco/tools/Toonflow-game/Toonflow-game-story/.cache/character/黑塔：从超忆症开始成神/林凡/webp"
 ```
