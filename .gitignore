@@ -80,7 +80,9 @@ AGENTS.md
 # 根上的链接目录是 junction，git 会跟随其内容造成重复跟踪，统一忽略
 /.claude/
 /.qoder/
-# .aispace 下各工具的会话/缓存类数据不进仓库
+/.workbuddy/
+/.zcode/
+# .aispace 下各工具的会话/缓存类数据不进仓库（本体数据当前由 /.aispace/ 整体忽略）
 .aispace/*/cache/
 .aispace/*/sessions/
 .aispace/*/journal/
