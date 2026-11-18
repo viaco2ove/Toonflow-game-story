@@ -1,11 +1,11 @@
 ---
 name: ai_vedio_gen
 description: >-
-  AI 视频生成技能。基于 WorkBuddy 内置的 VideoGen 工具，把文字描述或一张图片
+  AI 视频生成技能。基于 WorkBuddy 内置的 VideoGen 等工具，把文字描述或一张图片
   生成短视频（MP4）。支持文生视频、图生视频、首尾帧插值三种模式。
   触发词：生成视频、图生视频、视频生成、ai video、做一段视频、立绘动起来。
 ---
-
+就是WorkBuddy调用自己的工具去生成视频
 # AI 
 # AI 视频生成 (ai_vedio_gen) -workbuddy
 
