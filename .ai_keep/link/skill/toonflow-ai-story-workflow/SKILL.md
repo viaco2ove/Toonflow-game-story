@@ -12,8 +12,8 @@ toonflow-ai-story-workflow 详情查看
 [toonflow-ai-story-workflow](../../../.workbuddy/skills/toonflow-ai-story-workflow)
 
 使用例子 
-/toonflow-ai-story-workflow 漫剧《末世选择，从解析神明开始成神》 - 免费好剧，尽在红果
+- /toonflow-ai-story-workflow 漫剧《末世选择，从解析神明开始成神》 - 免费好剧，尽在红果
 点击链接打开👉https://novelquickapp.com/s/pPK-RrDKEz8/
 复制本条消息后，打开「红果短剧App」后免费看全集~
-/toonflow-ai-story-workflow 完成到那一步了
+- /toonflow-ai-story-workflow 完成到那一步了
 
