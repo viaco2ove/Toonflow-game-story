@@ -82,6 +82,7 @@ AGENTS.md
 /.qoder/
 /.workbuddy/
 /.zcode/
+/.doubao/
 # .aispace 下各工具的会话/缓存类数据不进仓库（本体数据当前由 /.aispace/ 整体忽略）
 .aispace/*/cache/
 .aispace/*/sessions/

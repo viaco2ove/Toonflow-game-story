@@ -1,4 +1,6 @@
 # minimax code 视频生成工具
+调用minimax code 自己的视频生成工具
+例如：
 视频生成工具（MiniMax Video/视频生成/gen_videos / batch_text_to_video / batch_image_to_video），支持：
 
 文生视频 — 纯文字描述生成
