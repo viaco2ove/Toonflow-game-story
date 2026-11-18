@@ -12,6 +12,20 @@ curl -sS -X POST "$AGNES_BASE_URL/videos" \
     "aspect_ratio": "16:9"
   }'
 
+## 参考图
+curl --location --request GET 'https://api.agnes-ai.cn/agnesapi?video_id=task_h4rycTFDM6UOONMKWqee35FksPCMDp7v&model_name=agnes-video-2.5-flash' \
+--header 'Authorization: Bearer sk-xxx' \
+--header 'Content-Type: application/json' \
+--data '{
+    "model": "agnes-video-2.5-flash",
+    "prompt": "角色立绘轻微呼吸起伏，衣摆和发丝随风缓缓飘动，镜头完全固定不动，无运镜，人物构图不变，电影感柔光",
+    "seconds": "5",
+    "mode": "reference",
+    "size": "720P",
+    "aspect_ratio": "16:9",
+    "images": ["https://storage.to/18jY9G4mg"]
+  }'
+
 ### 查询任务结果
 curl -sS "https://api.agnes-ai.cn/agnesapi?video_id=VIDEO_ID&model_name=agnes-video-2.5-flash" \
   -H "Authorization: Bearer $AGNES_API_KEY"
