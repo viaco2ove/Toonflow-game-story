@@ -12,9 +12,9 @@ curl -sS -X POST "$AGNES_BASE_URL/videos" \
     "aspect_ratio": "16:9"
   }'
 
-## 参考图
-curl --location --request GET 'https://api.agnes-ai.cn/agnesapi?video_id=task_h4rycTFDM6UOONMKWqee35FksPCMDp7v&model_name=agnes-video-2.5-flash' \
---header 'Authorization: Bearer sk-xxx' \
+### 参考图
+curl --location 'https://api.agnes-ai.cn/v1/videos' \
+--header 'Authorization: Bearer sk-xxxx' \
 --header 'Content-Type: application/json' \
 --data '{
     "model": "agnes-video-2.5-flash",
@@ -24,7 +24,7 @@ curl --location --request GET 'https://api.agnes-ai.cn/agnesapi?video_id=task_h4
     "size": "720P",
     "aspect_ratio": "16:9",
     "images": ["https://storage.to/18jY9G4mg"]
-  }'
+}'
 
 ### 查询任务结果
 curl -sS "https://api.agnes-ai.cn/agnesapi?video_id=VIDEO_ID&model_name=agnes-video-2.5-flash" \
